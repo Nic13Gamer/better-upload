@@ -5,6 +5,6 @@ export function createSlug(text: string) {
     .toLowerCase()
     .trim()
     .replace(/-/g, ' ') // replace dashes with spaces
-    .replace(/[^a-z0-9 ]/g, '') // remove all chars not letters, numbers and spaces (to be replaced)
+    .replace(/[^a-z0-9. ]/g, '') // remove all chars not letters, numbers and spaces (to be replaced)
     .replace(/\s+/g, '-');
 }
