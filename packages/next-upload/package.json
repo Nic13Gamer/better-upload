@@ -22,7 +22,8 @@
     }
   },
   "dependencies": {
-    "@aws-sdk/s3-request-presigner": "^3.645.0"
+    "@aws-sdk/s3-request-presigner": "^3.645.0",
+    "zod": "^3.23.8"
   },
   "peerDependencies": {
     "@aws-sdk/client-s3": "^3.645.0",
