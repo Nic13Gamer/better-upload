@@ -13,4 +13,4 @@ export const uploadFileSchema = z.object({
     .min(1),
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
-export type uploadFileSchema = z.infer<typeof uploadFileSchema>;
+export type UploadFileSchema = z.infer<typeof uploadFileSchema>;
