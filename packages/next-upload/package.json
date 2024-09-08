@@ -1,0 +1,44 @@
+{
+  "name": "next-upload",
+  "description": "Simple file uploads for Next.js",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "tsc"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    "./server": {
+      "import": "./dist/server/index.mjs",
+      "default": "./dist/server/index.js"
+    },
+    "./client": {
+      "import": "./dist/client/index.mjs",
+      "default": "./dist/client/index.js"
+    }
+  },
+  "devDependencies": {
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4"
+  },
+  "keywords": [
+    "next",
+    "nextjs",
+    "upload",
+    "file"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Nic13Gamer/next-upload",
+  "bugs": {
+    "url": "https://github.com/Nic13Gamer/next-upload/issues"
+  },
+  "author": "Nicholas",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nic13Gamer/next-upload.git"
+  }
+}
