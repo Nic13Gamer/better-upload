@@ -23,6 +23,9 @@ importers:
 
   apps/example:
     dependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.645.0
+        version: 3.645.0
       '@radix-ui/react-icons':
         specifier: ^1.3.0
         version: 1.3.0(react@18.3.1)
