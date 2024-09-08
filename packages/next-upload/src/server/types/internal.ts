@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 
-export type Metadata = Record<string, string>;
-export type OptionalMetadata = Record<string, string | undefined>;
+export type Metadata = Record<string, unknown>;
+export type ClientMetadata = Record<string, unknown | undefined>;
 
 export type UploadedFileInfo = {
   /**
@@ -94,7 +94,7 @@ export type Route<M> = {
     /**
      * Metadata sent from the client.
      */
-    clientMetadata: OptionalMetadata;
+    clientMetadata: ClientMetadata;
   }) =>
     | { bucketKey?: string; metadata?: M }
     | void
@@ -105,7 +105,7 @@ export type Route<M> = {
    *
    * Metadata sent from `onBeforeUpload` is available as `metadata`. Metadata sent from the client is available as `clientMetadata`.
    *
-   * You can return additional metadata to be sent back to the client.
+   * You can return additional metadata to be sent back to the client, needs to be JSON serializable.
    */
   onAfterSignedUrl?: (data: {
     /**
@@ -126,9 +126,9 @@ export type Route<M> = {
     /**
      * Metadata sent from the client.
      */
-    clientMetadata: OptionalMetadata;
+    clientMetadata: ClientMetadata;
   }) =>
-    | { metadata?: Record<string, string> }
+    | { metadata?: Record<string, unknown> }
     | void
-    | Promise<{ metadata?: Record<string, string> } | void>;
+    | Promise<{ metadata?: Record<string, unknown> } | void>;
 };
