@@ -88,9 +88,15 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.645.0
         version: 3.645.0
+      '@types/react':
+        specifier: ^18
+        version: 18.3.5
       next:
         specifier: 14.2.8
         version: 14.2.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: ^18
+        version: 18.3.1
       tsup:
         specifier: ^8.2.4
         version: 8.2.4(jiti@1.21.6)(postcss@8.4.45)(typescript@5.5.4)(yaml@2.5.1)

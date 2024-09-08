@@ -27,11 +27,14 @@
   },
   "peerDependencies": {
     "@aws-sdk/client-s3": "^3.645.0",
-    "next": "14.2.8"
+    "next": "14.2.8",
+    "react": "^18"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.645.0",
+    "@types/react": "^18",
     "next": "14.2.8",
+    "react": "^18",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },

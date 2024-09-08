@@ -8,7 +8,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "lib": ["es2022"],
+    "lib": ["es2022", "dom"],
     "noEmit": true,
 
     "moduleResolution": "node",
