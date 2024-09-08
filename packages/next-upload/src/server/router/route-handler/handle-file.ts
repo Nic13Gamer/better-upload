@@ -1,6 +1,7 @@
 import { config } from '@/server/config';
 import { UploadFileError } from '@/server/error';
 import type { Route } from '@/server/types/internal';
+import { createSlug } from '@/server/utils/internal/slug';
 import { isFileTypeAllowed } from '@/server/utils/internal/upload-file';
 import type { UploadFileSchema } from '@/server/validations';
 import { PutObjectCommand, type S3Client } from '@aws-sdk/client-s3';
@@ -47,7 +48,7 @@ export async function handleFile({
     );
   }
 
-  let bucketKey = `${crypto.randomUUID()}-${file.name}`;
+  let bucketKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
   let beforeUploadMetadata = {};
 
   try {
