@@ -50,7 +50,6 @@ export async function handleFile({
 
   let bucketKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
   let beforeUploadMetadata = {};
-
   try {
     const onBeforeUpload = await route.onBeforeUpload?.({
       req,
@@ -71,10 +70,7 @@ export async function handleFile({
       );
     }
 
-    return NextResponse.json(
-      { error: { message: 'Failed to upload file.' } },
-      { status: 500 }
-    );
+    throw error;
   }
 
   const signedUrl = await getSignedUrl(
@@ -85,7 +81,7 @@ export async function handleFile({
       ContentType: file.type,
       ContentLength: file.size,
     }),
-    { expiresIn: route.signedUrlExpiresIn || 60 }
+    { expiresIn: route.signedUrlExpiresIn || config.defaultSignedUrlExpiresIn }
   );
 
   let responseMetadata = {};

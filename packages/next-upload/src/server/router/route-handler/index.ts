@@ -2,6 +2,7 @@ import type { Router } from '@/server/types/public';
 import { uploadFileSchema } from '@/server/validations';
 import { NextRequest, NextResponse } from 'next/server';
 import { handleFile } from './handle-file';
+import { handleFiles } from './handle-files';
 
 export function createUploadRouteHandler(router: Router) {
   return {
@@ -36,15 +37,13 @@ export function createUploadRouteHandler(router: Router) {
       const route = router.routes[data.route]!();
 
       if (route.multipleFiles) {
-        return NextResponse.json(
-          {
-            error: {
-              message:
-                'Uploading more than one file is currently not supported.',
-            },
-          },
-          { status: 400 }
-        );
+        return handleFiles({
+          req,
+          client: router.client,
+          bucketName: router.bucketName,
+          route,
+          data,
+        });
       }
 
       return handleFile({
