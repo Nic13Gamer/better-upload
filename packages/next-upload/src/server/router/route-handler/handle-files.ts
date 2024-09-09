@@ -132,7 +132,7 @@ export async function handleFiles({
   }
 
   return NextResponse.json({
-    metadata: responseMetadata,
     signedUrls,
+    metadata: responseMetadata,
   });
 }
