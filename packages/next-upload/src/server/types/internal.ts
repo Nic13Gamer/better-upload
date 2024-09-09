@@ -25,9 +25,9 @@ export type UploadedFileInfo = {
   bucketKey: string;
 };
 
-export type ExecRoute = () => Route<any>;
+export type ExecRoute = () => Route<any, boolean>;
 
-export type Route<M> = {
+export type Route<M extends Metadata, U extends boolean> = {
   /**
    * Maximum file size in bytes.
    *
@@ -74,31 +74,43 @@ export type Route<M> = {
   signedUrlExpiresIn?: number;
 
   /**
-   * Use this callback to run custom logic before uploading a file, such as auth and rate-limiting. You can also return a custom bucket key.
+   * Use this callback to run custom logic before uploading a file, such as auth and rate-limiting. You can also return a custom bucket key (use `generateBucketKey` for multiple files).
    *
    * Metadata sent from the client is also available.
    *
    * Throw an `UploadFileError` to reject the file upload. This will also send the error message to the client.
    */
-  onBeforeUpload?: (data: {
-    /**
-     * The incoming request from Next.js.
-     */
-    req: NextRequest;
+  onBeforeUpload?: (
+    data: {
+      /**
+       * The incoming request from Next.js.
+       */
+      req: NextRequest;
 
-    /**
-     * Information about the file to be uploaded.
-     */
-    file: Omit<UploadedFileInfo, 'bucketKey'>;
-
-    /**
-     * Metadata sent from the client.
-     */
-    clientMetadata: ClientMetadata;
-  }) =>
-    | { bucketKey?: string; metadata?: M }
+      /**
+       * Metadata sent from the client.
+       */
+      clientMetadata: ClientMetadata;
+    } & (U extends false
+      ? {
+          /**
+           * Information about the file to be uploaded.
+           */
+          file: Omit<UploadedFileInfo, 'bucketKey'>;
+        }
+      : {
+          /**
+           * Information about the files to be uploaded.
+           */
+          files: Omit<UploadedFileInfo, 'bucketKey'>[];
+        })
+  ) =>
+    | ({ metadata?: M } & (U extends false ? { bucketKey?: string } : {}))
     | void
-    | Promise<{ bucketKey?: string; metadata?: M } | void>;
+    | Promise<
+        | ({ metadata?: M } & (U extends false ? { bucketKey?: string } : {}))
+        | void
+      >;
 
   /**
    * Use this callback to run custom logic after creating the signed URL, such as saving data to a database.
@@ -107,28 +119,87 @@ export type Route<M> = {
    *
    * You can return additional metadata to be sent back to the client, needs to be JSON serializable.
    */
-  onAfterSignedUrl?: (data: {
-    /**
-     * The incoming request from Next.js.
-     */
-    req: NextRequest;
+  onAfterSignedUrl?: (
+    data: {
+      /**
+       * The incoming request from Next.js.
+       */
+      req: NextRequest;
 
-    /**
-     * Information about the uploaded file, including the bucket key.
-     */
-    file: UploadedFileInfo;
+      /**
+       * Metadata returned by `onBeforeUpload`.
+       */
+      metadata: M;
 
-    /**
-     * Metadata sent from `onBeforeUpload`.
-     */
-    metadata: M;
-
-    /**
-     * Metadata sent from the client.
-     */
-    clientMetadata: ClientMetadata;
-  }) =>
+      /**
+       * Metadata sent from the client.
+       */
+      clientMetadata: ClientMetadata;
+    } & (U extends false
+      ? {
+          /**
+           * Information about the uploaded file, including the bucket key.
+           */
+          file: UploadedFileInfo;
+        }
+      : {
+          /**
+           * Information about the uploaded files, including the bucket keys.
+           */
+          files: UploadedFileInfo[];
+        })
+  ) =>
     | { metadata?: Record<string, unknown> }
     | void
     | Promise<{ metadata?: Record<string, unknown> } | void>;
-};
+} & (U extends true
+  ? {
+      /**
+       * Allow more than one file to be uploaded.
+       *
+       * @default false
+       */
+      multipleFiles: U;
+
+      /**
+       * The maximum number of files that can be uploaded.
+       *
+       * @default 3
+       */
+      maxFiles?: number;
+
+      /**
+       * Use this callback to generate a custom bucket key for each file. Will be called for each file, in parallel.
+       *
+       * Metadata sent from `onBeforeUpload` is available as `metadata`. Metadata sent from the client is available as `clientMetadata`.
+       */
+      generateBucketKey?: (data: {
+        /**
+         * The incoming request from Next.js.
+         */
+        req: NextRequest;
+
+        /**
+         * Information about the file to be uploaded.
+         */
+        file: Omit<UploadedFileInfo, 'bucketKey'>;
+
+        /**
+         * Metadata returned by `onBeforeUpload`.
+         */
+        metadata: M;
+
+        /**
+         * Metadata sent from the client.
+         */
+        clientMetadata: ClientMetadata;
+      }) => string | Promise<string>;
+    }
+  : {
+      /**
+       * Allow more than one file to be uploaded.
+       *
+       * @default false
+       */
+      multipleFiles?: U;
+    });

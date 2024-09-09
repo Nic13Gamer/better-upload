@@ -35,7 +35,7 @@ export function createUploadRouteHandler(router: Router) {
 
       const route = router.routes[data.route]!();
 
-      if (data.files.length > 1) {
+      if (route.multipleFiles) {
         return NextResponse.json(
           {
             error: {

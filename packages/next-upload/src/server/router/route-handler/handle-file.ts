@@ -18,7 +18,7 @@ export async function handleFile({
   req: NextRequest;
   client: S3Client;
   bucketName: string;
-  route: Route<any>;
+  route: Route<any, false>;
   data: UploadFileSchema;
 }) {
   const file = data.files[0]!;
