@@ -11,7 +11,7 @@ export const { POST } = createUploadRouteHandler({
     images: route({
       fileTypes: ['image/*'],
       multipleFiles: true,
-      maxFiles: 2,
+      maxFiles: 4,
       onBeforeUpload() {
         const uploadId = crypto.randomUUID();
         console.log('Before upload', uploadId);

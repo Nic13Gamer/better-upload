@@ -15,6 +15,15 @@ type UseUploadFilesProps = {
   route: string;
 
   /**
+   * Whether files should be uploaded sequentially, rather than in parallel.
+   *
+   * This can be useful to reduce the load on the S3 server, but it will take longer to upload all files.
+   *
+   * @default false
+   */
+  sequential?: boolean;
+
+  /**
    * Callback that is called after the files are successfully uploaded.
    */
   onSuccess?: (data: {
@@ -38,6 +47,7 @@ type UseUploadFilesProps = {
 export function useUploadFiles({
   api = '/api/upload',
   route,
+  sequential,
   onSuccess,
   onError,
 }: UseUploadFilesProps) {
@@ -126,45 +136,51 @@ export function useUploadFiles({
 
         const uploaded: UploadedFile[] = [];
 
-        await Promise.all(
-          fileArray.map(async (file) => {
-            const data = signedUrls.find(
-              (url: any) =>
-                url.file.name === file.name &&
-                url.file.size === file.size &&
-                url.file.type === file.type
-            );
+        async function uploadSingleFile(file: File) {
+          const data = signedUrls.find(
+            (url: any) =>
+              url.file.name === file.name &&
+              url.file.size === file.size &&
+              url.file.type === file.type
+          );
 
-            const uploadRes = await fetch(data.signedUrl, {
-              method: 'PUT',
-              body: file,
-              headers: {
-                'Content-Type': file.type,
-              },
-            });
+          const uploadRes = await fetch(data.signedUrl, {
+            method: 'PUT',
+            body: file,
+            headers: {
+              'Content-Type': file.type,
+            },
+          });
 
-            if (!uploadRes.ok) {
-              setIsError(true);
-              setIsSuccess(false);
-              setIsPending(false);
+          if (!uploadRes.ok) {
+            setIsError(true);
+            setIsSuccess(false);
+            setIsPending(false);
 
-              setError({ type: 'unknown', message: null });
-              onError?.({ type: 'unknown', message: null });
+            setError({ type: 'unknown', message: null });
+            onError?.({ type: 'unknown', message: null });
 
-              return;
-            }
+            return;
+          }
 
-            const uploadedFile: UploadedFile = {
-              raw: file,
-              name: data.file.name,
-              size: data.file.size,
-              type: data.file.type,
-              bucketKey: data.file.bucketKey,
-            };
+          const uploadedFile: UploadedFile = {
+            raw: file,
+            name: data.file.name,
+            size: data.file.size,
+            type: data.file.type,
+            bucketKey: data.file.bucketKey,
+          };
 
-            uploaded.push(uploadedFile);
-          })
-        );
+          uploaded.push(uploadedFile);
+        }
+
+        if (sequential) {
+          for (const file of fileArray) {
+            await uploadSingleFile(file);
+          }
+        } else {
+          await Promise.all(fileArray.map(uploadSingleFile));
+        }
 
         setUploadedFiles(uploaded);
         setIsPending(false);
