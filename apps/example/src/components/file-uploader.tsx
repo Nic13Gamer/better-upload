@@ -1,12 +1,17 @@
 'use client';
 
 import { useUploadFile } from 'next-upload/client';
+import { toast } from 'sonner';
 
 export function FileUploader() {
-  const { upload } = useUploadFile({
+  const { upload, reset } = useUploadFile({
     route: 'image',
     onSuccess() {
-      console.log('File uploaded!');
+      reset();
+      toast.success('File uploaded');
+    },
+    onError(error) {
+      toast.error(error.message);
     },
   });
 

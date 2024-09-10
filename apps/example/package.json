@@ -15,9 +15,11 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.439.0",
     "next": "14.2.8",
+    "next-themes": "^0.3.0",
     "next-upload": "workspace:*",
     "react": "^18",
     "react-dom": "^18",
+    "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7"
   },
