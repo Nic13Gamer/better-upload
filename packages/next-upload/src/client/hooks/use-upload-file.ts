@@ -108,6 +108,23 @@ export function useUploadFile({
           metadata: uploadedMetadata,
         } = (await res.json()) as any;
 
+        if (!signedUrl || !signedFile) {
+          setIsError(true);
+          setIsSuccess(false);
+          setIsPending(false);
+
+          setError({
+            type: 'unknown',
+            message: 'No signed URL. Is the route set to multiple files?',
+          });
+          onError?.({
+            type: 'unknown',
+            message: 'No signed URL. Is the route set to multiple files?',
+          });
+
+          return;
+        }
+
         const uploadRes = await fetch(signedUrl, {
           method: 'PUT',
           body: file,

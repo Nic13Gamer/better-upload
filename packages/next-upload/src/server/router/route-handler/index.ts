@@ -44,6 +44,16 @@ export function createUploadRouteHandler(router: Router) {
           route,
           data,
         });
+      } else if (data.files.length > 1) {
+        return NextResponse.json(
+          {
+            error: {
+              type: 'too_many_files',
+              message: 'Multiple files are not allowed.',
+            },
+          },
+          { status: 400 }
+        );
       }
 
       return handleFile({

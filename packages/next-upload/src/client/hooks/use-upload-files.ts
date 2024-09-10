@@ -107,6 +107,23 @@ export function useUploadFiles({
         const { signedUrls, metadata: uploadedMetadata } =
           (await res.json()) as any;
 
+        if (!signedUrls) {
+          setIsError(true);
+          setIsSuccess(false);
+          setIsPending(false);
+
+          setError({
+            type: 'unknown',
+            message: 'No signed URLs. Is the route set to multiple files?',
+          });
+          onError?.({
+            type: 'unknown',
+            message: 'No signed URLs. Is the route set to multiple files?',
+          });
+
+          return;
+        }
+
         const uploaded: UploadedFile[] = [];
 
         await Promise.all(
