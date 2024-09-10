@@ -105,10 +105,34 @@ export type Route<M extends Metadata, U extends boolean> = {
           files: Omit<UploadedFileInfo, 'bucketKey'>[];
         })
   ) =>
-    | ({ metadata?: M } & (U extends false ? { bucketKey?: string } : {}))
+    | ({ metadata?: M } & (U extends false
+        ? { bucketKey?: string }
+        : {
+            /**
+             * Use this callback to generate a custom bucket key for a file. Will be called for each file, in parallel.
+             */
+            generateBucketKey?: (data: {
+              /**
+               * Information about the file to be uploaded.
+               */
+              file: Omit<UploadedFileInfo, 'bucketKey'>;
+            }) => string | Promise<string>;
+          }))
     | void
     | Promise<
-        | ({ metadata?: M } & (U extends false ? { bucketKey?: string } : {}))
+        | ({ metadata?: M } & (U extends false
+            ? { bucketKey?: string }
+            : {
+                /**
+                 * Use this callback to generate a custom bucket key for a file. Will be called for each file, in parallel.
+                 */
+                generateBucketKey?: (data: {
+                  /**
+                   * Information about the file to be uploaded.
+                   */
+                  file: Omit<UploadedFileInfo, 'bucketKey'>;
+                }) => string | Promise<string>;
+              }))
         | void
       >;
 
@@ -167,33 +191,6 @@ export type Route<M extends Metadata, U extends boolean> = {
        * @default 3
        */
       maxFiles?: number;
-
-      /**
-       * Use this callback to generate a custom bucket key for each file. Will be called for each file, in parallel.
-       *
-       * Metadata sent from `onBeforeUpload` is available as `metadata`. Metadata sent from the client is available as `clientMetadata`.
-       */
-      generateBucketKey?: (data: {
-        /**
-         * The incoming request from Next.js.
-         */
-        req: NextRequest;
-
-        /**
-         * Information about the file to be uploaded.
-         */
-        file: Omit<UploadedFileInfo, 'bucketKey'>;
-
-        /**
-         * Metadata returned by `onBeforeUpload`.
-         */
-        metadata: M;
-
-        /**
-         * Metadata sent from the client.
-         */
-        clientMetadata: ClientMetadata;
-      }) => string | Promise<string>;
     }
   : {
       /**

@@ -64,6 +64,7 @@ export async function handleFiles({
   });
 
   let beforeUploadMetadata = {};
+  let generateBucketKeyCallback = null;
   try {
     const onBeforeUpload = await route.onBeforeUpload?.({
       req,
@@ -72,6 +73,7 @@ export async function handleFiles({
     });
 
     beforeUploadMetadata = onBeforeUpload?.metadata || {};
+    generateBucketKeyCallback = onBeforeUpload?.generateBucketKey || null;
   } catch (error) {
     if (error instanceof UploadFileError) {
       return NextResponse.json(
@@ -87,12 +89,9 @@ export async function handleFiles({
     files.map(async (file) => {
       let bucketKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
 
-      if (route.generateBucketKey) {
-        bucketKey = await route.generateBucketKey({
-          req,
+      if (generateBucketKeyCallback) {
+        bucketKey = await generateBucketKeyCallback({
           file,
-          metadata: beforeUploadMetadata,
-          clientMetadata: data.metadata || {},
         });
       }
 
