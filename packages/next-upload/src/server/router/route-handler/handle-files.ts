@@ -109,7 +109,7 @@ export async function handleFiles({
         }
       );
 
-      return { signedUrl, bucketKey, file };
+      return { signedUrl, file: { ...file, bucketKey } };
     })
   );
 
@@ -117,10 +117,7 @@ export async function handleFiles({
   try {
     const onAfterSignedUrl = await route.onAfterSignedUrl?.({
       req,
-      files: signedUrls.map(({ file, bucketKey }) => ({
-        ...file,
-        bucketKey,
-      })),
+      files: signedUrls.map(({ file }) => file),
       metadata: beforeUploadMetadata,
       clientMetadata: data.metadata || {},
     });

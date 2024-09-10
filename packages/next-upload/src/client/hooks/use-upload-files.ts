@@ -142,7 +142,7 @@ export function useUploadFiles({
               name: data.file.name,
               size: data.file.size,
               type: data.file.type,
-              bucketKey: data.bucketKey,
+              bucketKey: data.file.bucketKey,
             };
 
             uploaded.push(uploadedFile);
