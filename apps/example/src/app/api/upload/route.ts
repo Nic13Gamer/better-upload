@@ -8,5 +8,22 @@ export const { POST } = createUploadRouteHandler({
     image: route({
       fileTypes: ['image/*'],
     }),
+    images: route({
+      fileTypes: ['image/*'],
+      multipleFiles: true,
+      maxFiles: 2,
+      onBeforeUpload() {
+        const uploadId = crypto.randomUUID();
+        console.log('Before upload', uploadId);
+
+        return {
+          generateBucketKey({ file }) {
+            console.log('Generate bucket key', file.name);
+
+            return `multiple/${uploadId}/${file.name}`;
+          },
+        };
+      },
+    }),
   },
 });
