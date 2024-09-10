@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
-import type { UploadedFile } from '../types/internal';
-import type { ClientUploadFileError } from '../types/public';
+import type { ClientUploadFileError, UploadedFile } from '../types/public';
 
 type UseUploadFileProps = {
   /**
