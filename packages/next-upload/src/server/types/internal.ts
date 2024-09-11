@@ -74,7 +74,7 @@ export type Route<M extends Metadata, U extends boolean> = {
   signedUrlExpiresIn?: number;
 
   /**
-   * Use this callback to run custom logic before uploading a file, such as auth and rate-limiting. You can also return a custom bucket key (use `generateBucketKey` for multiple files). This runs only once regardless of the number of files uploaded.
+   * Use this callback to run custom logic before uploading a file, such as auth and rate-limiting. You can also return a custom bucket key (return `generateBucketKey` for multiple files). This runs only once regardless of the number of files uploaded.
    *
    * Metadata sent from the client is also available.
    *
