@@ -17,8 +17,8 @@
       "default": "./dist/server/index.js"
     },
     "./server/helpers": {
-      "import": "./dist/server/helpers/index.mjs",
-      "default": "./dist/server/helpers/index.js"
+      "import": "./dist/server-helpers/index.mjs",
+      "default": "./dist/server-helpers/index.js"
     },
     "./client": {
       "import": "./dist/client/index.mjs",
