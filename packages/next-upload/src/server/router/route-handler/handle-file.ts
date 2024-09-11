@@ -48,7 +48,7 @@ export async function handleFile({
     );
   }
 
-  let bucketKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
+  let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
   let beforeUploadMetadata = {};
   try {
     const onBeforeUpload = await route.onBeforeUpload?.({
@@ -57,8 +57,8 @@ export async function handleFile({
       clientMetadata: data.metadata || {},
     });
 
-    if (onBeforeUpload?.bucketKey) {
-      bucketKey = onBeforeUpload.bucketKey;
+    if (onBeforeUpload?.objectKey) {
+      objectKey = onBeforeUpload.objectKey;
     }
 
     beforeUploadMetadata = onBeforeUpload?.metadata || {};
@@ -77,7 +77,7 @@ export async function handleFile({
     client,
     new PutObjectCommand({
       Bucket: bucketName,
-      Key: bucketKey,
+      Key: objectKey,
       ContentType: file.type,
       ContentLength: file.size,
     }),
@@ -88,7 +88,7 @@ export async function handleFile({
   try {
     const onAfterSignedUrl = await route.onAfterSignedUrl?.({
       req,
-      file: { ...file, bucketKey },
+      file: { ...file, objectKey },
       metadata: beforeUploadMetadata,
       clientMetadata: data.metadata || {},
     });
@@ -103,7 +103,7 @@ export async function handleFile({
     metadata: responseMetadata,
     file: {
       ...file,
-      bucketKey,
+      objectKey,
     },
   });
 }

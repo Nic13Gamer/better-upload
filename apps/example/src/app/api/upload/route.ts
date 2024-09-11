@@ -14,11 +14,11 @@ export const { POST } = createUploadRouteHandler({
       maxFiles: 4,
       onBeforeUpload() {
         const uploadId = crypto.randomUUID();
-        console.log('Before upload', uploadId);
+        console.log('Before upload:', uploadId);
 
         return {
-          generateBucketKey({ file }) {
-            console.log('Generate bucket key', file.name);
+          generateObjectKey({ file }) {
+            console.log('Generate object key:', file.name);
 
             return `multiple/${uploadId}/${file.name}`;
           },

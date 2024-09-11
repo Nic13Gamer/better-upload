@@ -3,7 +3,7 @@ export type UploadedFile = {
   name: string;
   size: number;
   type: string;
-  bucketKey: string;
+  objectKey: string;
 };
 
 export type ClientUploadFileError = {

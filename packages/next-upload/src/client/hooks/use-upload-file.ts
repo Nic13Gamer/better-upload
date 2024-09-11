@@ -149,7 +149,7 @@ export function useUploadFile({
           name: signedFile.name,
           size: signedFile.size,
           type: signedFile.type,
-          bucketKey: signedFile.bucketKey,
+          objectKey: signedFile.objectKey,
         };
 
         setUploadedFile(uploaded);

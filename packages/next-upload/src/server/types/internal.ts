@@ -20,9 +20,9 @@ export type UploadedFileInfo = {
   type: string;
 
   /**
-   * The bucket key where the file will be uploaded to.
+   * The object key where the file will be uploaded to.
    */
-  bucketKey: string;
+  objectKey: string;
 };
 
 export type ExecRoute = () => Route<any, boolean>;
@@ -74,7 +74,7 @@ export type Route<M extends Metadata, U extends boolean> = {
   signedUrlExpiresIn?: number;
 
   /**
-   * Use this callback to run custom logic before uploading a file, such as auth and rate-limiting. You can also return a custom bucket key (return `generateBucketKey` for multiple files). This runs only once regardless of the number of files uploaded.
+   * Use this callback to run custom logic before uploading a file, such as auth and rate-limiting. You can also return a custom object key (return `generateObjectKey` for multiple files). This runs only once regardless of the number of files uploaded.
    *
    * Metadata sent from the client is also available.
    *
@@ -96,41 +96,41 @@ export type Route<M extends Metadata, U extends boolean> = {
           /**
            * Information about the file to be uploaded.
            */
-          file: Omit<UploadedFileInfo, 'bucketKey'>;
+          file: Omit<UploadedFileInfo, 'objectKey'>;
         }
       : {
           /**
            * Information about the files to be uploaded.
            */
-          files: Omit<UploadedFileInfo, 'bucketKey'>[];
+          files: Omit<UploadedFileInfo, 'objectKey'>[];
         })
   ) =>
     | ({ metadata?: M } & (U extends false
-        ? { bucketKey?: string }
+        ? { objectKey?: string }
         : {
             /**
-             * Use this callback to generate a custom bucket key for a file. Will be called for each file, in parallel.
+             * Use this callback to generate a custom object key for a file. Will be called for each file, in parallel.
              */
-            generateBucketKey?: (data: {
+            generateObjectKey?: (data: {
               /**
                * Information about the file to be uploaded.
                */
-              file: Omit<UploadedFileInfo, 'bucketKey'>;
+              file: Omit<UploadedFileInfo, 'objectKey'>;
             }) => string | Promise<string>;
           }))
     | void
     | Promise<
         | ({ metadata?: M } & (U extends false
-            ? { bucketKey?: string }
+            ? { objectKey?: string }
             : {
                 /**
-                 * Use this callback to generate a custom bucket key for a file. Will be called for each file, in parallel.
+                 * Use this callback to generate a custom object key for a file. Will be called for each file, in parallel.
                  */
-                generateBucketKey?: (data: {
+                generateObjectKey?: (data: {
                   /**
                    * Information about the file to be uploaded.
                    */
-                  file: Omit<UploadedFileInfo, 'bucketKey'>;
+                  file: Omit<UploadedFileInfo, 'objectKey'>;
                 }) => string | Promise<string>;
               }))
         | void
@@ -162,13 +162,13 @@ export type Route<M extends Metadata, U extends boolean> = {
     } & (U extends false
       ? {
           /**
-           * Information about the uploaded file, including the bucket key.
+           * Information about the uploaded file, including the object key.
            */
           file: UploadedFileInfo;
         }
       : {
           /**
-           * Information about the uploaded files, including the bucket keys.
+           * Information about the uploaded files, including the object keys.
            */
           files: UploadedFileInfo[];
         })
