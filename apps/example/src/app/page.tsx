@@ -8,7 +8,7 @@ export default function Home() {
         <h1 className="text-2xl font-semibold">Next.js File Upload Example</h1>
 
         <div className="w-full space-y-1">
-          <p className="text-sm font-medium">Single file</p>
+          <p className="text-sm font-medium">Single file (template)</p>
 
           <FileUploader />
         </div>
