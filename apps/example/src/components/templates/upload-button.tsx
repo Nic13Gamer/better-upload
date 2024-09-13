@@ -1,13 +1,32 @@
+import { Button } from '@/components/ui/button';
 import { Loader2, Upload } from 'lucide-react';
-import { useUploadFile } from 'next-upload/client';
+import { UploadedFile, useUploadFile } from 'next-upload/client';
 import { useId } from 'react';
-import { Button } from '../ui/button';
 
-export function UploadButton() {
+type UploadButtonProps = {
+  route: string;
+  accept?: string;
+
+  onUploadComplete?: (data: {
+    file: UploadedFile;
+    metadata: Record<string, unknown>;
+  }) => void;
+
+  // Add any additional props you need.
+};
+
+export function UploadButton({
+  route,
+  accept,
+  onUploadComplete,
+}: UploadButtonProps) {
   const id = useId();
 
   const { upload, isPending } = useUploadFile({
-    route: 'imageDemo',
+    route,
+    onSuccess: onUploadComplete,
+
+    // Add any additional configuration, like `onError`.
   });
 
   return (
@@ -17,7 +36,7 @@ export function UploadButton() {
           id={id}
           className="absolute inset-0 size-0 opacity-0"
           type="file"
-          accept="image/*"
+          accept={accept}
           onChange={(e) => {
             if (e.target.files?.[0]) {
               upload(e.target.files[0]);
