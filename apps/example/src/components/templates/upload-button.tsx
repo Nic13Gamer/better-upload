@@ -1,6 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Loader2, Upload } from 'lucide-react';
-import { UploadedFile, useUploadFile } from 'next-upload/client';
+import {
+  useUploadFile,
+  type ClientUploadFileError,
+  type UploadedFile,
+} from 'next-upload/client';
 import { useId } from 'react';
 
 type UploadButtonProps = {
@@ -11,6 +15,7 @@ type UploadButtonProps = {
     file: UploadedFile;
     metadata: Record<string, unknown>;
   }) => void;
+  onUploadError?: (error: ClientUploadFileError) => void;
 
   // Add any additional props you need.
 };
@@ -19,14 +24,16 @@ export function UploadButton({
   route,
   accept,
   onUploadComplete,
+  onUploadError,
 }: UploadButtonProps) {
   const id = useId();
 
   const { upload, isPending } = useUploadFile({
     route,
     onSuccess: onUploadComplete,
+    onError: onUploadError,
 
-    // Add any additional configuration, like `onError`.
+    // Add any additional configuration, like `api`.
   });
 
   return (
