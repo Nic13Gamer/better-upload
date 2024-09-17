@@ -20,6 +20,7 @@
     "next-upload": "workspace:*",
     "react": "^18",
     "react-dom": "^18",
+    "react-dropzone": "^14.2.3",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7"

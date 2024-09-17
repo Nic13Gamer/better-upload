@@ -1,29 +1,20 @@
 'use client';
 
-import { useUploadFiles } from 'next-upload/client';
 import { toast } from 'sonner';
+import { UploadDropzone } from './templates/upload-dropzone';
 
 export function FilesUploader() {
-  const { upload, reset } = useUploadFiles({
-    route: 'images',
-    onSuccess({ files }) {
-      reset();
-      toast.success(`Uploaded ${files.length} files`);
-    },
-    onError(error) {
-      toast.error(error.message);
-    },
-  });
-
   return (
-    <input
-      type="file"
-      multiple
+    <UploadDropzone
+      route="images"
       accept="image/*"
-      onChange={(e) => {
-        if (e.target.files) {
-          upload(e.target.files);
-        }
+      cosmetic={{
+        fileTypes: 'JPEG, PNG, GIF',
+        maxFileSize: '2MB',
+        maxFiles: 4,
+      }}
+      onUploadComplete={({ files }) => {
+        toast.success(`Uploaded ${files.length} files`);
       }}
     />
   );

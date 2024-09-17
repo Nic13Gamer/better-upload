@@ -13,7 +13,7 @@ export default function Home() {
           <FileUploader />
         </div>
 
-        <div className="space-y-1">
+        <div className="w-full space-y-1">
           <p className="text-sm font-medium">Multiple files</p>
 
           <FilesUploader />
