@@ -58,7 +58,7 @@ export function UploadDropzone({
           'bg-muted/5 flex w-full min-w-64 cursor-pointer flex-col items-center justify-center px-2 py-6 transition-colors',
           {
             'bg-muted/15 text-muted-foreground cursor-not-allowed': isPending,
-            'hover:dark:bg-muted/20 hover:bg-muted/50': !isPending,
+            'hover:dark:bg-muted/20 hover:bg-muted/25': !isPending,
           }
         )}
         htmlFor={id}
