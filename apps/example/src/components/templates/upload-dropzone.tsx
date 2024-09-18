@@ -50,8 +50,16 @@ export function UploadDropzone({
     },
     noClick: true,
   });
+
   return (
-    <div className="relative rounded-lg border-2 border-dashed">
+    <div
+      className={cn(
+        'relative rounded-lg border-2 border-dashed transition-colors',
+        {
+          'border-foreground/45': isDragActive,
+        }
+      )}
+    >
       <label
         {...getRootProps()}
         className={cn(
@@ -90,11 +98,14 @@ export function UploadDropzone({
         />
       </label>
 
-      {/* TODO: improve this UI */}
       {isDragActive && (
         <div className="bg-background pointer-events-none absolute inset-0 rounded-lg">
-          <div className="bg-muted/10 flex size-full items-center justify-center">
-            <p>Drop files here</p>
+          <div className="bg-muted/10 flex size-full flex-col items-center justify-center">
+            <div className="rounded-full border border-dashed p-2.5">
+              <Upload className="size-6" />
+            </div>
+
+            <p className="mt-2.5 text-sm font-semibold">Drop files here</p>
           </div>
         </div>
       )}
