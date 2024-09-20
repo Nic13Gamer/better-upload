@@ -73,7 +73,7 @@ export function UploadDropzone({
         )}
         htmlFor={id}
       >
-        <div className="rounded-full border border-dashed p-2.5">
+        <div className="bg-background rounded-full border border-dashed p-2.5">
           {isPending ? (
             <Loader2 className="size-6 animate-spin" />
           ) : (
@@ -90,9 +90,9 @@ export function UploadDropzone({
             ) : (
               <>
                 {description?.maxFiles &&
-                  `You can upload ${description.maxFiles} files.`}{' '}
+                  `You can upload ${description.maxFiles} file${description.maxFiles !== 1 ? 's' : ''}.`}{' '}
                 {description?.maxFileSize &&
-                  `Each up to ${description.maxFileSize}.`}{' '}
+                  `${description.maxFiles !== 1 ? 'Each u' : 'U'}p to ${description.maxFileSize}.`}{' '}
                 {description?.fileTypes && `Accepted ${description.fileTypes}.`}
               </>
             )}
@@ -112,7 +112,7 @@ export function UploadDropzone({
       {isDragActive && (
         <div className="bg-background pointer-events-none absolute inset-0 rounded-lg">
           <div className="bg-muted/10 flex size-full flex-col items-center justify-center">
-            <div className="rounded-full border border-dashed p-2.5">
+            <div className="bg-background rounded-full border border-dashed p-2.5">
               <Upload className="size-6" />
             </div>
 
