@@ -56,7 +56,7 @@ export function UploadDropzone({
       className={cn(
         'relative rounded-lg border-2 border-dashed transition-colors',
         {
-          'border-foreground/45': isDragActive,
+          'border-foreground/60': isDragActive,
         }
       )}
     >
