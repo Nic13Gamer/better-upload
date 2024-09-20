@@ -11,3 +11,20 @@ export type HelperBaseParams = {
    */
   bucketName: string;
 };
+
+export type CreateR2ClientParams = {
+  /**
+   * Cloudflare account ID.
+   */
+  accountId: string;
+
+  /**
+   * Cloudflare R2 access key ID.
+   */
+  accessKeyId: string;
+
+  /**
+   * Cloudflare R2 secret access key.
+   */
+  secretAccessKey: string;
+};
