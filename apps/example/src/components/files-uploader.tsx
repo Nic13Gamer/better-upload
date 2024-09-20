@@ -8,7 +8,7 @@ export function FilesUploader() {
     <UploadDropzone
       route="images"
       accept="image/*"
-      cosmetic={{
+      description={{
         fileTypes: 'JPEG, PNG, GIF',
         maxFileSize: '2MB',
         maxFiles: 4,

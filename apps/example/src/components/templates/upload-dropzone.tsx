@@ -12,11 +12,13 @@ type UploadDropzoneProps = {
   route: string;
   accept?: string;
 
-  cosmetic?: {
-    fileTypes?: string;
-    maxFileSize?: string;
-    maxFiles?: number;
-  };
+  description?:
+    | {
+        fileTypes?: string;
+        maxFileSize?: string;
+        maxFiles?: number;
+      }
+    | string;
 
   onUploadComplete?: (data: {
     files: UploadedFile[];
@@ -30,7 +32,7 @@ type UploadDropzoneProps = {
 export function UploadDropzone({
   route,
   accept,
-  cosmetic,
+  description,
   onUploadComplete,
   onUploadError,
 }: UploadDropzoneProps) {
@@ -81,10 +83,19 @@ export function UploadDropzone({
 
         <div className="mt-2.5 space-y-1 text-center">
           <p className="text-sm font-semibold">Drag and drop files here</p>
+
           <p className="text-muted-foreground max-w-64 text-xs">
-            {cosmetic?.maxFiles && `You can upload ${cosmetic.maxFiles} files.`}{' '}
-            {cosmetic?.maxFileSize && `Each up to ${cosmetic.maxFileSize}.`}{' '}
-            {cosmetic?.fileTypes && `Accepted ${cosmetic.fileTypes}.`}
+            {typeof description === 'string' ? (
+              description
+            ) : (
+              <>
+                {description?.maxFiles &&
+                  `You can upload ${description.maxFiles} files.`}{' '}
+                {description?.maxFileSize &&
+                  `Each up to ${description.maxFileSize}.`}{' '}
+                {description?.fileTypes && `Accepted ${description.fileTypes}.`}
+              </>
+            )}
           </p>
         </div>
 
