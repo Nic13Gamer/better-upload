@@ -36,3 +36,8 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# generated content
+.contentlayer
+.content-collections
+.source
