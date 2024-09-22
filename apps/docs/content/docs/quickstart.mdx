@@ -1,0 +1,60 @@
+---
+title: Quickstart
+icon: Rocket
+---
+
+You can setup file upload in your Next.js app in a few minutes with `next-upload`.
+
+This guide will walk you through the steps to set it up.
+
+## Prerequisites
+
+Before you start, make sure you have the following:
+
+- A Next.js project.
+- A S3-compatible service bucket. You can use AWS S3, Cloudflare R2, or any other.
+
+<Steps>
+
+<Step>
+
+## Install
+
+Install the `next-upload` package, aswell as the AWS S3 Client.
+
+```package-install
+next-upload @aws-sdk/client-s3
+```
+
+</Step>
+
+<Step>
+
+## Create Route Handler
+
+The Route Handler will create pre-signed URLs, which the client uses to upload files directly to the S3 bucket.
+
+The recommended location is `app/api/upload/route.ts`, but you can place it anywhere you like.
+
+```tsx
+import { S3Client } from '@aws-sdk/client-s3';
+import { createUploadRouteHandler, route } from 'next-upload/server';
+
+const s3 = new S3Client();
+
+export const { POST } = createUploadRouteHandler({
+  client: s3,
+  bucketName: 'your-bucket-name',
+  routes: {
+    image: route({
+      fileTypes: ['image/*'],
+    }),
+  },
+});
+```
+
+In the example above, we create a single upload route for single images. You can create multiple routes for different purposes.
+
+</Step>
+
+</Steps>
