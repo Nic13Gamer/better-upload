@@ -1,4 +1,10 @@
 {
   "title": "docs",
-  "pages": ["--- Getting Started ---", "index", "quickstart"]
+  "pages": [
+    "--- Getting Started ---",
+    "index",
+    "quickstart",
+    "--- Components ---",
+    "...components"
+  ]
 }

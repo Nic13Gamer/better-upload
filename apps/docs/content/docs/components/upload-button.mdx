@@ -1,0 +1,62 @@
+---
+title: Upload Button
+description: A button that uploads a single file.
+---
+
+TODO: demo image
+
+## Installation
+
+<Steps>
+
+<Step>
+
+### Install the following dependencies:
+
+```package-install
+lucide-react
+```
+
+Also add the [shadcn/ui button](https://ui.shadcn.com/docs/components/button) component to your project. As the upload button is built on top of it.
+
+</Step>
+
+<Step>
+
+### Copy and paste the following code into your project.
+
+```tsx
+TODO: code;
+```
+
+</Step>
+
+<Step>
+
+### Update the import paths to match your project setup.
+
+</Step>
+
+</Steps>
+
+## Usage
+
+The `<UploadButton />` should be used inside a client component.
+
+```tsx
+'use client';
+
+import { UploadButton } from '@/components/ui/upload-button';
+```
+
+```tsx
+<UploadButton
+  route="demo"
+  accept="image/*"
+  onUploadComplete={({ file }) => {
+    console.log('File uploaded.');
+  }}
+/>
+```
+
+The button will open a file picker dialog when clicked, and upload the selected file to the desired route.
