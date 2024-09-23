@@ -1,7 +1,7 @@
 'use client';
 
 import { toast } from 'sonner';
-import { UploadDropzone } from './templates/upload-dropzone';
+import { UploadDropzone } from './ui/upload-dropzone';
 
 export function FilesUploader() {
   return (
