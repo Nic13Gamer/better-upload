@@ -1,5 +1,5 @@
 {
-  "name": "next-upload",
+  "name": "better-upload",
   "description": "Simple file uploads for Next.js",
   "version": "0.0.1",
   "scripts": {
@@ -49,13 +49,13 @@
     "file"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/Nic13Gamer/next-upload",
+  "homepage": "https://github.com/Nic13Gamer/better-upload",
   "bugs": {
-    "url": "https://github.com/Nic13Gamer/next-upload/issues"
+    "url": "https://github.com/Nic13Gamer/better-upload/issues"
   },
   "author": "Nicholas",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Nic13Gamer/next-upload.git"
+    "url": "git+https://github.com/Nic13Gamer/better-upload.git"
   }
 }

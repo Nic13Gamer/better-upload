@@ -4,7 +4,7 @@ import {
   useUploadFile,
   type ClientUploadFileError,
   type UploadedFile,
-} from 'next-upload/client';
+} from 'better-upload/client';
 import { useId } from 'react';
 
 type UploadButtonProps = {

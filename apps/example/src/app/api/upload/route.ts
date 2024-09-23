@@ -1,5 +1,5 @@
-import { createUploadRouteHandler, route } from 'next-upload/server';
-import { r2 } from 'next-upload/server/helpers';
+import { createUploadRouteHandler, route } from 'better-upload/server';
+import { r2 } from 'better-upload/server/helpers';
 
 export const { POST } = createUploadRouteHandler({
   client: r2(),

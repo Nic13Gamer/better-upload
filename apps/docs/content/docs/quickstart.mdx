@@ -3,7 +3,7 @@ title: Quickstart
 icon: Rocket
 ---
 
-You can setup file upload in your Next.js app in a few minutes with `next-upload`.
+You can setup file upload in your Next.js app in a few minutes with `better-upload`.
 
 This guide will walk you through the steps to set it up.
 
@@ -20,10 +20,10 @@ Before you start, make sure you have the following:
 
 ## Install
 
-Install the `next-upload` package, aswell as the AWS S3 Client.
+Install the `better-upload` package, aswell as the AWS S3 Client.
 
 ```package-install
-next-upload @aws-sdk/client-s3
+better-upload @aws-sdk/client-s3
 ```
 
 </Step>
@@ -40,7 +40,7 @@ Change `your-bucket-name` to your S3 bucket name, and configure the S3 client as
 
 ```ts title="app/api/upload/route.ts"
 import { S3Client } from '@aws-sdk/client-s3';
-import { createUploadRouteHandler, route } from 'next-upload/server';
+import { createUploadRouteHandler, route } from 'better-upload/server';
 
 const s3 = new S3Client();
 

@@ -4,7 +4,7 @@ import {
   useUploadFiles,
   type ClientUploadFileError,
   type UploadedFile,
-} from 'next-upload/client';
+} from 'better-upload/client';
 import { useId } from 'react';
 import { useDropzone } from 'react-dropzone';
 

@@ -1,5 +1,5 @@
 {
-  "name": "next-upload",
+  "name": "better-upload-turbo",
   "private": true,
   "scripts": {
     "build": "turbo build",
