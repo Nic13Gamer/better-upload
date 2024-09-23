@@ -5,7 +5,8 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "release": "pnpm run build --filter better-upload... && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.8",
