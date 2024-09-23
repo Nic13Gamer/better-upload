@@ -12,7 +12,7 @@ This guide will walk you through the steps to set it up.
 Before you start, make sure you have the following:
 
 - A Next.js project.
-- A S3-compatible service bucket. You can use AWS S3, Cloudflare R2, or any other.
+- An S3-compatible bucket. You can use AWS S3, Cloudflare R2, or any other.
 
 <Steps>
 
@@ -30,7 +30,7 @@ next-upload @aws-sdk/client-s3
 
 <Step>
 
-## Create Route Handler
+## Set up the Route Handler
 
 The Route Handler will create pre-signed URLs, which the client uses to upload files directly to the S3 bucket.
 
@@ -46,14 +46,14 @@ export const { POST } = createUploadRouteHandler({
   client: s3,
   bucketName: 'your-bucket-name',
   routes: {
-    image: route({
+    demo: route({
       fileTypes: ['image/*'],
     }),
   },
 });
 ```
 
-In the example above, we create a single upload route for single images. You can create multiple routes for different purposes.
+In the example above, we create the upload route `demo` for single images. You can create multiple routes for different purposes, like uploading more than one file.
 
 </Step>
 
