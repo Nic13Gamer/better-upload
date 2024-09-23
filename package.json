@@ -8,6 +8,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.8",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.6.6",
     "turbo": "^2.1.1",
