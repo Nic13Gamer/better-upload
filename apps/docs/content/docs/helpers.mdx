@@ -1,0 +1,47 @@
+---
+title: Helpers
+icon: Wrench
+description: A collection of helper functions and utilities for your project.
+---
+
+## S3 Clients
+
+`better-upload` has some built-in clients for popular S3-compatible storage services. Currently, the following are available:
+
+- Cloudflare R2
+
+Here's how you can use the **R2** client:
+
+```ts
+import { r2 } from 'better-upload/server/helpers';
+
+const client = r2({
+  accountId: 'your-account-id',
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+});
+```
+
+This returns an instance of an S3 Client from the AWS SDK, just like `new S3Client()`, but already configured for Cloudflare R2.
+
+## Bucket Objects
+
+### Move object
+
+Moves an object from one location to another, within the same bucket.
+
+```ts
+import { moveObject } from 'better-upload/server/helpers';
+
+await moveObject({
+  client: r2(),
+  bucketName: 'your-bucket-name',
+  objectKey: 'example.jpg',
+  destinationKey: 'images/example.jpg',
+});
+```
+
+<Callout type="warn">
+  This copies the object to the new location and then deletes the original
+  object. It can be slow.
+</Callout>
