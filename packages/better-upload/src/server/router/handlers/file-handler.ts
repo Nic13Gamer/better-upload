@@ -29,7 +29,7 @@ export async function handleFile({
       {
         error: {
           type: 'file_too_large',
-          message: 'File size is too large.',
+          message: 'File is too large.',
         },
       },
       { status: 400 }
@@ -99,11 +99,7 @@ export async function handleFile({
   }
 
   return NextResponse.json({
-    signedUrl,
+    files: [{ signedUrl, file: { ...file, objectKey } }],
     metadata: responseMetadata,
-    file: {
-      ...file,
-      objectKey,
-    },
   });
 }

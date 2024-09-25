@@ -114,7 +114,7 @@ export function useUploadFiles({
           return;
         }
 
-        const { signedUrls, metadata: uploadedMetadata } =
+        const { files: signedUrls, metadata: uploadedMetadata } =
           (await res.json()) as any;
 
         if (!signedUrls) {

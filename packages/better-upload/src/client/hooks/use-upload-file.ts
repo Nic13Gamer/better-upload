@@ -102,11 +102,9 @@ export function useUploadFile({
           return;
         }
 
-        const {
-          signedUrl,
-          file: signedFile,
-          metadata: uploadedMetadata,
-        } = (await res.json()) as any;
+        const { files, metadata: uploadedMetadata } = (await res.json()) as any;
+
+        const { signedUrl, file: signedFile } = files[0];
 
         if (!signedUrl || !signedFile) {
           setIsError(true);

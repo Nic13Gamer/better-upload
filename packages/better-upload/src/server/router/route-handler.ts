@@ -1,8 +1,8 @@
 import type { Router } from '@/server/types/public';
 import { uploadFileSchema } from '@/server/validations';
 import { NextRequest, NextResponse } from 'next/server';
-import { handleFile } from './handle-file';
-import { handleFiles } from './handle-files';
+import { handleFile } from './handlers/file-handler';
+import { handleMultipleFiles } from './handlers/multiple-files-handler';
 
 export function createUploadRouteHandler(router: Router) {
   return {
@@ -37,7 +37,7 @@ export function createUploadRouteHandler(router: Router) {
       const route = router.routes[data.route]!();
 
       if (route.multipleFiles) {
-        return handleFiles({
+        return handleMultipleFiles({
           req,
           client: router.client,
           bucketName: router.bucketName,
