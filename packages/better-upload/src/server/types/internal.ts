@@ -63,7 +63,7 @@ export type Route<M extends Metadata, U extends boolean> = {
   /**
    * The number of seconds the upload signed URL is valid for.
    *
-   * @default 60
+   * @default 120
    *
    * @example
    *
