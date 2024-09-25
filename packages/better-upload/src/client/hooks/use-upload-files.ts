@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import type { UploadRouterSuccessResponse } from '../types/internal';
 import type { ClientUploadFileError, UploadedFile } from '../types/public';
 
 type UseUploadFilesProps = {
@@ -112,7 +113,7 @@ export function useUploadFiles({
         }
 
         const { files: signedUrls, metadata: uploadedMetadata } =
-          (await res.json()) as any;
+          (await res.json()) as UploadRouterSuccessResponse;
 
         if (!signedUrls) {
           setIsError(true);
@@ -135,11 +136,11 @@ export function useUploadFiles({
 
         async function uploadSingleFile(file: File) {
           const data = signedUrls.find(
-            (url: any) =>
+            (url) =>
               url.file.name === file.name &&
               url.file.size === file.size &&
               url.file.type === file.type
-          );
+          )!;
 
           const uploadRes = await fetch(data.signedUrl, {
             method: 'PUT',

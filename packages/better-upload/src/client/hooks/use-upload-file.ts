@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import type { UploadRouterSuccessResponse } from '../types/internal';
 import type { ClientUploadFileError, UploadedFile } from '../types/public';
 
 type UseUploadFileProps = {
@@ -99,10 +100,10 @@ export function useUploadFile({
           return;
         }
 
-        const {
-          files: [{ signedUrl, file: signedFile }],
-          metadata: uploadedMetadata,
-        } = (await res.json()) as any;
+        const { files, metadata: uploadedMetadata } =
+          (await res.json()) as UploadRouterSuccessResponse;
+
+        const { signedUrl, file: signedFile } = files[0]!;
 
         if (!signedUrl || !signedFile) {
           setIsError(true);
