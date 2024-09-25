@@ -6,7 +6,7 @@ import { createSlug } from '@/server/utils/internal/slug';
 import type { UploadFileSchema } from '@/server/validations';
 import { PutObjectCommand, type S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { NextResponse, type NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 export async function handleMultipleFiles({
   req,
@@ -26,7 +26,7 @@ export async function handleMultipleFiles({
   const maxFileSize = route.maxFileSize || config.defaultMaxFileSize;
 
   if (files.length > maxFiles) {
-    return NextResponse.json(
+    return Response.json(
       {
         error: {
           type: 'too_many_files',
@@ -39,7 +39,7 @@ export async function handleMultipleFiles({
 
   for (const file of files) {
     if (file.size > maxFileSize) {
-      return NextResponse.json(
+      return Response.json(
         {
           error: {
             type: 'file_too_large',
@@ -51,7 +51,7 @@ export async function handleMultipleFiles({
     }
 
     if (route.fileTypes && !isFileTypeAllowed(file.type, route.fileTypes)) {
-      return NextResponse.json(
+      return Response.json(
         {
           error: {
             type: 'invalid_file_type',
@@ -76,7 +76,7 @@ export async function handleMultipleFiles({
     generateObjectKeyCallback = onBeforeUpload?.generateObjectKey || null;
   } catch (error) {
     if (error instanceof UploadFileError) {
-      return NextResponse.json(
+      return Response.json(
         { error: { type: 'rejected', message: error.message } },
         { status: 400 }
       );
@@ -127,7 +127,7 @@ export async function handleMultipleFiles({
     throw error;
   }
 
-  return NextResponse.json({
+  return Response.json({
     files: signedUrls,
     metadata: responseMetadata,
   });

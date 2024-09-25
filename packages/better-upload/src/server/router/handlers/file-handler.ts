@@ -6,7 +6,7 @@ import { createSlug } from '@/server/utils/internal/slug';
 import type { UploadFileSchema } from '@/server/validations';
 import { PutObjectCommand, type S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 export async function handleFile({
   req,
@@ -25,7 +25,7 @@ export async function handleFile({
   const maxFileSize = route.maxFileSize || config.defaultMaxFileSize;
 
   if (file.size > maxFileSize) {
-    return NextResponse.json(
+    return Response.json(
       {
         error: {
           type: 'file_too_large',
@@ -37,7 +37,7 @@ export async function handleFile({
   }
 
   if (route.fileTypes && !isFileTypeAllowed(file.type, route.fileTypes)) {
-    return NextResponse.json(
+    return Response.json(
       {
         error: {
           type: 'invalid_file_type',
@@ -64,7 +64,7 @@ export async function handleFile({
     beforeUploadMetadata = onBeforeUpload?.metadata || {};
   } catch (error) {
     if (error instanceof UploadFileError) {
-      return NextResponse.json(
+      return Response.json(
         { error: { type: 'rejected', message: error.message } },
         { status: 400 }
       );
@@ -98,7 +98,7 @@ export async function handleFile({
     throw error;
   }
 
-  return NextResponse.json({
+  return Response.json({
     files: [{ signedUrl, file: { ...file, objectKey } }],
     metadata: responseMetadata,
   });

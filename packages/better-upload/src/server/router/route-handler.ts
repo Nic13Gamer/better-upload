@@ -1,6 +1,6 @@
 import type { Router } from '@/server/types/public';
 import { uploadFileSchema } from '@/server/validations';
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { handleFile } from './handlers/file-handler';
 import { handleMultipleFiles } from './handlers/multiple-files-handler';
 
@@ -11,7 +11,7 @@ export function createUploadRouteHandler(router: Router) {
       try {
         body = await req.json();
       } catch (error) {
-        return NextResponse.json(
+        return Response.json(
           { error: { message: 'Invalid JSON body.' } },
           { status: 400 }
         );
@@ -19,7 +19,7 @@ export function createUploadRouteHandler(router: Router) {
 
       const parsed = uploadFileSchema.safeParse(body);
       if (!parsed.success) {
-        return NextResponse.json(
+        return Response.json(
           { error: { message: 'Invalid file upload schema.' } },
           { status: 400 }
         );
@@ -28,7 +28,7 @@ export function createUploadRouteHandler(router: Router) {
       const { data } = parsed;
 
       if (!(data.route in router.routes)) {
-        return NextResponse.json(
+        return Response.json(
           { error: { message: 'Upload route not found.' } },
           { status: 404 }
         );
@@ -45,7 +45,7 @@ export function createUploadRouteHandler(router: Router) {
           data,
         });
       } else if (data.files.length > 1) {
-        return NextResponse.json(
+        return Response.json(
           {
             error: {
               type: 'too_many_files',

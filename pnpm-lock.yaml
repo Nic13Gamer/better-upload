@@ -155,6 +155,9 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.645.0
         version: 3.645.0
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.7.0
       '@types/react':
         specifier: ^18
         version: 18.3.5
@@ -1499,6 +1502,9 @@ packages:
 
   '@types/node@22.5.4':
     resolution: {integrity: sha512-FDuKUJQm/ju9fT/SeX/6+gBzoPzlVCzfzmGkwKvRHQVxi4BntVbyIwf6a4Xn62mrvndLiml6z/UBXIdEVjQLXg==}
+
+  '@types/node@22.7.0':
+    resolution: {integrity: sha512-MOdOibwBs6KW1vfqz2uKMlxq5xAfAZ98SZjO8e3XnAbFnTJtAspqhWk7hrdSAs9/Y14ZWMiy7/MxMUzAOadYEw==}
 
   '@types/prop-types@15.7.12':
     resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
@@ -4922,6 +4928,10 @@ snapshots:
       undici-types: 6.19.8
 
   '@types/node@22.5.4':
+    dependencies:
+      undici-types: 6.19.8
+
+  '@types/node@22.7.0':
     dependencies:
       undici-types: 6.19.8
 
