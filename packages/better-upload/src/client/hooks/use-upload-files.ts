@@ -97,7 +97,7 @@ export function useUploadFiles({
           setIsSuccess(false);
           setIsPending(false);
 
-          if (error.message) {
+          if (error) {
             setError({
               type: error.type || 'unknown',
               message: error.message || null,
@@ -106,9 +106,6 @@ export function useUploadFiles({
               type: error.type || 'unknown',
               message: error.message || null,
             });
-          } else {
-            setError({ type: 'unknown', message: null });
-            onError?.({ type: 'unknown', message: null });
           }
 
           return;

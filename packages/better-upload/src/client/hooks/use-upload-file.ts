@@ -85,7 +85,7 @@ export function useUploadFile({
           setIsSuccess(false);
           setIsPending(false);
 
-          if (error.message) {
+          if (error) {
             setError({
               type: error.type || 'unknown',
               message: error.message || null,
@@ -94,17 +94,15 @@ export function useUploadFile({
               type: error.type || 'unknown',
               message: error.message || null,
             });
-          } else {
-            setError({ type: 'unknown', message: null });
-            onError?.({ type: 'unknown', message: null });
           }
 
           return;
         }
 
-        const { files, metadata: uploadedMetadata } = (await res.json()) as any;
-
-        const { signedUrl, file: signedFile } = files[0];
+        const {
+          files: [{ signedUrl, file: signedFile }],
+          metadata: uploadedMetadata,
+        } = (await res.json()) as any;
 
         if (!signedUrl || !signedFile) {
           setIsError(true);
