@@ -1,8 +1,8 @@
 import { config } from '@/server/config';
 import { UploadFileError } from '@/server/error';
 import type { Route } from '@/server/types/internal';
+import { isFileTypeAllowed } from '@/server/utils/internal/file-type';
 import { createSlug } from '@/server/utils/internal/slug';
-import { isFileTypeAllowed } from '@/server/utils/internal/upload-file';
 import type { UploadFileSchema } from '@/server/validations';
 import { PutObjectCommand, type S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
