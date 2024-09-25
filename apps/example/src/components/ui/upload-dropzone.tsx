@@ -1,10 +1,10 @@
 import { cn } from '@/lib/utils';
-import { Loader2, Upload } from 'lucide-react';
 import {
   useUploadFiles,
   type ClientUploadFileError,
   type UploadedFile,
 } from 'better-upload/client';
+import { Loader2, Upload } from 'lucide-react';
 import { useId } from 'react';
 import { useDropzone } from 'react-dropzone';
 
@@ -48,7 +48,9 @@ export function UploadDropzone({
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (files) => {
-      upload(files);
+      if (files.length > 0) {
+        upload(files);
+      }
     },
     noClick: true,
   });
