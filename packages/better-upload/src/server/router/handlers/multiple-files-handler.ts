@@ -37,7 +37,7 @@ export async function handleMultipleFiles({
     );
   }
 
-  files.forEach((file) => {
+  for (const file of files) {
     if (file.size > maxFileSize) {
       return NextResponse.json(
         {
@@ -61,7 +61,7 @@ export async function handleMultipleFiles({
         { status: 400 }
       );
     }
-  });
+  }
 
   let beforeUploadMetadata = {};
   let generateObjectKeyCallback = null;
