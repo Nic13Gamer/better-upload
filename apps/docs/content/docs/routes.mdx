@@ -1,6 +1,70 @@
 ---
-title: Router
+title: Upload Routes
 ---
+
+Upload routes are where you define how the files are uploaded. You can create multiple routes for different purposes (e.g. images, videos). To create a route, use the `route` function. A basic example is below.
+
+```ts
+import { route } from 'better-upload/server';
+
+route({
+  fileTypes: ['image/*'], // Accepts all image types
+  maxFileSize: 1024 * 1024 * 4, // 4MB
+});
+```
+
+All routes have the following options:
+
+- `fileTypes`: An array of file types to accept. Use any valid MIME type. Like `application/pdf` to accept PDF files. You can also use wildcards like `image/*` to accept all image types. By default, all file types are accepted.
+- `maxFileSize`: The maximum file size in bytes. Default is 5MB.
+- `signedUrlExpiresIn`: The time in seconds the upload signed URL is valid. Default is 120 seconds (2 minutes).
+
+## Callbacks
+
+When defining a route, you may want to run code before or after the upload. You can do this by using the callbacks.
+
+### Before upload
+
+The `onBeforeUpload` callback is called before the pre-signed URL is generated. Use this to run custom logic before uploading a file, such as auth and rate-limiting. You can also customize the S3 object key here.
+
+Throw an `UploadFileError` to reject the file upload. This will also send the error message to the client.
+
+```ts
+import { route, UploadFileError } from 'better-upload/server';
+
+route({
+  fileTypes: ['image/*'],
+  maxFileSize: 1024 * 1024 * 4,
+  onBeforeUpload: async ({ req, file, clientMetadata }) => {
+    const user = await auth();
+
+    if (!user) {
+      throw new UploadFileError('Not logged in!');
+    }
+
+    return {
+      objectKey: user.id,
+    };
+  },
+});
+```
+
+You can also return an object with the following properties:
+
+- `objectKey`: The S3 object key. If not provided, a random key will be generated.
+- `metadata`: Metadata to be passed to the `onAfterSignedUrl` callback.
+
+The request and metadata sent from the client are also available.
+
+### After generating signed URL
+
+TODO
+
+## Multiple files
+
+TODO
+
+## Router
 
 The router is where you define all of your upload routes. To define a router you can use the `Router` type, then create a simple object.
 
@@ -19,50 +83,3 @@ export const router: Router = {
 ```
 
 You can also just create it in the upload Route Handler, which is simpler.
-
-## Upload Routes
-
-Upload routes are where you define how the files are uploaded. You can create multiple routes for different purposes (e.g. images, videos). To create a route, use the `route` function. A basic example is below.
-
-```ts
-route({
-  fileTypes: ['image/*'], // Accepts all image types
-  maxFileSize: 1024 * 1024 * 4, // 4MB
-});
-```
-
-All routes have the following options:
-
-- `fileTypes`: An array of file types to accept. Use any valid MIME type. Like `application/pdf` to accept PDF files. You can also use wildcards like `image/*` to accept all image types. By default, all file types are accepted.
-- `maxFileSize`: The maximum file size in bytes. Default is 5MB.
-- `signedUrlExpiresIn`: The time in seconds the upload signed URL is valid. Default is 120 seconds (2 minutes).
-
-### Callbacks
-
-When defining a route, you may want to run code before or after the upload. You can do this by using the callbacks.
-
-#### Before upload
-
-The `onBeforeUpload` callback is called before the pre-signed URL is generated. Use this to run custom logic before uploading a file, such as auth and rate-limiting. You can also customize the S3 object key here.
-
-Throw an `UploadFileError` to reject the file upload. This will also send the error message to the client.
-
-```ts
-route({
-  onBeforeUpload: async ({ req, file, clientMetadata }) => {
-    const user = await auth();
-
-    if (!user) {
-      throw new UploadFileError('Not logged in!');
-    }
-
-    return {
-      objectKey: user.id,
-    };
-  },
-});
-```
-
-#### After generating signed URL
-
-TODO
