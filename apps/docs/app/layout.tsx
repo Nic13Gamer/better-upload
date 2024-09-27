@@ -13,11 +13,18 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | better-upload',
+    template: '%s | Better Upload',
     default: 'better-upload',
   },
   description: 'Simple file upload for Next.js',
-  keywords: ['nextjs', 'next', 'file upload', 'uploads'],
+  keywords: [
+    'nextjs',
+    'next',
+    'file upload',
+    'uploads',
+    'better-upload',
+    'typescript',
+  ],
 };
 
 export default function Layout({ children }: { children: ReactNode }) {
