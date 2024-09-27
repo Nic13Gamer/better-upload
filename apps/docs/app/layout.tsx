@@ -1,5 +1,6 @@
 import { DocsLayout } from 'fumadocs-ui/layout';
 import { RootProvider } from 'fumadocs-ui/provider';
+import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
 import './global.css';
@@ -9,6 +10,15 @@ import { source } from './source';
 const inter = Inter({
   subsets: ['latin'],
 });
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | better-upload',
+    default: 'better-upload',
+  },
+  description: 'Simple file upload for Next.js',
+  keywords: ['nextjs', 'next', 'file upload', 'uploads'],
+};
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (

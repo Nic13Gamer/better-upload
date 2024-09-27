@@ -5,4 +5,5 @@ export const baseOptions: HomeLayoutProps = {
     title: 'better-upload',
   },
   links: [],
+  githubUrl: 'https://github.com/Nic13Gamer/better-upload',
 };
