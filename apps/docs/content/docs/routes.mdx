@@ -33,8 +33,6 @@ Throw an `UploadFileError` to reject the file upload. This will also send the er
 import { route, UploadFileError } from 'better-upload/server';
 
 route({
-  fileTypes: ['image/*'],
-  maxFileSize: 1024 * 1024 * 4,
   onBeforeUpload: async ({ req, file, clientMetadata }) => {
     const user = await auth();
 
@@ -66,8 +64,6 @@ Metadata from the `onBeforeUpload` callback is available, as well as metadata se
 import { route } from 'better-upload/server';
 
 route({
-  fileTypes: ['image/*'],
-  maxFileSize: 1024 * 1024 * 4,
   onAfterSignedUrl: async ({ req, file, metadata, clientMetadata }) => {
     console.log('After signed URL:', file.objectKey);
 
@@ -86,7 +82,42 @@ You can return an object with the following properties:
 
 ## Multiple files
 
-TODO
+By default, an upload route only accepts a single file. If you want to upload multiple files, set `multipleFiles` to `true`.
+
+```ts
+import { route } from 'better-upload/server';
+
+route({
+  maxFileSize: 1024 * 1024 * 4, // For each file
+  multipleFiles: true, // [!code highlight]
+  maxFiles: 4, // [!code highlight]
+});
+```
+
+The callbacks are also a bit different when uploading multiple files. See the example below.
+
+```ts
+import { route } from 'better-upload/server';
+
+route({
+  multipleFiles: true,
+  maxFiles: 4,
+  onBeforeUpload: async ({ req, files, clientMetadata }) => {
+    // files is an array
+
+    return {
+      generateObjectKey: ({ file }) => `files/${file.name}`,
+    };
+  },
+  onAfterSignedUrl: async ({ req, files, metadata, clientMetadata }) => {
+    // files is an array
+  },
+});
+```
+
+Both now get an array of files (`files`), instead of a single file (`file`).
+
+`onBeforeUpload` now needs to return `generateObjectKey`, instead of just returning a string in `objectKey`.
 
 ## Router
 
