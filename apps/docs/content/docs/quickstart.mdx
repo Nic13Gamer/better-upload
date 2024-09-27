@@ -14,11 +14,13 @@ Before you start, make sure you have the following:
 - A Next.js project.
 - An S3-compatible bucket. You can use AWS S3, Cloudflare R2, or any other.
 
+## Uploading your first image
+
 <Steps>
 
 <Step>
 
-## Install
+### Install
 
 Install the `better-upload` package, aswell as the AWS S3 Client.
 
@@ -30,7 +32,7 @@ better-upload @aws-sdk/client-s3
 
 <Step>
 
-## Set up the Route Handler
+### Set up the Route Handler
 
 The Route Handler will create pre-signed URLs, which the client uses to upload files directly to the S3 bucket.
 
@@ -59,4 +61,49 @@ In the example above, we create the upload route `demo` for single images. You c
 
 </Step>
 
+<Step>
+
+### Put an `<UploadButton />`
+
+The upload button component is used to upload single files. Put it in a component/page.
+
+**Install it [here](/components/upload-button).**
+
+<Callout type="warn">
+  Whether you put it in a component or a page, mark it with `'use client';`, as
+  the pre-built components need to be used in client components.
+</Callout>
+
+```tsx title="app/page.tsx"
+'use client';
+
+import { UploadButton } from '@/components/ui/upload-button';
+
+export default function Page() {
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center">
+      <UploadButton
+        route="demo"
+        accept="image/*"
+        onUploadComplete={({ file }) => {
+          alert(`Uploaded ${file.name}`);
+        }}
+      />
+    </main>
+  );
+}
+```
+
+</Step>
+
+<Step>
+
+### You're done! 🎉
+
+You can now run your app and upload an image directly to any S3-compatible service!
+
+</Step>
+
 </Steps>
+
+## Learn more
