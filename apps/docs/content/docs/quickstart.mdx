@@ -102,8 +102,65 @@ export default function Page() {
 
 You can now run your app and upload an image directly to any S3-compatible service!
 
+<Accordions>
+<Accordion title="CORS Configuration">
+
+Make sure to also correctly configure CORS on your bucket. Here is an example:
+
+```json
+[
+  {
+    "AllowedOrigins": [
+      "http://localhost:3000",
+      "https://example.com" // Add your domain here
+    ],
+    "AllowedMethods": ["GET", "PUT"],
+    "AllowedHeaders": ["*"]
+  }
+]
+```
+
+Learn more about CORS [here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManageCorsUsing.html).
+
+</Accordion>
+</Accordions>
+
 </Step>
 
 </Steps>
 
 ## Learn more
+
+### Guides
+
+<Cards>
+
+<Card
+  href="/routes"
+  title="Upload Routes"
+  description="Configure upload routes for different behaviors."
+/>
+<Card
+  href="hooks"
+  title="Client Hooks"
+  description="Use client-side hooks to easily upload files."
+/>
+
+</Cards>
+
+### Components
+
+<Cards>
+
+<Card
+  href="/components/upload-button"
+  title="Upload Button"
+  description="A button that uploads a single file."
+/>
+<Card
+  href="/components/upload-dropzone"
+  title="Upload Dropzone"
+  description="A dropzone that uploads multiple files."
+/>
+
+</Cards>

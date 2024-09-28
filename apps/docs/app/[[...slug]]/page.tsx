@@ -1,5 +1,6 @@
 import { source } from '@/app/source';
 import { Showcase } from '@/components/showcase';
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
@@ -35,6 +36,8 @@ export default async function Page({
             Tab,
             Tabs,
             Showcase,
+            Accordion,
+            Accordions,
           }}
         />
       </DocsBody>
