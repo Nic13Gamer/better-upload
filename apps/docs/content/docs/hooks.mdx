@@ -1,0 +1,72 @@
+---
+title: Client Hooks
+---
+
+`better-upload` provides React hooks that allow you to easily upload files using pre-signed URLs.
+
+To upload single files, use the `useUploadFile` hook. To upload multiple files at once, use the `useUploadFiles` hook.
+
+## Options
+
+Both hooks take the following options:
+
+- `route`: The upload route to use. Should match the route defined in the [router](/routes#router).
+- `api`: If you defined your Route Handler in a different path, pass it here. Default is `/api/upload`.
+- `onSuccess`: A callback that is called after the file has been uploaded. Has the file, as well as metadata sent from the server.
+- `onError`: A callback that is called if the upload fails. Has error details.
+
+## Examples
+
+### Single file
+
+```tsx
+import { useUploadFile } from 'better-upload/client';
+
+export function MyComponent() {
+  const { upload, reset, uploadedFile, isPending, isSuccess, isError, error } =
+    useUploadFile({ route: 'demo' });
+
+  return (
+    <input
+      type="file"
+      onChange={(e) => {
+        if (e.target.files?.[0]) {
+          upload(e.target.files[0]);
+        }
+      }}
+    />
+  );
+}
+```
+
+### Multiple files
+
+```tsx
+import { useUploadFiles } from 'better-upload/client';
+
+export function MyComponent() {
+  const { upload, reset, uploadedFiles, isPending, isSuccess, isError, error } =
+    useUploadFiles({ route: 'demo' });
+
+  return (
+    <input
+      type="file"
+      multiple
+      onChange={(e) => {
+        if (e.target.files) {
+          upload(e.target.files);
+        }
+      }}
+    />
+  );
+}
+```
+
+With multiple files, you can also upload sequentially, rather than in parallel. This can be useful to reduce the load on the client and S3 server, however, it will take longer to upload all files.
+
+```tsx
+useUploadFiles({
+  route: 'demo',
+  sequential: true,
+});
+```
