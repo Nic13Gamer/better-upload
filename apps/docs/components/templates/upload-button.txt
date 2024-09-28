@@ -1,11 +1,11 @@
 import { Button } from '@/components/ui/button';
-import { Loader2, Upload } from 'lucide-react';
 import {
   useUploadFile,
   type ClientUploadFileError,
   type UploadedFile,
 } from 'better-upload/client';
-import { useId } from 'react';
+import { Loader2, Upload } from 'lucide-react';
+import { useId, useRef } from 'react';
 
 type UploadButtonProps = {
   route: string;
@@ -27,10 +27,17 @@ export function UploadButton({
   onUploadError,
 }: UploadButtonProps) {
   const id = useId();
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const { upload, isPending } = useUploadFile({
     route,
-    onSuccess: onUploadComplete,
+    onSuccess: (data) => {
+      if (inputRef.current) {
+        inputRef.current.value = '';
+      }
+
+      onUploadComplete?.(data);
+    },
     onError: onUploadError,
 
     // Add any additional configuration, like `api`.
@@ -41,6 +48,7 @@ export function UploadButton({
       <label htmlFor={id} className="absolute inset-0 cursor-pointer">
         <input
           id={id}
+          ref={inputRef}
           className="absolute inset-0 size-0 opacity-0"
           type="file"
           accept={accept}

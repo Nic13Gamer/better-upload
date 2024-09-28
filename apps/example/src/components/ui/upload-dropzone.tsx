@@ -40,13 +40,19 @@ export function UploadDropzone({
 
   const { upload, isPending } = useUploadFiles({
     route,
-    onSuccess: onUploadComplete,
+    onSuccess: (data) => {
+      if (inputRef.current) {
+        inputRef.current.value = '';
+      }
+
+      onUploadComplete?.(data);
+    },
     onError: onUploadError,
 
     // Add any additional configuration, like `sequential`.
   });
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, inputRef } = useDropzone({
     onDrop: (files) => {
       if (files.length > 0) {
         upload(files);
