@@ -6,7 +6,6 @@ import { createSlug } from '@/server/utils/internal/slug';
 import type { UploadFileSchema } from '@/server/validations';
 import { PutObjectCommand, type S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import type { NextRequest } from 'next/server';
 
 export async function handleFile({
   req,
@@ -15,7 +14,7 @@ export async function handleFile({
   route,
   data,
 }: {
-  req: NextRequest;
+  req: Request;
   client: S3Client;
   bucketName: string;
   route: Route<any, false>;

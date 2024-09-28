@@ -1,5 +1,3 @@
-import type { NextRequest } from 'next/server';
-
 export type Metadata = Record<string, unknown>;
 export type ClientMetadata = Record<string, unknown | undefined>;
 
@@ -83,9 +81,9 @@ export type Route<M extends Metadata, U extends boolean> = {
   onBeforeUpload?: (
     data: {
       /**
-       * The incoming request from Next.js.
+       * The incoming request.
        */
-      req: NextRequest;
+      req: Request;
 
       /**
        * Metadata sent from the client.
@@ -146,9 +144,9 @@ export type Route<M extends Metadata, U extends boolean> = {
   onAfterSignedUrl?: (
     data: {
       /**
-       * The incoming request from Next.js.
+       * The incoming request.
        */
-      req: NextRequest;
+      req: Request;
 
       /**
        * Metadata returned by `onBeforeUpload`.

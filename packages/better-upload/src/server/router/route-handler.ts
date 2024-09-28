@@ -1,12 +1,11 @@
 import type { Router } from '@/server/types/public';
 import { uploadFileSchema } from '@/server/validations';
-import type { NextRequest } from 'next/server';
 import { handleFile } from './handlers/file-handler';
 import { handleMultipleFiles } from './handlers/multiple-files-handler';
 
 export function createUploadRouteHandler(router: Router) {
   return {
-    POST: async (req: NextRequest) => {
+    POST: async (req: Request) => {
       let body;
       try {
         body = await req.json();
