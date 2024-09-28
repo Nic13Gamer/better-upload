@@ -1,0 +1,71 @@
+---
+title: Upload Dropzone
+description: A dropzone that uploads multiple files.
+---
+
+import { UploadDropzoneDemo } from '@/components/templates/upload-dropzone-demo';
+
+<Showcase>
+  <UploadDropzoneDemo />
+</Showcase>
+
+## Installation
+
+<Steps>
+
+<Step>
+
+### Install the following dependencies:
+
+```package-install
+lucide-react react-dropzone
+```
+
+Make sure to have [shadcn/ui](https://ui.shadcn.com/docs/installation) set up in your project.
+
+</Step>
+
+<Step>
+
+### Copy and paste the following code into your project.
+
+```json doc-gen:file
+{
+  "file": "./components/templates/upload-dropzone.txt",
+  "codeblock": {
+    "lang": "tsx"
+  }
+}
+```
+
+</Step>
+
+<Step>
+
+### Update the import paths to match your project setup.
+
+</Step>
+
+</Steps>
+
+## Usage
+
+The `<UploadDropzone />` should be used inside a client component.
+
+```tsx
+'use client';
+
+import { UploadDropzone } from '@/components/ui/upload-dropzone';
+```
+
+```tsx
+<UploadDropzone
+  route="demo"
+  accept="image/*"
+  onUploadComplete={({ files }) => {
+    console.log(`${files.length} files uploaded.`);
+  }}
+/>
+```
+
+When clicked, the dropzone will open a file picker dialog. When selected or dropped, the files will be uploaded to the desired route.

@@ -1,4 +1,5 @@
 import { source } from '@/app/source';
+import { Showcase } from '@/components/showcase';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
@@ -26,7 +27,16 @@ export default async function Page({
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDX components={{ ...defaultMdxComponents, Steps, Step, Tab, Tabs }} />
+        <MDX
+          components={{
+            ...defaultMdxComponents,
+            Steps,
+            Step,
+            Tab,
+            Tabs,
+            Showcase,
+          }}
+        />
       </DocsBody>
     </DocsPage>
   );
