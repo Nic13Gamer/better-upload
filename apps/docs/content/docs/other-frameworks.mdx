@@ -3,7 +3,7 @@ title: Other Frameworks
 icon: Cable
 ---
 
-Better Upload can work in any framework with API routes that use Request and Response objects. You can even use it in a separate backend server, like [Hono](https://hono.dev) or [Express](https://expressjs.com).
+Better Upload can work in any framework with API routes that use Request and Response objects. You can even use it in a separate backend server, like [Hono](https://hono.dev).
 
 Here are some examples of how to use Better Upload in other frameworks:
 
@@ -30,12 +30,8 @@ import { handleRequest } from 'better-upload/server';
 const app = new Hono();
 
 app.post('/api/upload', (c) => {
-  handleRequest(c.request, {
-    // your router config...
+  return handleRequest(c.req.raw, {
+    // your Better Upload router config...
   });
 });
 ```
-
-### Express
-
-TODO
