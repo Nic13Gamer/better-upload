@@ -4,6 +4,13 @@ import { handleFile } from './handlers/file-handler';
 import { handleMultipleFiles } from './handlers/multiple-files-handler';
 
 export async function handleRequest(req: Request, router: Router) {
+  if (req.method !== 'POST') {
+    return Response.json(
+      { error: { message: 'Method not allowed.' } },
+      { status: 405 }
+    );
+  }
+
   let body;
   try {
     body = await req.json();
