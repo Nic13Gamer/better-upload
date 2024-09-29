@@ -11,6 +11,10 @@ type UploadButtonProps = {
   route: string;
   accept?: string;
 
+  onUploadBegin?: (data: {
+    file: UploadedFile;
+    metadata: Record<string, unknown>;
+  }) => void;
   onUploadComplete?: (data: {
     file: UploadedFile;
     metadata: Record<string, unknown>;
@@ -23,6 +27,7 @@ type UploadButtonProps = {
 export function UploadButton({
   route,
   accept,
+  onUploadBegin,
   onUploadComplete,
   onUploadError,
 }: UploadButtonProps) {
@@ -31,6 +36,7 @@ export function UploadButton({
 
   const { upload, isPending } = useUploadFile({
     route,
+    onUploadBegin,
     onSuccess: (data) => {
       if (inputRef.current) {
         inputRef.current.value = '';

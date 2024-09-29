@@ -11,6 +11,9 @@ export function FileUploader() {
       onUploadComplete={({ file }) => {
         toast.success(`Uploaded ${file.name}`);
       }}
+      onUploadBegin={({ file }) => {
+        toast.info(`Uploading ${file.name}`);
+      }}
     />
   );
 }

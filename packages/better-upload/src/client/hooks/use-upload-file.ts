@@ -16,6 +16,21 @@ type UseUploadFileProps = {
   route: string;
 
   /**
+   * Callback that is called when the file starts being uploaded to S3. This happens after the server responds with the pre-signed URL.
+   */
+  onUploadBegin?: (data: {
+    /**
+     * Information about the file to be uploaded.
+     */
+    file: UploadedFile;
+
+    /**
+     * Metadata sent from the server.
+     */
+    metadata: Record<string, unknown | undefined>;
+  }) => void;
+
+  /**
    * Callback that is called after the file is successfully uploaded.
    */
   onSuccess?: (data: {
@@ -39,6 +54,7 @@ type UseUploadFileProps = {
 export function useUploadFile({
   api = '/api/upload',
   route,
+  onUploadBegin,
   onSuccess,
   onError,
 }: UseUploadFileProps) {
@@ -112,15 +128,20 @@ export function useUploadFile({
 
           setError({
             type: 'unknown',
-            message: 'No signed URL. Is the route set to multiple files?',
+            message: 'No pre-signed URL. Is the route set to multiple files?',
           });
           onError?.({
             type: 'unknown',
-            message: 'No signed URL. Is the route set to multiple files?',
+            message: 'No pre-signed URL. Is the route set to multiple files?',
           });
 
           return;
         }
+
+        onUploadBegin?.({
+          file: { ...signedFile, raw: file },
+          metadata: uploadedMetadata,
+        });
 
         const uploadRes = await fetch(signedUrl, {
           method: 'PUT',

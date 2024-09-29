@@ -25,6 +25,21 @@ type UseUploadFilesProps = {
   sequential?: boolean;
 
   /**
+   * Callback that is called when the file starts being uploaded to S3. This happens after the server responds with the pre-signed URL.
+   */
+  onUploadBegin?: (data: {
+    /**
+     * Information about the files to be uploaded.
+     */
+    files: UploadedFile[];
+
+    /**
+     * Metadata sent from the server.
+     */
+    metadata: Record<string, unknown | undefined>;
+  }) => void;
+
+  /**
    * Callback that is called after the files are successfully uploaded.
    */
   onSuccess?: (data: {
@@ -49,6 +64,7 @@ export function useUploadFiles({
   api = '/api/upload',
   route,
   sequential,
+  onUploadBegin,
   onSuccess,
   onError,
 }: UseUploadFilesProps) {
@@ -122,11 +138,13 @@ export function useUploadFiles({
 
           setError({
             type: 'unknown',
-            message: 'No signed URLs. Is the route set to multiple files?',
+            message:
+              'No pre-signed URLs. Is the route set not to multiple files?',
           });
           onError?.({
             type: 'unknown',
-            message: 'No signed URLs. Is the route set to multiple files?',
+            message:
+              'No pre-signed URLs. Is the route set not to multiple files?',
           });
 
           return;
@@ -171,6 +189,19 @@ export function useUploadFiles({
 
           uploaded.push(uploadedFile);
         }
+
+        onUploadBegin?.({
+          files: fileArray.map((file) => ({
+            raw: file,
+            ...signedUrls.find(
+              (url) =>
+                url.file.name === file.name &&
+                url.file.size === file.size &&
+                url.file.type === file.type
+            )!.file,
+          })),
+          metadata: uploadedMetadata,
+        });
 
         if (sequential) {
           for (const file of fileArray) {
