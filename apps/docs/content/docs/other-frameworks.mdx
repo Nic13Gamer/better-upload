@@ -3,7 +3,7 @@ title: Other Frameworks
 icon: Cable
 ---
 
-Better Upload can work in any framework with API routes that use Request and Response objects. You can even use it in a separate backend server, like [Hono](https://hono.dev).
+Better Upload can work in any framework with API routes that use standard Request and Response objects. You can even use it in a separate backend server, like [Hono](https://hono.dev).
 
 Here are some examples of how to use Better Upload in other frameworks:
 
@@ -11,11 +11,22 @@ Here are some examples of how to use Better Upload in other frameworks:
 
 ### Remix
 
-TODO
+The only difference when using Better Upload with Remix is how you define your handler. You can use `handleRequest` to handle a generic request.
 
-### SvelteKit
+```ts title="app/routes/api.upload.ts"
+import { ActionFunctionArgs } from '@remix-run/node';
+import { handleRequest } from 'better-upload/server';
 
-TODO
+export async function action({ request }: ActionFunctionArgs) {
+  if (request.method !== 'POST') {
+    return new Response(null, { status: 405 });
+  }
+
+  return handleRequest(request, {
+    // your router config...
+  });
+}
+```
 
 ## Backend
 
@@ -31,7 +42,7 @@ const app = new Hono();
 
 app.post('/api/upload', (c) => {
   return handleRequest(c.req.raw, {
-    // your Better Upload router config...
+    // your router config...
   });
 });
 ```
