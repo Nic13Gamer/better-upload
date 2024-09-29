@@ -12,8 +12,9 @@ Both hooks take the following options:
 
 - `route`: The upload route to use. Should match the route defined in the [router](/routes#router).
 - `api`: If you defined your Route Handler in a different path, pass it here. Default is `/api/upload`.
-- `onSuccess`: A callback that is called after the file has been uploaded. Has the file, as well as metadata sent from the server.
-- `onError`: A callback that is called if the upload fails. Has error details.
+- `onUploadBegin`: Event that is called when the file starts being uploaded to S3.
+- `onSuccess`: Event that is called after the file has been uploaded.
+- `onError`: Event that is called if the upload fails. Has error details.
 
 ## Examples
 
@@ -24,7 +25,12 @@ import { useUploadFile } from 'better-upload/client';
 
 export function MyComponent() {
   const { upload, reset, uploadedFile, isPending, isSuccess, isError, error } =
-    useUploadFile({ route: 'demo' });
+    useUploadFile({
+      route: 'demo',
+      onSuccess: ({ file }) => {
+        console.log('File uploaded');
+      },
+    });
 
   return (
     <input
@@ -46,7 +52,12 @@ import { useUploadFiles } from 'better-upload/client';
 
 export function MyComponent() {
   const { upload, reset, uploadedFiles, isPending, isSuccess, isError, error } =
-    useUploadFiles({ route: 'demo' });
+    useUploadFiles({
+      route: 'demo',
+      onSuccess: ({ files }) => {
+        console.log(`${files.length} files uploaded`);
+      },
+    });
 
   return (
     <input
