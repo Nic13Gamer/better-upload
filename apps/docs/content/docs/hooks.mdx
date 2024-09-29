@@ -16,9 +16,7 @@ Both hooks take the following options:
 - `onSuccess`: Event that is called after the file has been uploaded.
 - `onError`: Event that is called if the upload fails. Has error details.
 
-## Examples
-
-### Single file
+## Single file
 
 ```tsx
 import { useUploadFile } from 'better-upload/client';
@@ -45,7 +43,7 @@ export function MyComponent() {
 }
 ```
 
-### Multiple files
+## Multiple files
 
 ```tsx
 import { useUploadFiles } from 'better-upload/client';
@@ -72,6 +70,8 @@ export function MyComponent() {
   );
 }
 ```
+
+### Sequential upload
 
 With multiple files, you can also upload sequentially, rather than in parallel. This can be useful to reduce the load on the client and S3 server, however, it will take longer to upload all files.
 
