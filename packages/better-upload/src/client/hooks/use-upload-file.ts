@@ -16,7 +16,7 @@ type UseUploadFileProps = {
   route: string;
 
   /**
-   * Callback that is called when the file starts being uploaded to S3. This happens after the server responds with the pre-signed URL.
+   * Event that is called when the file starts being uploaded to S3. This happens after the server responds with the pre-signed URL.
    */
   onUploadBegin?: (data: {
     /**
@@ -31,7 +31,7 @@ type UseUploadFileProps = {
   }) => void;
 
   /**
-   * Callback that is called after the file is successfully uploaded.
+   * Event that is called after the file is successfully uploaded.
    */
   onSuccess?: (data: {
     /**
@@ -46,7 +46,7 @@ type UseUploadFileProps = {
   }) => void;
 
   /**
-   * Callback that is called if an error occurs during file upload.
+   * Event that is called if an error occurs during file upload.
    */
   onError?: (error: ClientUploadFileError) => void;
 };

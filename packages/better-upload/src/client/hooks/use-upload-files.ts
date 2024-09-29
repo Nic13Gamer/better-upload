@@ -25,7 +25,7 @@ type UseUploadFilesProps = {
   sequential?: boolean;
 
   /**
-   * Callback that is called when the file starts being uploaded to S3. This happens after the server responds with the pre-signed URL.
+   * Event that is called when the file starts being uploaded to S3. This happens after the server responds with the pre-signed URL.
    */
   onUploadBegin?: (data: {
     /**
@@ -40,7 +40,7 @@ type UseUploadFilesProps = {
   }) => void;
 
   /**
-   * Callback that is called after the files are successfully uploaded.
+   * Event that is called after the files are successfully uploaded.
    */
   onSuccess?: (data: {
     /**
@@ -55,7 +55,7 @@ type UseUploadFilesProps = {
   }) => void;
 
   /**
-   * Callback that is called if an error occurs during the files upload.
+   * Event that is called if an error occurs during the files upload.
    */
   onError?: (error: ClientUploadFileError) => void;
 };
