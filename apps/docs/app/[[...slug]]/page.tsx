@@ -3,6 +3,7 @@ import { Showcase } from '@/components/showcase';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import {
   DocsBody,
@@ -38,6 +39,7 @@ export default async function Page({
             Showcase,
             Accordion,
             Accordions,
+            TypeTable,
           }}
         />
       </DocsBody>

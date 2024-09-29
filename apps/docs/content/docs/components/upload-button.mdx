@@ -74,3 +74,33 @@ import { UploadButton } from '@/components/ui/upload-button';
 ```
 
 The button will open a file picker dialog when clicked, and upload the selected file to the desired route.
+
+## Props
+
+<TypeTable
+  type={{
+    route: {
+      type: 'string',
+      description: 'The upload route to use.',
+    },
+    accept: {
+      type: 'string | undefined',
+      description: 'The file types that the input should accept.',
+    },
+    onUploadBegin: {
+      type: 'function | undefined',
+      description:
+        'Event that is called when the file starts being uploaded to S3. Has the file and metadata sent from the server.',
+    },
+    onUploadComplete: {
+      type: 'function | undefined',
+      description:
+        'Event that is called after the file has been uploaded. Has the file and metadata sent from the server.',
+    },
+    onUploadError: {
+      type: 'function | undefined',
+      description:
+        'Event that is called if the upload fails. Has error details.',
+    },
+  }}
+/>

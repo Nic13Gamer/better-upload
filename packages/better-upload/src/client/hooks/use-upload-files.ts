@@ -25,7 +25,7 @@ type UseUploadFilesProps = {
   sequential?: boolean;
 
   /**
-   * Event that is called when the file starts being uploaded to S3. This happens after the server responds with the pre-signed URL.
+   * Event that is called when the files start being uploaded to S3. This happens after the server responds with the pre-signed URL.
    */
   onUploadBegin?: (data: {
     /**

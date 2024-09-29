@@ -74,3 +74,38 @@ import { UploadDropzone } from '@/components/ui/upload-dropzone';
 ```
 
 When clicked, the dropzone will open a file picker dialog. When selected or dropped, the files will be uploaded to the desired route.
+
+## Props
+
+<TypeTable
+  type={{
+    route: {
+      type: 'string',
+      description: 'The upload route to use.',
+    },
+    accept: {
+      type: 'string | undefined',
+      description: 'The file types that the input should accept.',
+    },
+    description: {
+      type: 'string | object | undefined',
+      description:
+        'The description to show in the dropzone. Object for max files, max file size, and file types. You can also return a raw string.',
+    },
+    onUploadBegin: {
+      type: 'function | undefined',
+      description:
+        'Event that is called when the files start being uploaded to S3. Has the files and metadata sent from the server.',
+    },
+    onUploadComplete: {
+      type: 'function | undefined',
+      description:
+        'Event that is called after the files have been uploaded. Has the files and metadata sent from the server.',
+    },
+    onUploadError: {
+      type: 'function | undefined',
+      description:
+        'Event that is called if the upload fails. Has error details.',
+    },
+  }}
+/>
