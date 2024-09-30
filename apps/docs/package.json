@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "pnpm run build:registry && next build",
+    "build:registry": "tsx scripts/build-registry.mts",
     "dev": "next dev",
     "start": "next start",
     "postinstall": "fumadocs-mdx"
@@ -31,7 +32,9 @@
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.45",
+    "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.10",
+    "tsx": "^4.19.1",
     "typescript": "^5.5.4"
   }
 }
