@@ -1,6 +1,6 @@
 {
   "name": "better-upload",
-  "description": "Simple file uploads for Next.js",
+  "description": "Simple file uploads for React",
   "version": "0.0.1",
   "scripts": {
     "build": "tsup",
@@ -43,9 +43,11 @@
   },
   "keywords": [
     "next",
+    "react",
     "nextjs",
     "upload",
-    "file"
+    "files",
+    "file upload"
   ],
   "license": "MIT",
   "homepage": "https://github.com/Nic13Gamer/better-upload",
