@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@changesets/changelog-github':
+        specifier: ^0.5.0
+        version: 0.5.0
       '@changesets/cli':
         specifier: ^2.27.8
         version: 2.27.8
@@ -385,6 +388,9 @@ packages:
   '@changesets/changelog-git@0.2.0':
     resolution: {integrity: sha512-bHOx97iFI4OClIT35Lok3sJAwM31VbUM++gnMBV16fdbtBhgYu4dxsphBF/0AZZsyAHMrnM0yFcj5gZM1py6uQ==}
 
+  '@changesets/changelog-github@0.5.0':
+    resolution: {integrity: sha512-zoeq2LJJVcPJcIotHRJEEA2qCqX0AQIeFE+L21L8sRLPVqDhSXY8ZWAt2sohtBpFZkBwu+LUwMSKRr2lMy3LJA==}
+
   '@changesets/cli@2.27.8':
     resolution: {integrity: sha512-gZNyh+LdSsI82wBSHLQ3QN5J30P4uHKJ4fXgoGwQxfXwYFTJzDdvIJasZn8rYQtmKhyQuiBj4SSnLuKlxKWq4w==}
     hasBin: true
@@ -397,6 +403,9 @@ packages:
 
   '@changesets/get-dependents-graph@2.1.2':
     resolution: {integrity: sha512-sgcHRkiBY9i4zWYBwlVyAjEM9sAzs4wYVwJUdnbDLnVG3QwAaia1Mk5P8M7kraTOZN+vBET7n8KyB0YXCbFRLQ==}
+
+  '@changesets/get-github-info@0.6.0':
+    resolution: {integrity: sha512-v/TSnFVXI8vzX9/w3DU2Ol+UlTZcu3m0kXTjTT4KlAdwSvwutcByYwyYn9hwerPWfPkT2JfpoX0KgvCEi8Q/SA==}
 
   '@changesets/get-release-plan@4.0.4':
     resolution: {integrity: sha512-SicG/S67JmPTrdcc9Vpu0wSQt7IiuN0dc8iR5VScnnTVPfIaLvKmEGRvIaF0kcn8u5ZqLbormZNTO77bCEvyWw==}
@@ -1749,6 +1758,9 @@ packages:
   csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
 
+  dataloader@1.4.0:
+    resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
+
   debug@4.3.7:
     resolution: {integrity: sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==}
     engines: {node: '>=6.0'}
@@ -1784,6 +1796,10 @@ packages:
 
   dlv@1.1.3:
     resolution: {integrity: sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==}
+
+  dotenv@8.6.0:
+    resolution: {integrity: sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==}
+    engines: {node: '>=10'}
 
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
@@ -2414,6 +2430,15 @@ packages:
       sass:
         optional: true
 
+  node-fetch@2.7.0:
+    resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
+    engines: {node: 4.x || >=6.0.0}
+    peerDependencies:
+      encoding: ^0.1.0
+    peerDependenciesMeta:
+      encoding:
+        optional: true
+
   node-releases@2.0.18:
     resolution: {integrity: sha512-d9VeXT4SJ7ZeOqGX6R5EM022wpL+eWPooLI+5UpWn2jCT1aosUQEhQP214x33Wkwx3JQMvIm+tIoVOdodFS40g==}
 
@@ -2995,6 +3020,9 @@ packages:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
 
+  tr46@0.0.3:
+    resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
+
   tr46@1.0.1:
     resolution: {integrity: sha512-dTpowEjclQ7Kgx5SdBkqRzVhERQXov8/l9Ft9dVM9fmg0W0KQSVaXX9T4i6twCPNtYiZM53lpSSUAwJbFPOHxA==}
 
@@ -3154,8 +3182,14 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
+  webidl-conversions@3.0.1:
+    resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
+
   webidl-conversions@4.0.2:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
+
+  whatwg-url@5.0.0:
+    resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
 
   whatwg-url@7.1.0:
     resolution: {integrity: sha512-WUu7Rg1DroM7oQvGWfOiAK21n74Gg+T4elXEQYkOhtyLeWiJFoOGLXPKI/9gzIie9CtwVLm8wtw6YJdKyxSjeg==}
@@ -3738,6 +3772,14 @@ snapshots:
     dependencies:
       '@changesets/types': 6.0.0
 
+  '@changesets/changelog-github@0.5.0':
+    dependencies:
+      '@changesets/get-github-info': 0.6.0
+      '@changesets/types': 6.0.0
+      dotenv: 8.6.0
+    transitivePeerDependencies:
+      - encoding
+
   '@changesets/cli@2.27.8':
     dependencies:
       '@changesets/apply-release-plan': 7.0.5
@@ -3791,6 +3833,13 @@ snapshots:
       '@manypkg/get-packages': 1.1.3
       picocolors: 1.1.0
       semver: 7.6.3
+
+  '@changesets/get-github-info@0.6.0':
+    dependencies:
+      dataloader: 1.4.0
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
 
   '@changesets/get-release-plan@4.0.4':
     dependencies:
@@ -5183,6 +5232,8 @@ snapshots:
 
   csstype@3.1.3: {}
 
+  dataloader@1.4.0: {}
+
   debug@4.3.7:
     dependencies:
       ms: 2.1.3
@@ -5208,6 +5259,8 @@ snapshots:
       path-type: 4.0.0
 
   dlv@1.1.3: {}
+
+  dotenv@8.6.0: {}
 
   eastasianwidth@0.2.0: {}
 
@@ -6222,6 +6275,10 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
+  node-fetch@2.7.0:
+    dependencies:
+      whatwg-url: 5.0.0
+
   node-releases@2.0.18: {}
 
   normalize-path@3.0.0: {}
@@ -6767,6 +6824,8 @@ snapshots:
     dependencies:
       is-number: 7.0.0
 
+  tr46@0.0.3: {}
+
   tr46@1.0.1:
     dependencies:
       punycode: 2.3.1
@@ -6926,7 +6985,14 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
+  webidl-conversions@3.0.1: {}
+
   webidl-conversions@4.0.2: {}
+
+  whatwg-url@5.0.0:
+    dependencies:
+      tr46: 0.0.3
+      webidl-conversions: 3.0.1
 
   whatwg-url@7.1.0:
     dependencies:
