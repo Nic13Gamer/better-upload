@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
-import type { UploadRouterSuccessResponse } from '../types/internal';
+import { UploadFilesError } from '../types/error';
 import type { ClientUploadFileError, UploadedFile } from '../types/public';
+import { uploadFiles } from '../utils/upload';
 
 type UseUploadFilesProps = {
   /**
@@ -91,138 +92,34 @@ export function useUploadFiles({
       const fileArray = Array.from(files);
 
       try {
-        const res = await fetch(api, {
-          method: 'POST',
-          body: JSON.stringify({
+        const { uploadedFiles: s3UploadedFiles, serverMetadata } =
+          await uploadFiles({
+            api,
             route,
+            files: fileArray,
             metadata,
-            files: fileArray.map((file) => ({
-              name: file.name,
-              size: file.size,
-              type: file.type,
-            })),
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!res.ok) {
-          const { error } = (await res.json()) as any;
-
-          setIsError(true);
-          setIsSuccess(false);
-          setIsPending(false);
-
-          if (error) {
-            setError({
-              type: error.type || 'unknown',
-              message: error.message || null,
-            });
-            onError?.({
-              type: error.type || 'unknown',
-              message: error.message || null,
-            });
-          }
-
-          return;
-        }
-
-        const { files: signedUrls, metadata: uploadedMetadata } =
-          (await res.json()) as UploadRouterSuccessResponse;
-
-        if (!signedUrls) {
-          setIsError(true);
-          setIsSuccess(false);
-          setIsPending(false);
-
-          setError({
-            type: 'unknown',
-            message:
-              'No pre-signed URLs. Is the route set not to multiple files?',
-          });
-          onError?.({
-            type: 'unknown',
-            message:
-              'No pre-signed URLs. Is the route set not to multiple files?',
+            sequential,
+            abortOnS3UploadError: true,
+            onUploadBegin,
           });
 
-          return;
-        }
-
-        const uploaded: UploadedFile[] = [];
-
-        async function uploadSingleFile(file: File) {
-          const data = signedUrls.find(
-            (url) =>
-              url.file.name === file.name &&
-              url.file.size === file.size &&
-              url.file.type === file.type
-          )!;
-
-          const uploadRes = await fetch(data.signedUrl, {
-            method: 'PUT',
-            body: file,
-            headers: {
-              'Content-Type': file.type,
-            },
-          });
-
-          if (!uploadRes.ok) {
-            setIsError(true);
-            setIsSuccess(false);
-            setIsPending(false);
-
-            setError({ type: 'unknown', message: null });
-            onError?.({ type: 'unknown', message: null });
-
-            return;
-          }
-
-          const uploadedFile: UploadedFile = {
-            raw: file,
-            name: data.file.name,
-            size: data.file.size,
-            type: data.file.type,
-            objectKey: data.file.objectKey,
-          };
-
-          uploaded.push(uploadedFile);
-        }
-
-        onUploadBegin?.({
-          files: fileArray.map((file) => ({
-            raw: file,
-            ...signedUrls.find(
-              (url) =>
-                url.file.name === file.name &&
-                url.file.size === file.size &&
-                url.file.type === file.type
-            )!.file,
-          })),
-          metadata: uploadedMetadata,
-        });
-
-        if (sequential) {
-          for (const file of fileArray) {
-            await uploadSingleFile(file);
-          }
-        } else {
-          await Promise.all(fileArray.map(uploadSingleFile));
-        }
-
-        setUploadedFiles(uploaded);
+        setUploadedFiles(s3UploadedFiles);
         setIsPending(false);
         setIsSuccess(true);
 
-        onSuccess?.({ files: uploaded, metadata: uploadedMetadata });
+        onSuccess?.({ files: s3UploadedFiles, metadata: serverMetadata });
       } catch (error) {
         setIsError(true);
         setIsSuccess(false);
         setIsPending(false);
 
-        setError({ type: 'unknown', message: null });
-        onError?.({ type: 'unknown', message: null });
+        if (error instanceof UploadFilesError) {
+          setError({ type: error.type, message: error.message || null });
+          onError?.({ type: error.type, message: error.message || null });
+        } else {
+          setError({ type: 'unknown', message: null });
+          onError?.({ type: 'unknown', message: null });
+        }
       }
     },
     [api, route, onSuccess, onError]

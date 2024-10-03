@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
-import type { UploadRouterSuccessResponse } from '../types/internal';
+import { UploadFilesError } from '../types/error';
 import type { ClientUploadFileError, UploadedFile } from '../types/public';
+import { uploadFiles } from '../utils/upload';
 
 type UseUploadFileProps = {
   /**
@@ -77,111 +78,41 @@ export function useUploadFile({
       setIsPending(true);
 
       try {
-        const res = await fetch(api, {
-          method: 'POST',
-          body: JSON.stringify({
+        const { uploadedFiles: s3UploadedFiles, serverMetadata } =
+          await uploadFiles({
+            api,
             route,
+            files: [file],
             metadata,
-            files: [
-              {
-                name: file.name,
-                size: file.size,
-                type: file.type,
-              },
-            ],
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!res.ok) {
-          const { error } = (await res.json()) as any;
-
-          setIsError(true);
-          setIsSuccess(false);
-          setIsPending(false);
-
-          if (error) {
-            setError({
-              type: error.type || 'unknown',
-              message: error.message || null,
-            });
-            onError?.({
-              type: error.type || 'unknown',
-              message: error.message || null,
-            });
-          }
-
-          return;
-        }
-
-        const { files, metadata: uploadedMetadata } =
-          (await res.json()) as UploadRouterSuccessResponse;
-
-        const { signedUrl, file: signedFile } = files[0]!;
-
-        if (!signedUrl || !signedFile) {
-          setIsError(true);
-          setIsSuccess(false);
-          setIsPending(false);
-
-          setError({
-            type: 'unknown',
-            message: 'No pre-signed URL. Is the route set to multiple files?',
-          });
-          onError?.({
-            type: 'unknown',
-            message: 'No pre-signed URL. Is the route set to multiple files?',
+            sequential: false,
+            abortOnS3UploadError: true,
+            onUploadBegin: (data) => {
+              onUploadBegin?.({
+                file: data.files[0]!,
+                metadata: data.metadata,
+              });
+            },
           });
 
-          return;
-        }
+        const s3UploadedFile = s3UploadedFiles[0]!;
 
-        onUploadBegin?.({
-          file: { ...signedFile, raw: file },
-          metadata: uploadedMetadata,
-        });
-
-        const uploadRes = await fetch(signedUrl, {
-          method: 'PUT',
-          body: file,
-          headers: {
-            'Content-Type': file.type,
-          },
-        });
-
-        if (!uploadRes.ok) {
-          setIsError(true);
-          setIsSuccess(false);
-          setIsPending(false);
-
-          setError({ type: 'unknown', message: null });
-          onError?.({ type: 'unknown', message: null });
-
-          return;
-        }
-
-        const uploaded: UploadedFile = {
-          raw: file,
-          name: signedFile.name,
-          size: signedFile.size,
-          type: signedFile.type,
-          objectKey: signedFile.objectKey,
-        };
-
-        setUploadedFile(uploaded);
+        setUploadedFile(s3UploadedFile);
         setIsPending(false);
         setIsSuccess(true);
 
-        onSuccess?.({ file: uploaded, metadata: uploadedMetadata });
+        onSuccess?.({ file: s3UploadedFile, metadata: serverMetadata });
       } catch (error) {
         setIsError(true);
         setIsSuccess(false);
         setIsPending(false);
 
-        setError({ type: 'unknown', message: null });
-        onError?.({ type: 'unknown', message: null });
+        if (error instanceof UploadFilesError) {
+          setError({ type: error.type, message: error.message || null });
+          onError?.({ type: error.type, message: error.message || null });
+        } else {
+          setError({ type: 'unknown', message: null });
+          onError?.({ type: 'unknown', message: null });
+        }
       }
     },
     [api, route, onSuccess, onError]
