@@ -103,7 +103,12 @@ export type Route<M extends Metadata, U extends boolean> = {
           files: Omit<UploadedFileInfo, 'objectKey'>[];
         })
   ) =>
-    | ({ metadata?: M } & (U extends false
+    | ({
+        /**
+         * Metadata sent to `onAfterSignedUrl`.
+         */
+        metadata?: M;
+      } & (U extends false
         ? { objectKey?: string }
         : {
             /**
@@ -118,7 +123,12 @@ export type Route<M extends Metadata, U extends boolean> = {
           }))
     | void
     | Promise<
-        | ({ metadata?: M } & (U extends false
+        | ({
+            /**
+             * Metadata sent to `onAfterSignedUrl`.
+             */
+            metadata?: M;
+          } & (U extends false
             ? { objectKey?: string }
             : {
                 /**
