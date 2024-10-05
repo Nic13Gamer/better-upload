@@ -14,15 +14,18 @@
     "./package.json": "./package.json",
     "./server": {
       "import": "./dist/server/index.mjs",
-      "default": "./dist/server/index.js"
+      "default": "./dist/server/index.js",
+      "types": "./dist/server/index.d.ts"
     },
     "./server/helpers": {
       "import": "./dist/server-helpers/index.mjs",
-      "default": "./dist/server-helpers/index.js"
+      "default": "./dist/server-helpers/index.js",
+      "types": "./dist/server-helpers/index.d.ts"
     },
     "./client": {
       "import": "./dist/client/index.mjs",
-      "default": "./dist/client/index.js"
+      "default": "./dist/client/index.js",
+      "types": "./dist/client/index.d.ts"
     }
   },
   "dependencies": {
