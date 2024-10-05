@@ -81,6 +81,9 @@ import { UploadButton } from '@/components/ui/upload-button';
   onUploadError={(error) => {
     console.log(error.message);
   }}
+  onUploadSettled={() => {
+    console.log('Upload settled');
+  }}
 />
 ```
 
@@ -122,6 +125,11 @@ The button will open a file picker dialog when clicked, and upload the selected 
       type: 'function | undefined',
       description:
         'Event that is called if the upload fails. Has error details.',
+    },
+    onUploadSettled: {
+      type: 'function | undefined',
+      description:
+        'Event that is called after the file has been uploaded, regardless of success or failure.',
     },
   }}
 />

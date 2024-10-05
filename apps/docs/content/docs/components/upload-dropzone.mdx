@@ -70,16 +70,19 @@ import { UploadDropzone } from '@/components/ui/upload-dropzone';
   route="demo"
   accept="image/*"
   onUploadBegin={({ files, metadata }) => {
-    toast.info('Upload begin');
+    console.log('Upload begin');
   }}
   onUploadProgress={({ file, progress }) => {
     console.log(`Progress of ${file.name}: ${progress * 100}%`);
   }}
   onUploadComplete={({ files, metadata }) => {
-    toast.success(`Uploaded ${files.length} files`);
+    console.log(`Uploaded ${files.length} files`);
   }}
   onUploadError={(error) => {
-    toast.error(error.message);
+    console.log(error.message);
+  }}
+  onUploadSettled={() => {
+    console.log('Upload settled');
   }}
 />
 ```
@@ -119,6 +122,12 @@ You can customize the description shown in the dropzone. You can pass a string, 
       type: 'string',
       description: 'The upload route to use.',
     },
+    sequential: {
+      type: 'boolean',
+      description:
+        'Whether files should be uploaded sequentially, rather than in parallel.',
+      default: 'false',
+    },
     accept: {
       type: 'string | undefined',
       description: 'The file types that the input should accept.',
@@ -148,11 +157,10 @@ You can customize the description shown in the dropzone. You can pass a string, 
       description:
         'Event that is called if the upload fails. Has error details.',
     },
-    sequential: {
-      type: 'boolean',
+    onUploadSettled: {
+      type: 'function | undefined',
       description:
-        'Whether files should be uploaded sequentially, rather than in parallel.',
-      default: 'false',
+        'Event that is called after all files have been uploaded, regardless of success or failure.',
     },
   }}
 />
