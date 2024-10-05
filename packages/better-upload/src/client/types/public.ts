@@ -9,6 +9,7 @@ export type UploadedFile = {
 export type ClientUploadFileError = {
   type:
     | 'unknown'
+    | 's3_upload'
     | 'file_too_large'
     | 'invalid_file_type'
     | 'rejected'

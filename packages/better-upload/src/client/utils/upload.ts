@@ -81,7 +81,7 @@ export async function uploadFiles(params: {
       } catch (error) {
         if (params.abortOnS3UploadError) {
           throw new UploadFilesError({
-            type: 'unknown',
+            type: 's3_upload',
             message: `Failed to upload file ${file.name} to S3.`,
           });
         }
