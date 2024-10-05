@@ -24,6 +24,10 @@ type UploadDropzoneProps = {
     files: UploadedFile[];
     metadata: Record<string, unknown>;
   }) => void;
+  onUploadProgress?: (data: {
+    file: Omit<UploadedFile, 'raw'>;
+    progress: number;
+  }) => void;
   onUploadComplete?: (data: {
     files: UploadedFile[];
     metadata: Record<string, unknown>;
@@ -38,6 +42,7 @@ export function UploadDropzone({
   accept,
   description,
   onUploadBegin,
+  onUploadProgress,
   onUploadComplete,
   onUploadError,
 }: UploadDropzoneProps) {
@@ -46,6 +51,7 @@ export function UploadDropzone({
   const { upload, isPending } = useUploadFiles({
     route,
     onUploadBegin,
+    onUploadProgress,
     onSuccess: (data) => {
       if (inputRef.current) {
         inputRef.current.value = '';
