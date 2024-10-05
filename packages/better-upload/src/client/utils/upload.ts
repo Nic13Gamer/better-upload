@@ -155,7 +155,7 @@ async function uploadFileToS3(params: {
       }
     };
 
-    xhr.open('PUT', params.signedUrl + 'asd', true);
+    xhr.open('PUT', params.signedUrl, true);
     xhr.setRequestHeader('Content-Type', params.file.type);
 
     xhr.send(params.file);
