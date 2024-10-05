@@ -185,3 +185,32 @@ useUploadFiles({
 </Tab>
 
 </Tabs>
+
+### On upload settled
+
+Event that is called when the file upload has settled, regardless of success or failure.
+
+<Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
+
+<Tab value="Single file">
+```tsx
+useUploadFile({
+  route: 'demo',
+  onUploadSettled: () => {
+    console.log('Upload settled');
+  },
+});
+```
+</Tab>
+<Tab value="Multiple files">
+```tsx
+useUploadFiles({
+  route: 'demo',
+  onUploadSettled: () => {
+    console.log('Upload settled');
+  },
+});
+```
+</Tab>
+
+</Tabs>
