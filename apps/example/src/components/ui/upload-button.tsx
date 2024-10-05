@@ -10,28 +10,32 @@ type UploadButtonProps = Parameters<typeof useUploadFile>[0] & {
 };
 
 export function UploadButton({
+  api,
   route,
   accept,
   onUploadBegin,
   onUploadProgress,
   onUploadComplete,
   onUploadError,
+  onUploadSettled,
 }: UploadButtonProps) {
   const id = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const { upload, isPending } = useUploadFile({
+    api,
     route,
     onUploadBegin,
     onUploadProgress,
-    onUploadComplete: (data) => {
+    onUploadComplete,
+    onUploadError,
+    onUploadSettled: () => {
       if (inputRef.current) {
         inputRef.current.value = '';
       }
 
-      onUploadComplete?.(data);
+      onUploadSettled?.();
     },
-    onUploadError,
 
     // Add any additional configuration, like `api`.
   });

@@ -19,28 +19,34 @@ type UploadDropzoneProps = Parameters<typeof useUploadFiles>[0] & {
 };
 
 export function UploadDropzone({
+  api,
   route,
+  sequential,
   accept,
   description,
   onUploadBegin,
   onUploadProgress,
   onUploadComplete,
   onUploadError,
+  onUploadSettled,
 }: UploadDropzoneProps) {
   const id = useId();
 
   const { upload, isPending } = useUploadFiles({
+    api,
     route,
+    sequential,
     onUploadBegin,
     onUploadProgress,
-    onUploadComplete: (data) => {
+    onUploadComplete,
+    onUploadError,
+    onUploadSettled: () => {
       if (inputRef.current) {
         inputRef.current.value = '';
       }
 
-      onUploadComplete?.(data);
+      onUploadSettled?.();
     },
-    onUploadError,
 
     // Add any additional configuration, like `sequential`.
   });
