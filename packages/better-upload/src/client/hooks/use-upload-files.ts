@@ -60,7 +60,7 @@ type UseUploadFilesProps = {
   /**
    * Event that is called after the files are successfully uploaded.
    */
-  onSuccess?: (data: {
+  onUploadComplete?: (data: {
     /**
      * Information about the uploaded files.
      */
@@ -75,7 +75,7 @@ type UseUploadFilesProps = {
   /**
    * Event that is called if an error occurs during the files upload.
    */
-  onError?: (error: ClientUploadFileError) => void;
+  onUploadError?: (error: ClientUploadFileError) => void;
 };
 
 export function useUploadFiles({
@@ -84,8 +84,8 @@ export function useUploadFiles({
   sequential,
   onUploadBegin,
   onUploadProgress,
-  onSuccess,
-  onError,
+  onUploadComplete,
+  onUploadError,
 }: UseUploadFilesProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[] | null>(
     null
@@ -126,7 +126,10 @@ export function useUploadFiles({
         setIsPending(false);
         setIsSuccess(true);
 
-        onSuccess?.({ files: s3UploadedFiles, metadata: serverMetadata });
+        onUploadComplete?.({
+          files: s3UploadedFiles,
+          metadata: serverMetadata,
+        });
       } catch (error) {
         setIsError(true);
         setIsSuccess(false);
@@ -134,14 +137,14 @@ export function useUploadFiles({
 
         if (error instanceof UploadFilesError) {
           setError({ type: error.type, message: error.message || null });
-          onError?.({ type: error.type, message: error.message || null });
+          onUploadError?.({ type: error.type, message: error.message || null });
         } else {
           setError({ type: 'unknown', message: null });
-          onError?.({ type: 'unknown', message: null });
+          onUploadError?.({ type: 'unknown', message: null });
         }
       }
     },
-    [api, route, onSuccess, onError]
+    [api, route, onUploadComplete, onUploadError]
   );
 
   const reset = useCallback(() => {

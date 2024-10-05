@@ -43,14 +43,14 @@ export function UploadButton({
     route,
     onUploadBegin,
     onUploadProgress,
-    onSuccess: (data) => {
+    onUploadComplete: (data) => {
       if (inputRef.current) {
         inputRef.current.value = '';
       }
 
       onUploadComplete?.(data);
     },
-    onError: onUploadError,
+    onUploadError,
 
     // Add any additional configuration, like `api`.
   });
