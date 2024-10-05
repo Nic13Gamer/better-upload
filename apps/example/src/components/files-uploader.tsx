@@ -19,6 +19,9 @@ export function FilesUploader() {
       onUploadBegin={({ files }) => {
         toast.info(`Uploading ${files.length} files`);
       }}
+      onUploadError={(error) => {
+        toast.error(error.message);
+      }}
     />
   );
 }
