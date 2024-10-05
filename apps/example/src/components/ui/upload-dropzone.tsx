@@ -1,15 +1,10 @@
 import { cn } from '@/lib/utils';
-import {
-  useUploadFiles,
-  type ClientUploadFileError,
-  type UploadedFile,
-} from 'better-upload/client';
+import { useUploadFiles } from 'better-upload/client';
 import { Loader2, Upload } from 'lucide-react';
 import { useId } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-type UploadDropzoneProps = {
-  route: string;
+type UploadDropzoneProps = Parameters<typeof useUploadFiles>[0] & {
   accept?: string;
 
   description?:
@@ -19,20 +14,6 @@ type UploadDropzoneProps = {
         maxFiles?: number;
       }
     | string;
-
-  onUploadBegin?: (data: {
-    files: UploadedFile[];
-    metadata: Record<string, unknown>;
-  }) => void;
-  onUploadProgress?: (data: {
-    file: Omit<UploadedFile, 'raw'>;
-    progress: number;
-  }) => void;
-  onUploadComplete?: (data: {
-    files: UploadedFile[];
-    metadata: Record<string, unknown>;
-  }) => void;
-  onUploadError?: (error: ClientUploadFileError) => void;
 
   // Add any additional props you need.
 };
