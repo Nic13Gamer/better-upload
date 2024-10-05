@@ -32,6 +32,23 @@ type UseUploadFileProps = {
   }) => void;
 
   /**
+   * Event that is called when the file upload progress changes.
+   */
+  onUploadProgress?: (data: {
+    /**
+     * Information about the file being uploaded.
+     */
+    file: Omit<UploadedFile, 'raw'>;
+
+    /**
+     * The progress of the upload, goes from 0 to 1.
+     *
+     * @example 0.5
+     */
+    progress: number;
+  }) => void;
+
+  /**
    * Event that is called after the file is successfully uploaded.
    */
   onSuccess?: (data: {
@@ -56,6 +73,7 @@ export function useUploadFile({
   api = '/api/upload',
   route,
   onUploadBegin,
+  onUploadProgress,
   onSuccess,
   onError,
 }: UseUploadFileProps) {
@@ -92,6 +110,7 @@ export function useUploadFile({
                 metadata: data.metadata,
               });
             },
+            onUploadProgress,
           });
 
         const s3UploadedFile = s3UploadedFiles[0]!;
