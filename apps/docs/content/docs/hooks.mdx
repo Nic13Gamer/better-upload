@@ -2,21 +2,11 @@
 title: Client Hooks
 ---
 
-`better-upload` provides React hooks that allow you to easily upload files using pre-signed URLs.
-
-To upload single files, use the `useUploadFile` hook. To upload multiple files at once, use the `useUploadFiles` hook.
-
-## Options
-
-Both hooks take the following options:
-
-- `route`: The upload route to use. Should match the route defined in the [router](/routes#router).
-- `api`: If you defined your Route Handler in a different path, pass it here. Default is `/api/upload`.
-- `onUploadBegin`: Event that is called when the file starts being uploaded to S3.
-- `onSuccess`: Event that is called after the file has been uploaded.
-- `onError`: Event that is called if the upload fails. Has error details.
+Better Upload provides React hooks that allow you to easily upload files using pre-signed URLs.
 
 ## Single file
+
+To upload single files, use the `useUploadFile` hook.
 
 ```tsx
 import { useUploadFile } from 'better-upload/client';
@@ -25,9 +15,6 @@ export function MyComponent() {
   const { upload, reset, uploadedFile, isPending, isSuccess, isError, error } =
     useUploadFile({
       route: 'demo',
-      onSuccess: ({ file }) => {
-        console.log('File uploaded');
-      },
     });
 
   return (
@@ -45,6 +32,8 @@ export function MyComponent() {
 
 ## Multiple files
 
+To upload multiple files at once, use the `useUploadFiles` hook.
+
 ```tsx
 import { useUploadFiles } from 'better-upload/client';
 
@@ -52,9 +41,6 @@ export function MyComponent() {
   const { upload, reset, uploadedFiles, isPending, isSuccess, isError, error } =
     useUploadFiles({
       route: 'demo',
-      onSuccess: ({ files }) => {
-        console.log(`${files.length} files uploaded`);
-      },
     });
 
   return (
@@ -81,3 +67,121 @@ useUploadFiles({
   sequential: true,
 });
 ```
+
+## Events
+
+### On upload begin
+
+Event that is called when the file starts being uploaded to the S3 bucket. Happens after your server responds with a pre-signed URL.
+
+<Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
+
+<Tab value="Single file">
+```tsx
+useUploadFile({
+  route: 'demo',
+  onUploadBegin: ({ file, metadata }) => {
+    console.log('Upload begin');
+  },
+});
+```
+</Tab>
+<Tab value="Multiple files">
+```tsx
+useUploadFiles({
+  route: 'demo',
+  onUploadBegin: ({ files, metadata }) => {
+    console.log('Upload begin');
+  },
+});
+```
+</Tab>
+
+</Tabs>
+
+### On upload progress
+
+Event that is called when the file upload progress changes.
+
+<Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
+
+<Tab value="Single file">
+```tsx
+useUploadFile({
+  route: 'demo',
+  onUploadProgress: ({ file, progress }) => {
+    console.log(`Upload progress: ${progress * 100}%`);
+  },
+});
+```
+</Tab>
+<Tab value="Multiple files">
+```tsx
+useUploadFiles({
+  route: 'demo',
+  onUploadProgress: ({ file, progress }) => {
+    console.log(`${file.name} upload progress: ${progress * 100}%`);
+  },
+});
+```
+</Tab>
+
+</Tabs>
+
+### On upload complete
+
+Event that is called after the file has been successfully uploaded.
+
+<Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
+
+<Tab value="Single file">
+```tsx
+useUploadFile({
+  route: 'demo',
+  onUploadComplete: ({ file, metadata }) => {
+    console.log('File uploaded');
+  },
+});
+```
+</Tab>
+<Tab value="Multiple files">
+```tsx
+useUploadFiles({
+  route: 'demo',
+  onUploadComplete: ({ files, metadata }) => {
+    console.log(`${files.length} files uploaded`);
+  },
+});
+```
+</Tab>
+
+</Tabs>
+
+### On upload error
+
+Event that is called if the upload fails.
+
+<Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
+
+<Tab value="Single file">
+```tsx
+useUploadFile({
+  route: 'demo',
+  onUploadError: (error) => {
+    console.log(error.message);
+  },
+});
+```
+</Tab>
+<Tab value="Multiple files">
+```tsx
+useUploadFiles({
+  route: 'demo',
+  onUploadError: (error) => {
+    console.log(error.message);
+  },
+});
+```
+</Tab>
+
+</Tabs>
