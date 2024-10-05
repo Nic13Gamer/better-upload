@@ -5,6 +5,8 @@ description: A dropzone that uploads multiple files.
 
 import { UploadDropzoneDemo } from '@/components/templates/upload-dropzone-demo';
 
+## Demo
+
 <Showcase>
   <UploadDropzoneDemo />
 </Showcase>
@@ -51,8 +53,8 @@ Make sure to have [shadcn/ui](https://ui.shadcn.com/docs/installation) set up in
 ## Usage
 
 <Callout>
-  If you did not create your Route Handler on `/api/upload`, modify `api` on the
-  hook in the component to match your path.
+  If you did not create your Route Handler at `/api/upload`, modify the `api`
+  prop to match your path.
 </Callout>
 
 The `<UploadDropzone />` should be used inside a client component.
@@ -67,8 +69,17 @@ import { UploadDropzone } from '@/components/ui/upload-dropzone';
 <UploadDropzone
   route="demo"
   accept="image/*"
-  onUploadComplete={({ files }) => {
-    console.log(`${files.length} files uploaded.`);
+  onUploadBegin={({ files, metadata }) => {
+    toast.info('Upload begin');
+  }}
+  onUploadProgress={({ file, progress }) => {
+    console.log(`Progress of ${file.name}: ${progress * 100}%`);
+  }}
+  onUploadComplete={({ files, metadata }) => {
+    toast.success(`Uploaded ${files.length} files`);
+  }}
+  onUploadError={(error) => {
+    toast.error(error.message);
   }}
 />
 ```
@@ -99,6 +110,11 @@ You can customize the description shown in the dropzone. You can pass a string, 
 
 <TypeTable
   type={{
+    api: {
+      type: 'string',
+      description: 'The API endpoint to use for uploading files.',
+      default: '/api/upload',
+    },
     route: {
       type: 'string',
       description: 'The upload route to use.',
@@ -117,6 +133,11 @@ You can customize the description shown in the dropzone. You can pass a string, 
       description:
         'Event that is called when the files start being uploaded to S3. Has the files and metadata sent from the server.',
     },
+    onUploadProgress: {
+      type: 'function | undefined',
+      description:
+        'Event that is called when the file upload progress changes.',
+    },
     onUploadComplete: {
       type: 'function | undefined',
       description:
@@ -126,6 +147,12 @@ You can customize the description shown in the dropzone. You can pass a string, 
       type: 'function | undefined',
       description:
         'Event that is called if the upload fails. Has error details.',
+    },
+    sequential: {
+      type: 'boolean',
+      description:
+        'Whether files should be uploaded sequentially, rather than in parallel.',
+      default: 'false',
     },
   }}
 />
