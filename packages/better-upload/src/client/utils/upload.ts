@@ -15,6 +15,10 @@ export async function uploadFiles(params: {
     files: UploadedFile[];
     metadata: Record<string, unknown | undefined>;
   }) => void;
+  onUploadProgress?: (data: {
+    file: Omit<UploadedFile, 'raw'>;
+    progress: number;
+  }) => void;
 }) {
   try {
     const signedUrlRes = await fetch(params.api, {
@@ -67,6 +71,12 @@ export async function uploadFiles(params: {
         await uploadFileToS3({
           file,
           signedUrl: data.signedUrl,
+
+          onProgress: (progress) =>
+            params.onUploadProgress?.({
+              file: data.file,
+              progress,
+            }),
         });
       } catch (error) {
         if (params.abortOnS3UploadError) {
@@ -123,16 +133,31 @@ export async function uploadFiles(params: {
   }
 }
 
-async function uploadFileToS3(params: { signedUrl: string; file: File }) {
-  const res = await fetch(params.signedUrl, {
-    method: 'PUT',
-    body: params.file,
-    headers: {
-      'Content-Type': params.file.type,
-    },
-  });
+async function uploadFileToS3(params: {
+  signedUrl: string;
+  file: File;
+  onProgress?: (progress: number) => void;
+}) {
+  const xhr = new XMLHttpRequest();
 
-  if (!res.ok) {
-    throw new Error('Failed to upload file to S3.');
-  }
+  await new Promise<void>((resolve, reject) => {
+    xhr.addEventListener('loadend', () => {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        resolve();
+      } else {
+        reject(new Error('Failed to upload file to S3.'));
+      }
+    });
+
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        params.onProgress?.(event.loaded / event.total);
+      }
+    };
+
+    xhr.open('PUT', params.signedUrl + 'asd', true);
+    xhr.setRequestHeader('Content-Type', params.file.type);
+
+    xhr.send(params.file);
+  });
 }
