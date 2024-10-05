@@ -76,6 +76,11 @@ type UseUploadFilesProps = {
    * Event that is called if an error occurs during the files upload.
    */
   onUploadError?: (error: ClientUploadFileError) => void;
+
+  /**
+   * Event that is called after the file upload is either successfully completed or an error occurs.
+   */
+  onUploadSettled?: () => void;
 };
 
 export function useUploadFiles({
@@ -86,6 +91,7 @@ export function useUploadFiles({
   onUploadProgress,
   onUploadComplete,
   onUploadError,
+  onUploadSettled,
 }: UseUploadFilesProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[] | null>(
     null
@@ -143,6 +149,8 @@ export function useUploadFiles({
           onUploadError?.({ type: 'unknown', message: null });
         }
       }
+
+      onUploadSettled?.();
     },
     [api, route, onUploadComplete, onUploadError]
   );
