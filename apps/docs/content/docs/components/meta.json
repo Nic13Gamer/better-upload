@@ -1,1 +1,4 @@
-{ "title": "Components", "pages": ["upload-button", "upload-dropzone"] }
+{
+  "title": "Components",
+  "pages": ["upload-button", "upload-dropzone"]
+}

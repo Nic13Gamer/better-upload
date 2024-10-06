@@ -12,10 +12,9 @@ To upload single files, use the `useUploadFile` hook.
 import { useUploadFile } from 'better-upload/client';
 
 export function MyComponent() {
-  const { upload, reset, uploadedFile, isPending, isSuccess, isError, error } =
-    useUploadFile({
-      route: 'demo',
-    });
+  const { upload } = useUploadFile({
+    route: 'demo',
+  });
 
   return (
     <input
@@ -38,10 +37,9 @@ To upload multiple files at once, use the `useUploadFiles` hook.
 import { useUploadFiles } from 'better-upload/client';
 
 export function MyComponent() {
-  const { upload, reset, uploadedFiles, isPending, isSuccess, isError, error } =
-    useUploadFiles({
-      route: 'demo',
-    });
+  const { upload } = useUploadFiles({
+    route: 'demo',
+  });
 
   return (
     <input

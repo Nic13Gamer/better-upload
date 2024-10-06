@@ -10,6 +10,8 @@
     "routes",
     "hooks",
     "--- Components ---",
-    "...components"
+    "...components",
+    "--- API Reference ---",
+    "...api-reference"
   ]
 }

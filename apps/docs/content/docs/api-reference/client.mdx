@@ -1,0 +1,229 @@
+---
+title: better-upload/client
+description: The Better Upload client that provides hooks and utilities to your client.
+---
+
+## Hooks
+
+### useUploadFile
+
+Used for uploading a single file.
+
+```tsx
+useUploadFile({
+  route: 'demo',
+  onUploadComplete: ({ file }) => {
+    console.log(`${file.name} uploaded`);
+  },
+});
+```
+
+#### Parameters
+
+<TypeTable
+  type={{
+    api: {
+      type: 'string | undefined',
+      description: 'The API endpoint to use for uploading files.',
+      default: '/api/upload',
+    },
+    route: {
+      type: 'string',
+      description:
+        'The route to use to upload the file. Should match the upload route name defined in the server.',
+    },
+    onUploadBegin: {
+      type: '({ file: UploadedFile, metadata: ServerMetadata }) => void',
+      description:
+        'Event that is called when the file starts being uploaded to S3. This happens after the server responds with the pre-signed URL.',
+    },
+    onUploadProgress: {
+      type: '({ file: UploadedFile, progress: number }) => void',
+      description:
+        'Event that is called when the file upload progress changes. Progress goes from 0 to 1.',
+    },
+    onUploadComplete: {
+      type: '({ file: UploadedFile, metadata: ServerMetadata }) => void',
+      description:
+        'Event that is called after the file is successfully uploaded.',
+    },
+    onUploadSettled: {
+      type: '() => void',
+      description:
+        'Event that is called after the file upload is either successfully completed or an error occurs.',
+    },
+    onUploadError: {
+      type: '(error: ClientUploadFileError) => void',
+      description:
+        'Event that is called if an error occurs during file upload.',
+    },
+  }}
+/>
+
+#### Returns
+
+<TypeTable
+  type={{
+    upload: {
+      type: '(file: File, { metadata?: ServerMetadata }) => Promise<void>',
+      description: 'Start the file upload process.',
+    },
+    reset: {
+      type: '() => void',
+      description: 'Reset the file upload state.',
+    },
+    uploadedFile: {
+      type: 'UploadedFile | null',
+      description: 'The uploaded file object.',
+    },
+    isPending: {
+      type: 'boolean',
+      description: 'Whether the file is currently being uploaded.',
+    },
+    isSuccess: {
+      type: 'boolean',
+      description: 'Whether the file was successfully uploaded.',
+    },
+    isError: {
+      type: 'boolean',
+      description: 'Whether an error occurred during file upload.',
+    },
+    error: {
+      type: 'ClientUploadFileError | null',
+      description: 'The error object if an error occurred during file upload.',
+    },
+  }}
+/>
+
+### useUploadFiles
+
+Used for uploading multiple files at once.
+
+```tsx
+useUploadFiles({
+  route: 'demo',
+  onUploadComplete: ({ files }) => {
+    console.log(`${files.length} files uploaded`);
+  },
+});
+```
+
+#### Parameters
+
+<TypeTable
+  type={{
+    api: {
+      type: 'string | undefined',
+      description: 'The API endpoint to use for uploading files.',
+      default: '/api/upload',
+    },
+    route: {
+      type: 'string',
+      description:
+        'The route to use to upload the files. Should match the upload route name defined in the server.',
+    },
+    sequential: {
+      type: 'boolean',
+      description:
+        'Whether files should be uploaded sequentially, rather than in parallel.',
+      default: 'false',
+    },
+    onUploadBegin: {
+      type: '({ files: UploadedFile[], metadata: ServerMetadata }) => void',
+      description:
+        'Event that is called when the files start being uploaded to S3. This happens after the server responds with the pre-signed URL.',
+    },
+    onUploadProgress: {
+      type: '({ file: UploadedFile, progress: number }) => void',
+      description:
+        'Event that is called when the file upload progress changes. Progress goes from 0 to 1.',
+    },
+    onUploadComplete: {
+      type: '({ files: UploadedFile[], metadata: ServerMetadata }) => void',
+      description:
+        'Event that is called after the files are successfully uploaded.',
+    },
+    onUploadSettled: {
+      type: '() => void',
+      description:
+        'Event that is called after the file upload is either successfully completed or an error occurs.',
+    },
+    onUploadError: {
+      type: '(error: ClientUploadFileError) => void',
+      description:
+        'Event that is called if an error occurs during file upload.',
+    },
+  }}
+/>
+
+#### Returns
+
+<TypeTable
+  type={{
+    upload: {
+      type: '(files: File[], { metadata?: ServerMetadata }) => Promise<void>',
+      description: 'Start the file upload process.',
+    },
+    reset: {
+      type: '() => void',
+      description: 'Reset the file upload state.',
+    },
+    uploadedFiles: {
+      type: 'UploadedFile[] | null',
+      description: 'The uploaded files array.',
+    },
+    isPending: {
+      type: 'boolean',
+      description: 'Whether the files are currently being uploaded.',
+    },
+    isSuccess: {
+      type: 'boolean',
+      description: 'Whether the files were successfully uploaded.',
+    },
+    isError: {
+      type: 'boolean',
+      description: 'Whether an error occurred during file upload.',
+    },
+    error: {
+      type: 'ClientUploadFileError | null',
+      description: 'The error object if an error occurred during file upload.',
+    },
+  }}
+/>
+
+## Types
+
+### UploadedFile
+
+```ts
+type UploadedFile = {
+  raw: File;
+  name: string;
+  size: number;
+  type: string;
+  objectKey: string;
+};
+```
+
+### ServerMetadata
+
+Metadata needs to be JSON serializable.
+
+```ts
+type ServerMetadata = Record<string, unknown>;
+```
+
+### ClientUploadFileError
+
+```ts
+type ClientUploadFileError = {
+  type:
+    | 'unknown'
+    | 's3_upload'
+    | 'file_too_large'
+    | 'invalid_file_type'
+    | 'rejected'
+    | 'too_many_files';
+  message: string | null;
+};
+```
