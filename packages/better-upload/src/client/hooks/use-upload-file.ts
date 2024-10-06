@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { UploadFilesError } from '../types/error';
+import type { ServerMetadata } from '../types/internal';
 import type { ClientUploadFileError, UploadedFile } from '../types/public';
 import { uploadFiles } from '../utils/upload';
 
@@ -28,7 +29,7 @@ type UseUploadFileProps = {
     /**
      * Metadata sent from the server.
      */
-    metadata: Record<string, unknown | undefined>;
+    metadata: ServerMetadata;
   }) => void;
 
   /**
@@ -60,7 +61,7 @@ type UseUploadFileProps = {
     /**
      * Metadata sent from the server.
      */
-    metadata: Record<string, unknown | undefined>;
+    metadata: ServerMetadata;
   }) => void;
 
   /**
@@ -90,10 +91,7 @@ export function useUploadFile({
   const [error, setError] = useState<ClientUploadFileError | null>(null);
 
   const upload = useCallback(
-    async (
-      file: File,
-      { metadata }: { metadata?: Record<string, unknown> } = {}
-    ) => {
+    async (file: File, { metadata }: { metadata?: ServerMetadata } = {}) => {
       setUploadedFile(null);
       setIsSuccess(false);
       setIsError(false);

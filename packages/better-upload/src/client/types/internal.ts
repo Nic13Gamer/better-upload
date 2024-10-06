@@ -5,3 +5,5 @@ export type UploadRouterSuccessResponse = {
   }[];
   metadata: Record<string, unknown>;
 };
+
+export type ServerMetadata = Record<string, unknown>;
