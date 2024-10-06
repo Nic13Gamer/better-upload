@@ -18,10 +18,6 @@ import { ActionFunctionArgs } from '@remix-run/node';
 import { handleRequest } from 'better-upload/server';
 
 export async function action({ request }: ActionFunctionArgs) {
-  if (request.method !== 'POST') {
-    return new Response(null, { status: 405 });
-  }
-
   return handleRequest(request, {
     // your router config...
   });
