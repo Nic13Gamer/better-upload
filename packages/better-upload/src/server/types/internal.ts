@@ -1,5 +1,4 @@
 export type Metadata = Record<string, unknown>;
-export type ClientMetadata = Record<string, unknown | undefined>;
 
 export type UploadedFileInfo = {
   /**
@@ -88,7 +87,7 @@ export type Route<M extends Metadata, U extends boolean> = {
       /**
        * Metadata sent from the client.
        */
-      clientMetadata: ClientMetadata;
+      clientMetadata: Metadata;
     } & (U extends false
       ? {
           /**
@@ -166,7 +165,7 @@ export type Route<M extends Metadata, U extends boolean> = {
       /**
        * Metadata sent from the client.
        */
-      clientMetadata: ClientMetadata;
+      clientMetadata: Metadata;
     } & (U extends false
       ? {
           /**
