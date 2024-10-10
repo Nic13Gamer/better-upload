@@ -13,11 +13,21 @@ import { UploadDropzoneDemo } from '@/components/templates/upload-dropzone-demo'
 
 ## Installation
 
-<Steps>
+<Tabs items={['CLI', 'Manual']}>
 
+<Tab value="CLI">
+{/* <!-- prettier-ignore-start --> */}
+```bash
+npx shadcn@latest add "https://better-upload.js.org/r/upload-dropzone.json"
+```
+{/* <!-- prettier-ignore-end --> */}
+</Tab>
+
+<Tab value="Manual">
+<Steps>
 <Step>
 
-### Install the following dependencies:
+**Install the following dependencies:**
 
 ```package-install
 lucide-react react-dropzone
@@ -29,7 +39,7 @@ Make sure to have [shadcn/ui](https://ui.shadcn.com/docs/installation) set up in
 
 <Step>
 
-### Copy and paste the following code into your project.
+**Copy and paste the following code into your project.**
 
 ```json doc-gen:file
 {
@@ -44,11 +54,14 @@ Make sure to have [shadcn/ui](https://ui.shadcn.com/docs/installation) set up in
 
 <Step>
 
-### Update the import paths to match your project setup.
+**Update the import paths to match your project setup.**
 
 </Step>
 
 </Steps>
+</Tab>
+
+</Tabs>
 
 ## Usage
 

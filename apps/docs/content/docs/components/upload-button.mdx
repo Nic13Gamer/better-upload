@@ -13,11 +13,21 @@ import { UploadButtonDemo } from '@/components/templates/upload-button-demo';
 
 ## Installation
 
-<Steps>
+<Tabs items={['CLI', 'Manual']}>
 
+<Tab value="CLI">
+{/* <!-- prettier-ignore-start --> */}
+```bash
+npx shadcn@latest add "https://better-upload.js.org/r/upload-button.json"
+```
+{/* <!-- prettier-ignore-end --> */}
+</Tab>
+
+<Tab value="Manual">
+<Steps>
 <Step>
 
-### Install the following dependencies:
+**Install the following dependencies:**
 
 ```package-install
 lucide-react
@@ -29,7 +39,7 @@ Also add the [shadcn/ui button](https://ui.shadcn.com/docs/components/button) co
 
 <Step>
 
-### Copy and paste the following code into your project.
+**Copy and paste the following code into your project.**
 
 ```json doc-gen:file
 {
@@ -44,11 +54,14 @@ Also add the [shadcn/ui button](https://ui.shadcn.com/docs/components/button) co
 
 <Step>
 
-### Update the import paths to match your project setup.
+**Update the import paths to match your project setup.**
 
 </Step>
 
 </Steps>
+</Tab>
+
+</Tabs>
 
 ## Usage
 
