@@ -34,9 +34,7 @@ better-upload @aws-sdk/client-s3
 
 ### Set up the Route Handler
 
-The Route Handler will create pre-signed URLs, which the client uses to upload files directly to the S3 bucket.
-
-The recommended location is `app/api/upload/route.ts`, but you can place it anywhere you like.
+The Route Handler will create pre-signed URLs, which the client uses to upload files directly to the S3 bucket. The recommended location for Next.js is `app/api/upload/route.ts`.
 
 Change `your-bucket-name` to your S3 bucket name, and configure the S3 client as needed.
 
@@ -63,16 +61,15 @@ In the example above, we create the upload route `demo` for single images. You c
 
 <Step>
 
-### Put an `<UploadButton />`
+### Place the Upload Button
 
 The upload button component is used to upload single files. Put it in a component/page.
 
-**Install it [here](/components/upload-button).**
+You can install it via the [shadcn](https://ui.shadcn.com/) CLI:
 
-<Callout type="warn">
-  Whether you put it in a component or a page, mark it with `'use client';`, as
-  the pre-built components need to be used in client components.
-</Callout>
+```bash
+npx shadcn@latest add "https://better-upload.js.org/r/upload-button.json"
+```
 
 ```tsx title="app/page.tsx"
 'use client';
@@ -93,6 +90,11 @@ export default function Page() {
   );
 }
 ```
+
+<Callout type="warn">
+  Whether you put it in a component or a page, mark it with `'use client';`, as
+  the pre-built components need to be used in client components.
+</Callout>
 
 </Step>
 
