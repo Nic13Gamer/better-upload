@@ -12,7 +12,16 @@ To upload single files, use the `useUploadFile` hook.
 import { useUploadFile } from 'better-upload/client';
 
 export function MyComponent() {
-  const { upload } = useUploadFile({
+  const {
+    upload,
+    uploadedFile,
+    progress,
+    isPending,
+    isSuccess,
+    isError,
+    error,
+    reset,
+  } = useUploadFile({
     route: 'demo',
   });
 
@@ -37,7 +46,16 @@ To upload multiple files at once, use the `useUploadFiles` hook.
 import { useUploadFiles } from 'better-upload/client';
 
 export function MyComponent() {
-  const { upload } = useUploadFiles({
+  const {
+    upload,
+    uploadedFiles,
+    progresses,
+    isPending,
+    isSuccess,
+    isError,
+    error,
+    reset,
+  } = useUploadFiles({
     route: 'demo',
   });
 
@@ -65,6 +83,11 @@ useUploadFiles({
   sequential: true,
 });
 ```
+
+<Callout title="API Endpoint">
+  If your upload route handler is not located at `/api/upload`, you need to
+  specify the correct path in the `api` option.
+</Callout>
 
 ## Events
 
