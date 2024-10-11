@@ -11,11 +11,11 @@ export async function uploadFiles(params: {
   sequential?: boolean;
   abortOnS3UploadError?: boolean;
 
-  onUploadBegin?: (data: {
+  onBegin?: (data: {
     files: UploadedFile[];
     metadata: Record<string, unknown | undefined>;
   }) => void;
-  onUploadProgress?: (data: {
+  onProgress?: (data: {
     file: Omit<UploadedFile, 'raw'>;
     progress: number;
   }) => void;
@@ -73,7 +73,7 @@ export async function uploadFiles(params: {
           signedUrl: data.signedUrl,
 
           onProgress: (progress) =>
-            params.onUploadProgress?.({
+            params.onProgress?.({
               file: data.file,
               progress,
             }),
@@ -96,7 +96,7 @@ export async function uploadFiles(params: {
       });
     });
 
-    params.onUploadBegin?.({
+    params.onBegin?.({
       files: params.files.map((file) => ({
         raw: file,
         ...signedUrls.find(

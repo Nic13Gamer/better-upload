@@ -110,13 +110,13 @@ export function useUploadFile({
             metadata,
             sequential: false,
             abortOnS3UploadError: true,
-            onUploadBegin: (data) => {
+            onBegin: (data) => {
               onUploadBegin?.({
                 file: data.files[0]!,
                 metadata: data.metadata,
               });
             },
-            onUploadProgress: (data) => {
+            onProgress: (data) => {
               setProgress(data.progress);
               onUploadProgress?.(data);
             },

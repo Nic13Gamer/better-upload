@@ -137,8 +137,8 @@ export function useUploadFiles({
             metadata,
             sequential,
             abortOnS3UploadError: true,
-            onUploadBegin,
-            onUploadProgress: (data) => {
+            onBegin: onUploadBegin,
+            onProgress: (data) => {
               setProgresses((prev) => ({
                 ...prev,
                 [data.file.objectKey]: data.progress,
