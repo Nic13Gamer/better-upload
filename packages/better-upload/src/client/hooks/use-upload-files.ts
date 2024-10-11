@@ -101,6 +101,7 @@ export function useUploadFiles({
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
   const [error, setError] = useState<ClientUploadFileError | null>(null);
+  const [progresses, setProgresses] = useState<Record<string, number>>({});
 
   const upload = useCallback(
     async (
@@ -111,6 +112,7 @@ export function useUploadFiles({
       setIsSuccess(false);
       setIsError(false);
       setError(null);
+      setProgresses({});
 
       setIsPending(true);
 
@@ -136,7 +138,13 @@ export function useUploadFiles({
             sequential,
             abortOnS3UploadError: true,
             onUploadBegin,
-            onUploadProgress,
+            onUploadProgress: (data) => {
+              setProgresses((prev) => ({
+                ...prev,
+                [data.file.objectKey]: data.progress,
+              }));
+              onUploadProgress?.(data);
+            },
           });
 
         setUploadedFiles(s3UploadedFiles);
@@ -151,6 +159,7 @@ export function useUploadFiles({
         setIsError(true);
         setIsSuccess(false);
         setIsPending(false);
+        setProgresses({});
 
         if (error instanceof UploadFilesError) {
           setError({ type: error.type, message: error.message || null });
@@ -181,12 +190,14 @@ export function useUploadFiles({
     setIsSuccess(false);
     setIsError(false);
     setError(null);
+    setProgresses({});
   }, []);
 
   return {
     upload,
     reset,
     uploadedFiles,
+    progresses,
     isPending,
     isSuccess,
     isError,
