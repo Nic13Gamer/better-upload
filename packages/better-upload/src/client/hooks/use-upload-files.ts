@@ -116,6 +116,16 @@ export function useUploadFiles({
 
       const fileArray = Array.from(files);
 
+      if (fileArray.length === 0) {
+        setIsError(true);
+        setIsSuccess(false);
+        setIsPending(false);
+        setError({ type: 'no_files', message: 'No files to upload.' });
+        onUploadError?.({ type: 'no_files', message: 'No files to upload.' });
+        onUploadSettled?.();
+        return;
+      }
+
       try {
         const { uploadedFiles: s3UploadedFiles, serverMetadata } =
           await uploadFiles({
