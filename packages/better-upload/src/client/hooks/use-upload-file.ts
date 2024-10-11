@@ -140,7 +140,15 @@ export function useUploadFile({
 
       onUploadSettled?.();
     },
-    [api, route, onUploadComplete, onUploadError]
+    [
+      api,
+      route,
+      onUploadBegin,
+      onUploadProgress,
+      onUploadComplete,
+      onUploadError,
+      onUploadSettled,
+    ]
   );
 
   const reset = useCallback(() => {
