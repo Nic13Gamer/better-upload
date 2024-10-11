@@ -65,11 +65,6 @@ Make sure to have [shadcn/ui](https://ui.shadcn.com/docs/installation) set up in
 
 ## Usage
 
-<Callout>
-  If you did not create your Route Handler at `/api/upload`, modify the `api`
-  prop to match your path.
-</Callout>
-
 The `<UploadDropzone />` should be used inside a client component.
 
 ```tsx
@@ -100,6 +95,11 @@ import { UploadDropzone } from '@/components/ui/upload-dropzone';
 />
 ```
 
+<Callout>
+  If your upload route handler is not located at `/api/upload`, modify the `api`
+  prop to match your path.
+</Callout>
+
 When clicked, the dropzone will open a file picker dialog. When selected or dropped, the files will be uploaded to the desired route.
 
 ### Description
@@ -121,6 +121,8 @@ You can customize the description shown in the dropzone. You can pass a string, 
   }}
 />
 ```
+
+Note that this is only cosmetic and does not enforce any restrictions client-side.
 
 ## Props
 
