@@ -22,9 +22,7 @@ export type UploadedFileInfo = {
   objectKey: string;
 };
 
-export type ExecRoute = () => Route<any, boolean>;
-
-export type Route<M extends Metadata, U extends boolean> = {
+export type RouteConfig<M extends Metadata, U extends boolean> = {
   /**
    * Maximum file size in bytes.
    *
@@ -179,10 +177,7 @@ export type Route<M extends Metadata, U extends boolean> = {
            */
           files: UploadedFileInfo[];
         })
-  ) =>
-    | { metadata?: Record<string, unknown> }
-    | void
-    | Promise<{ metadata?: Record<string, unknown> } | void>;
+  ) => { metadata?: Metadata } | void | Promise<{ metadata?: Metadata } | void>;
 } & (U extends true
   ? {
       /**
@@ -207,3 +202,31 @@ export type Route<M extends Metadata, U extends boolean> = {
        */
       multipleFiles?: U;
     });
+
+export type Route = {
+  maxFileSize?: number;
+  fileTypes?: string[];
+  signedUrlExpiresIn?: number;
+
+  maxFiles?: number;
+
+  onBeforeUpload?: (data: {
+    req: Request;
+    clientMetadata: Metadata;
+    files: Omit<UploadedFileInfo, 'objectKey'>[];
+  }) => Promise<{
+    metadata?: Metadata;
+    generateObjectKey?: (data: {
+      file: Omit<UploadedFileInfo, 'objectKey'>;
+    }) => string | Promise<string>;
+  } | void>;
+
+  onAfterSignedUrl?: (data: {
+    req: Request;
+    metadata: Metadata;
+    clientMetadata: Metadata;
+    files: UploadedFileInfo[];
+  }) => Promise<{ metadata?: Metadata } | void>;
+};
+
+export type ExecRoute = () => Route;

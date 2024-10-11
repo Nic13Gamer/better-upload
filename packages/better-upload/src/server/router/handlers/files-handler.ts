@@ -7,7 +7,7 @@ import type { UploadFileSchema } from '@/server/validations';
 import { PutObjectCommand, type S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-export async function handleMultipleFiles({
+export async function handleFiles({
   req,
   client,
   bucketName,
@@ -17,7 +17,7 @@ export async function handleMultipleFiles({
   req: Request;
   client: S3Client;
   bucketName: string;
-  route: Route<any, true>;
+  route: Route;
   data: UploadFileSchema;
 }) {
   const { files } = data;

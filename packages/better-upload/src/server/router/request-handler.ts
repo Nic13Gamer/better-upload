@@ -1,7 +1,6 @@
 import type { Router } from '../types/public';
 import { uploadFileSchema } from '../validations';
-import { handleFile } from './handlers/file-handler';
-import { handleMultipleFiles } from './handlers/multiple-files-handler';
+import { handleFiles } from './handlers/files-handler';
 
 export async function handleRequest(req: Request, router: Router) {
   if (req.method !== 'POST') {
@@ -40,15 +39,7 @@ export async function handleRequest(req: Request, router: Router) {
 
   const route = router.routes[data.route]!();
 
-  if (route.multipleFiles) {
-    return handleMultipleFiles({
-      req,
-      client: router.client,
-      bucketName: router.bucketName,
-      route,
-      data,
-    });
-  } else if (data.files.length > 1) {
+  if(route.maxFiles === 1 && data.files.length > 1) {
     return Response.json(
       {
         error: {
@@ -60,7 +51,7 @@ export async function handleRequest(req: Request, router: Router) {
     );
   }
 
-  return handleFile({
+  return handleFiles({
     req,
     client: router.client,
     bucketName: router.bucketName,
