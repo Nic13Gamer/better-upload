@@ -37,6 +37,19 @@ export async function handleFiles({
   }
 
   for (const file of files) {
+    if (file.size > 1024 * 1024 * 5000) {
+      return Response.json(
+        {
+          error: {
+            type: 'file_too_large',
+            message:
+              'One or more files exceed the S3 limit of 5GB. Use multipart upload for larger files.',
+          },
+        },
+        { status: 400 }
+      );
+    }
+
     if (file.size > maxFileSize) {
       return Response.json(
         {
