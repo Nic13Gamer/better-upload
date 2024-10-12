@@ -5,15 +5,25 @@ import type {
   RouteConfig,
 } from '../types/internal';
 
-export function route<M extends Metadata = {}, U extends boolean = false>(
-  config: RouteConfig<M, U>
-): ExecRoute {
+export function route<
+  M extends Metadata = {},
+  U extends boolean = false,
+  T extends boolean = false,
+>(config: RouteConfig<M, U, T>): ExecRoute {
   const route: Route = {
     maxFileSize: config.maxFileSize,
     fileTypes: config.fileTypes,
     signedUrlExpiresIn: config.signedUrlExpiresIn,
 
     maxFiles: config.multipleFiles ? config.maxFiles : 1,
+
+    multipart: config.multipart
+      ? {
+          partSize: config.partSize,
+          partSignedUrlExpiresIn: config.partSignedUrlExpiresIn,
+          completeSignedUrlExpiresIn: config.completeSignedUrlExpiresIn,
+        }
+      : undefined,
 
     onBeforeUpload: config.onBeforeUpload
       ? async (data) => {

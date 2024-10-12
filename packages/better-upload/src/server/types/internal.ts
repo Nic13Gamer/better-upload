@@ -22,7 +22,11 @@ export type UploadedFileInfo = {
   objectKey: string;
 };
 
-export type RouteConfig<M extends Metadata, U extends boolean> = {
+export type RouteConfig<
+  M extends Metadata,
+  U extends boolean,
+  T extends boolean,
+> = {
   /**
    * Maximum file size in bytes.
    *
@@ -57,6 +61,8 @@ export type RouteConfig<M extends Metadata, U extends boolean> = {
 
   /**
    * The number of seconds the upload signed URL is valid for.
+   *
+   * This is not used for multipart uploads.
    *
    * @default 120
    *
@@ -201,7 +207,49 @@ export type RouteConfig<M extends Metadata, U extends boolean> = {
        * @default false
        */
       multipleFiles?: U;
-    });
+    }) &
+  (T extends true
+    ? {
+        /**
+         * Use multipart upload for large files.
+         *
+         * **Use this for files larger than 5GB.**
+         *
+         * @default false
+         */
+        multipart?: T;
+
+        /**
+         * The size of each part in bytes.
+         *
+         * @default 1024 * 1024 * 50 // 50MB
+         */
+        partSize?: number;
+
+        /**
+         * The number of seconds the upload part pre-signed URL is valid for.
+         *
+         * @default 1500 // 25 minutes
+         */
+        partSignedUrlExpiresIn?: number;
+
+        /**
+         * The number of seconds the complete multipart upload pre-signed URL is valid for.
+         *
+         * @default 1800 // 30 minutes
+         */
+        completeSignedUrlExpiresIn?: number;
+      }
+    : {
+        /**
+         * Use multipart upload for large files.
+         *
+         * **Use this for files larger than 5GB.**
+         *
+         * @default false
+         */
+        multipart?: T;
+      });
 
 export type Route = {
   maxFileSize?: number;
@@ -209,6 +257,12 @@ export type Route = {
   signedUrlExpiresIn?: number;
 
   maxFiles?: number;
+
+  multipart?: {
+    partSize?: number;
+    partSignedUrlExpiresIn?: number;
+    completeSignedUrlExpiresIn?: number;
+  };
 
   onBeforeUpload?: (data: {
     req: Request;
