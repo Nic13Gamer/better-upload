@@ -72,9 +72,7 @@ export async function handleRequest(req: Request, router: Router) {
     );
   }
 
-  const hasMultipartHeader = req.headers.get('x-multipart-upload') === 'true';
-
-  if (route.multipart && hasMultipartHeader) {
+  if (route.multipart) {
     return handleMultipartFiles({
       req,
       client: router.client,
@@ -82,26 +80,6 @@ export async function handleRequest(req: Request, router: Router) {
       route,
       data,
     });
-  } else if (route.multipart && !hasMultipartHeader) {
-    return Response.json(
-      {
-        error: {
-          type: 'invalid_request',
-          message: 'This upload route is configured for multipart uploads.',
-        },
-      },
-      { status: 400 }
-    );
-  } else if (!route.multipart && hasMultipartHeader) {
-    return Response.json(
-      {
-        error: {
-          type: 'invalid_request',
-          message: 'This upload route is not configured for multipart uploads.',
-        },
-      },
-      { status: 400 }
-    );
   }
 
   return handleFiles({
