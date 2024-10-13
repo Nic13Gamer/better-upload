@@ -123,19 +123,22 @@ Both now get an array of files (`files`), instead of a single file (`file`).
 
 ## Multipart uploads
 
-If you want to upload files larger than 5GB, you need to use multipart uploads. To enable it, set `multipart` to `true`.
-
-It works both for single and multiple files.
+If you want to upload files larger than 5GB, you need to use multipart uploads. To enable it, set `multipart` to `true`. It works both for single and multiple files.
 
 ```ts
 import { route } from 'better-upload/server';
 
 route({
   multipart: true,
+  partSize: 1024 * 1024 * 20, // 20MB, default is 50MB
 });
 ```
 
-You can also modify the part size by setting `partSize` in bytes. The default is 50MB.
+You can also modify the following options:
+
+- `partSize`: The size of each part in bytes. Default is 50MB.
+- `partSignedUrlExpiresIn`: The time in seconds the part signed URL is valid. Default is 1500 seconds (25 minutes).
+- `completeSignedUrlExpiresIn`: The time in seconds the complete signed URL is valid. Default is 1800 seconds (30 minutes).
 
 ## Router
 
