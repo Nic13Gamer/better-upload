@@ -116,8 +116,9 @@ Make sure to also correctly configure CORS on your bucket. Here is an example:
       "http://localhost:3000",
       "https://example.com" // Add your domain here
     ],
-    "AllowedMethods": ["GET", "PUT"],
-    "AllowedHeaders": ["*"]
+    "AllowedMethods": ["GET", "PUT", "POST", "DELETE"],
+    "AllowedHeaders": ["*"],
+    "ExposeHeaders": ["ETag"]
   }
 ]
 ```

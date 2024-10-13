@@ -121,6 +121,22 @@ Both now get an array of files (`files`), instead of a single file (`file`).
 
 `onBeforeUpload` now needs to return `generateObjectKey`, instead of just returning a string in `objectKey`.
 
+## Multipart uploads
+
+If you want to upload files larger than 5GB, you need to use multipart uploads. To enable it, set `multipart` to `true`.
+
+It works both for single and multiple files.
+
+```ts
+import { route } from 'better-upload/server';
+
+route({
+  multipart: true,
+});
+```
+
+You can also modify the part size by setting `partSize` in bytes. The default is 50MB.
+
 ## Router
 
 The router is where you define all of your upload routes. To define a router you can use the `Router` type, then create a simple object.
