@@ -268,6 +268,6 @@ async function uploadMultipartFileToS3(params: {
   params.onProgress?.(1);
 
   if (!completeRes.ok) {
-    new Error('Failed to complete multipart upload.');
+    throw new Error('Failed to complete multipart upload.');
   }
 }
