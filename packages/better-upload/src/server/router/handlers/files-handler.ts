@@ -24,6 +24,9 @@ export async function handleFiles({
   const maxFiles = route.maxFiles || config.defaultMaxFiles;
   const maxFileSize = route.maxFileSize || config.defaultMaxFileSize;
 
+  const signedUrlExpiresIn =
+    route.signedUrlExpiresIn || config.defaultSignedUrlExpiresIn;
+
   if (files.length > maxFiles) {
     return Response.json(
       {
@@ -116,8 +119,7 @@ export async function handleFiles({
           ContentLength: file.size,
         }),
         {
-          expiresIn:
-            route.signedUrlExpiresIn || config.defaultSignedUrlExpiresIn,
+          expiresIn: signedUrlExpiresIn,
         }
       );
 

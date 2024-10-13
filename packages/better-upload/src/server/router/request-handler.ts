@@ -21,7 +21,12 @@ export async function handleRequest(req: Request, router: Router) {
     body = await req.json();
   } catch (error) {
     return Response.json(
-      { error: { message: 'Invalid JSON body.' } },
+      {
+        error: {
+          type: 'invalid_request',
+          message: 'Invalid JSON body.',
+        },
+      },
       { status: 400 }
     );
   }
