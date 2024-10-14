@@ -64,7 +64,7 @@ export async function uploadFiles(params: {
 
     const uploadedFiles: UploadedFile[] = [];
 
-    const uploadPromises = params.files.map(async (file) => {
+    const uploadPromises = params.files.map((file) => async () => {
       const data = signedUrls.find(
         (url) =>
           url.file.name === file.name &&
@@ -140,10 +140,10 @@ export async function uploadFiles(params: {
 
     if (params.sequential) {
       for (const uploadPromise of uploadPromises) {
-        await uploadPromise;
+        await uploadPromise();
       }
     } else {
-      await Promise.all(uploadPromises);
+      await Promise.all(uploadPromises.map((promise) => promise()));
     }
 
     return {
@@ -170,13 +170,13 @@ async function uploadFileToS3(params: {
   const xhr = new XMLHttpRequest();
 
   await new Promise<void>((resolve, reject) => {
-    xhr.addEventListener('loadend', () => {
+    xhr.onloadend = () => {
       if (xhr.readyState === 4 && xhr.status === 200) {
         resolve();
       } else {
         reject(new Error('Failed to upload file to S3.'));
       }
-    });
+    };
 
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {
@@ -210,7 +210,7 @@ async function uploadMultipartFileToS3(params: {
     const blob = params.file.slice(start, end);
 
     await new Promise<void>((resolve, reject) => {
-      xhr.addEventListener('loadend', () => {
+      xhr.onloadend = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
           uploadedParts.push({
             etag: xhr.getResponseHeader('ETag')!.replace(/"/g, ''),
@@ -221,7 +221,7 @@ async function uploadMultipartFileToS3(params: {
         } else {
           reject(new Error('Failed to upload part to S3.'));
         }
-      });
+      };
 
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
