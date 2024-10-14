@@ -214,6 +214,8 @@ export function useUploadFiles({
       api,
       route,
       sequential,
+      multipartBatchSize,
+      onBeforeUpload,
       onUploadBegin,
       onUploadProgress,
       onUploadComplete,

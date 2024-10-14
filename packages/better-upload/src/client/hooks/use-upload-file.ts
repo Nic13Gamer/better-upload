@@ -179,6 +179,8 @@ export function useUploadFile({
     [
       api,
       route,
+      multipartBatchSize,
+      onBeforeUpload,
       onUploadBegin,
       onUploadProgress,
       onUploadComplete,
