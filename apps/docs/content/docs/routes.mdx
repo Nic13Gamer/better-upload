@@ -129,8 +129,8 @@ If you want to upload files larger than 5GB, you need to use multipart uploads. 
 import { route } from 'better-upload/server';
 
 route({
-  multipart: true,
-  partSize: 1024 * 1024 * 20, // 20MB, default is 50MB
+  multipart: true, // [!code highlight]
+  partSize: 1024 * 1024 * 20, // 20MB, default is 50MB // [!code highlight]
 });
 ```
 
