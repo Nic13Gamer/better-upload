@@ -18,6 +18,15 @@ type UseUploadFileProps = {
   route: string;
 
   /**
+   * The number of parts that will be uploaded in parallel when uploading a file.
+   *
+   * **Only used in multipart uploads.*
+   *
+   * @default All parts at once.
+   */
+  multipartBatchSize?: number;
+
+  /**
    * Event that is called when the file starts being uploaded to S3. This happens after the server responds with the pre-signed URL.
    */
   onUploadBegin?: (data: {
@@ -78,6 +87,7 @@ type UseUploadFileProps = {
 export function useUploadFile({
   api = '/api/upload',
   route,
+  multipartBatchSize,
   onUploadBegin,
   onUploadProgress,
   onUploadComplete,
@@ -110,6 +120,7 @@ export function useUploadFile({
             metadata,
             sequential: false,
             abortOnS3UploadError: true,
+            multipartBatchSize,
             onBegin: (data) => {
               onUploadBegin?.({
                 file: data.files[0]!,

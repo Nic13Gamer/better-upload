@@ -10,6 +10,7 @@ export async function uploadFiles(params: {
 
   sequential?: boolean;
   abortOnS3UploadError?: boolean;
+  multipartBatchSize?: number;
 
   onBegin?: (data: {
     files: UploadedFile[];
@@ -82,6 +83,7 @@ export async function uploadFiles(params: {
             partSize,
             uploadId: data.uploadId,
             completeSignedUrl: data.completeSignedUrl,
+            partsBatchSize: params.multipartBatchSize,
 
             onProgress: (progress) =>
               params.onProgress?.({
@@ -197,12 +199,13 @@ async function uploadMultipartFileToS3(params: {
   partSize: number;
   uploadId: string;
   completeSignedUrl: string;
+  partsBatchSize?: number;
   onProgress?: (progress: number) => void;
 }) {
   const uploadedParts: { etag: string; number: number }[] = [];
   const progresses: { [part: number]: number } = {};
 
-  const uploadPromises = params.parts.map(async (part) => {
+  const uploadPromises = params.parts.map((part) => async () => {
     const xhr = new XMLHttpRequest();
 
     const start = (part.partNumber - 1) * params.partSize;
@@ -241,8 +244,13 @@ async function uploadMultipartFileToS3(params: {
     });
   });
 
-  // TODO: upload in chunks, like 10 parts at a time
-  await Promise.all(uploadPromises);
+  const batchSize = params.partsBatchSize || uploadPromises.length;
+
+  for (let i = 0; i < uploadPromises.length; i += batchSize) {
+    await Promise.all(
+      uploadPromises.slice(i, i + batchSize).map((promise) => promise())
+    );
+  }
 
   const completeXmlBody = `
 <CompleteMultipartUpload>
