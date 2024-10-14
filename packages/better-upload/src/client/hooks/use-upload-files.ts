@@ -36,6 +36,15 @@ type UseUploadFilesProps = {
   multipartBatchSize?: number;
 
   /**
+   * Callback that is called before the requesting the pre-signed URLs. Use this to modify the files before uploading them, like resizing or compressing.
+   *
+   * You can also throw an error to reject the file upload.
+   */
+  onBeforeUpload?: (data: {
+    files: File[];
+  }) => void | File[] | Promise<void | File[]>;
+
+  /**
    * Event that is called when the files start being uploaded to S3. This happens after the server responds with the pre-signed URL.
    */
   onUploadBegin?: (data: {
@@ -99,6 +108,7 @@ export function useUploadFiles({
   sequential,
   multipartBatchSize,
   onUploadBegin,
+  onBeforeUpload,
   onUploadProgress,
   onUploadComplete,
   onUploadError,
@@ -139,11 +149,28 @@ export function useUploadFiles({
       }
 
       try {
+        let filesToUpload = fileArray;
+
+        if (onBeforeUpload) {
+          const result = await onBeforeUpload({ files: fileArray });
+
+          if (Array.isArray(result)) {
+            if (result.length === 0) {
+              throw new UploadFilesError({
+                type: 'no_files',
+                message: 'No files to upload.',
+              });
+            }
+
+            filesToUpload = result;
+          }
+        }
+
         const { uploadedFiles: s3UploadedFiles, serverMetadata } =
           await uploadFiles({
             api,
             route,
-            files: fileArray,
+            files: filesToUpload,
             metadata,
             sequential,
             abortOnS3UploadError: true,
