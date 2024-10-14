@@ -4,7 +4,9 @@ title: Client Hooks
 
 Better Upload provides React hooks that allow you to easily upload files using pre-signed URLs.
 
-## Single file
+## Usage
+
+### Single file
 
 To upload single files, use the `useUploadFile` hook.
 
@@ -38,7 +40,12 @@ export function MyComponent() {
 }
 ```
 
-## Multiple files
+<Callout title="API Endpoint">
+  If your upload route handler is not located at `/api/upload`, you need to
+  specify the correct path in the `api` option.
+</Callout>
+
+### Multiple files
 
 To upload multiple files at once, use the `useUploadFiles` hook.
 
@@ -73,7 +80,7 @@ export function MyComponent() {
 }
 ```
 
-### Sequential upload
+#### Sequential upload
 
 With multiple files, you can also upload sequentially, rather than in parallel. This can be useful to reduce the load on the client and S3 server, however, it will take longer to upload all files.
 
@@ -84,10 +91,13 @@ useUploadFiles({
 });
 ```
 
-<Callout title="API Endpoint">
-  If your upload route handler is not located at `/api/upload`, you need to
-  specify the correct path in the `api` option.
-</Callout>
+## Options
+
+Both hooks have the following options:
+
+- `api`: The API endpoint to use for uploading files. Default is `/api/upload`.
+- `route`: The route to use for uploading files. Needs to match the upload route in the server.
+- `multipartBatchSize`: The number of parts to upload at the same time when uploading a multipart file. By default, all parts are uploaded in parallel.
 
 ## Events
 

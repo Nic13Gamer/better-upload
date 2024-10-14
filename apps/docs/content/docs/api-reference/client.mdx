@@ -32,6 +32,11 @@ useUploadFile({
       description:
         'The route to use to upload the file. Should match the upload route name defined in the server.',
     },
+    multipartBatchSize: {
+      type: 'number | undefined',
+      description:
+        'The number of parts to upload at the same time when uploading a multipart file. By default, all parts are uploaded in parallel.',
+    },
     onUploadBegin: {
       type: '({ file: UploadedFile, metadata: ServerMetadata }) => void',
       description:
@@ -127,6 +132,11 @@ useUploadFiles({
       description:
         'Whether files should be uploaded sequentially, rather than in parallel.',
       default: 'false',
+    },
+    multipartBatchSize: {
+      type: 'number | undefined',
+      description:
+        'The number of parts to upload at the same time when uploading a multipart file. By default, all parts are uploaded in parallel.',
     },
     onUploadBegin: {
       type: '({ files: UploadedFile[], metadata: ServerMetadata }) => void',
