@@ -29,7 +29,7 @@ type UseUploadFilesProps = {
   /**
    * The number of parts that will be uploaded in parallel when uploading a file.
    *
-   * **Only used in multipart uploads.*
+   * **Only used in multipart uploads.**
    *
    * @default All parts at once.
    */
