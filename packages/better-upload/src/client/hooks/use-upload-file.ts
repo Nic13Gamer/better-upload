@@ -27,7 +27,7 @@ type UseUploadFileProps = {
   multipartBatchSize?: number;
 
   /**
-   * Callback that is called before the requesting the pre-signed URL. Use this to modify the file before uploading it, like resizing or compressing.
+   * Callback that is called before requesting the pre-signed URL. Use this to modify the file before uploading it, like resizing or compressing.
    *
    * You can also throw an error to reject the file upload.
    */

@@ -37,6 +37,11 @@ useUploadFile({
       description:
         'The number of parts to upload at the same time when uploading a multipart file. By default, all parts are uploaded in parallel.',
     },
+    onBeforeUpload: {
+      type: '({ file: File }) => void | File',
+      description:
+        'Callback that is called before requesting the pre-signed URL. Use this to modify the file before uploading it, like resizing or compressing.',
+    },
     onUploadBegin: {
       type: '({ file: UploadedFile, metadata: ServerMetadata }) => void',
       description:
@@ -137,6 +142,11 @@ useUploadFiles({
       type: 'number | undefined',
       description:
         'The number of parts to upload at the same time when uploading a multipart file. By default, all parts are uploaded in parallel.',
+    },
+    onBeforeUpload: {
+      type: '({ files: File[] }) => void | File[]',
+      description:
+        'Callback that is called before requesting the pre-signed URLs. Use this to modify the files before uploading them, like resizing or compressing.',
     },
     onUploadBegin: {
       type: '({ files: UploadedFile[], metadata: ServerMetadata }) => void',
