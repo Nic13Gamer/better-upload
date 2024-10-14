@@ -9,35 +9,19 @@ type UploadButtonProps = Parameters<typeof useUploadFile>[0] & {
   // Add any additional props you need.
 };
 
-export function UploadButton({
-  api,
-  route,
-  accept,
-  onUploadBegin,
-  onUploadProgress,
-  onUploadComplete,
-  onUploadError,
-  onUploadSettled,
-}: UploadButtonProps) {
+export function UploadButton({ accept, ...params }: UploadButtonProps) {
   const id = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const { upload, isPending } = useUploadFile({
-    api,
-    route,
-    onUploadBegin,
-    onUploadProgress,
-    onUploadComplete,
-    onUploadError,
+    ...params,
     onUploadSettled: () => {
       if (inputRef.current) {
         inputRef.current.value = '';
       }
 
-      onUploadSettled?.();
+      params.onUploadSettled?.();
     },
-
-    // Add any additional configuration, like `api`.
   });
 
   return (
