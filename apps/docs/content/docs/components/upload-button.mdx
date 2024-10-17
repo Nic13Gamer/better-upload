@@ -77,6 +77,10 @@ import { UploadButton } from '@/components/ui/upload-button';
 <UploadButton
   route="demo"
   accept="image/*"
+  onBeforeUpload={({ file }) => {
+    // rename the file
+    return new File([file], 'renamed-' + file.name, { type: file.type });
+  }}
   onUploadBegin={({ file, metadata }) => {
     console.log('Upload begin');
   }}
@@ -118,6 +122,11 @@ The button will open a file picker dialog when clicked, and upload the selected 
     accept: {
       type: 'string | undefined',
       description: 'The file types that the input should accept.',
+    },
+    onBeforeUpload: {
+      type: 'function | undefined',
+      description:
+        'Callback that is called before requesting the pre-signed URLs. Use this to modify the files before uploading them, like resizing or compressing.',
     },
     onUploadBegin: {
       type: 'function | undefined',

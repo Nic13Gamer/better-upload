@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: '%s | Better Upload',
     default: 'better-upload',
   },
-  description: 'Simple file upload for Next.js',
+  description: 'Simple file uploads for React',
   keywords: [
     'nextjs',
     'next',
@@ -24,6 +24,7 @@ export const metadata: Metadata = {
     'uploads',
     'better-upload',
     'typescript',
+    'react',
   ],
 };
 

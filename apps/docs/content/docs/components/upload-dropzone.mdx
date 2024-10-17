@@ -77,6 +77,12 @@ import { UploadDropzone } from '@/components/ui/upload-dropzone';
 <UploadDropzone
   route="demo"
   accept="image/*"
+  onBeforeUpload={({ files }) => {
+    // rename all files
+    return files.map(
+      (file) => new File([file], 'renamed-' + file.name, { type: file.type })
+    );
+  }}
   onUploadBegin={({ files, metadata }) => {
     console.log('Upload begin');
   }}
@@ -151,6 +157,11 @@ Note that this is only cosmetic and does not enforce any restrictions client-sid
       type: 'string | object | undefined',
       description:
         'The description to show in the dropzone. Object for max files, max file size, and file types. You can also return a raw string.',
+    },
+    onBeforeUpload: {
+      type: 'function | undefined',
+      description:
+        'Callback that is called before requesting the pre-signed URLs. Use this to modify the files before uploading them, like resizing or compressing.',
     },
     onUploadBegin: {
       type: 'function | undefined',
