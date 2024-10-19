@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react';
 import { DocsLayout } from 'fumadocs-ui/layout';
 import { RootProvider } from 'fumadocs-ui/provider';
 import { Metadata } from 'next';
@@ -37,6 +38,8 @@ export default function Layout({ children }: { children: ReactNode }) {
             {children}
           </DocsLayout>
         </RootProvider>
+
+        <Analytics />
       </body>
     </html>
   );
