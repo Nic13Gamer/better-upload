@@ -2,8 +2,6 @@
 title: Upload Routes
 ---
 
-## Routes
-
 Upload routes are where you define how the files are uploaded. To create a route, use the `route` function. You can create multiple routes for different purposes (e.g. images, videos). A basic example is below.
 
 ```ts
@@ -51,7 +49,7 @@ route({
 
 You can return an object with the following properties:
 
-- `objectKey`: The S3 object key. If not provided, a random key will be generated.
+- `objectKey`: The S3 object key. If not provided, a random key will be generated. For multiple files, return `generateObjectKey` instead.
 - `metadata`: Metadata to be passed to the `onAfterSignedUrl` callback.
 
 The request and metadata sent from the client are also available.
