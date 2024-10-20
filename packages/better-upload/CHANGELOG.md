@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.1.0
+
+### Minor Changes
+
+- [`1e48e2a`](https://github.com/Nic13Gamer/better-upload/commit/1e48e2a6a69e112dae12dfd264d00d9266e31418) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Initial release
+
 ## 0.0.1
 
 Note that `better-upload` is still in beta and not ready for production use.
