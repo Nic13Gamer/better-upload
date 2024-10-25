@@ -30,7 +30,7 @@ export function UploadButton({
   });
 
   return (
-    <Button disabled={isPending} className="relative">
+    <Button disabled={isPending} className="relative" type="button">
       <label htmlFor={id} className="absolute inset-0 cursor-pointer">
         <input
           id={id}
