@@ -6,6 +6,7 @@ import { useDropzone } from 'react-dropzone';
 
 type UploadDropzoneProps = Parameters<typeof useUploadFiles>[0] & {
   accept?: string;
+  metadata?: Record<string, unknown>;
 
   description?:
     | {
@@ -20,6 +21,7 @@ type UploadDropzoneProps = Parameters<typeof useUploadFiles>[0] & {
 
 export function UploadDropzone({
   accept,
+  metadata,
   description,
   ...params
 }: UploadDropzoneProps) {
@@ -39,7 +41,7 @@ export function UploadDropzone({
   const { getRootProps, getInputProps, isDragActive, inputRef } = useDropzone({
     onDrop: (files) => {
       if (files.length > 0) {
-        upload(files);
+        upload(files, { metadata });
       }
     },
     noClick: true,

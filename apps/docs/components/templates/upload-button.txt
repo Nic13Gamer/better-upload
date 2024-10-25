@@ -5,11 +5,16 @@ import { useId, useRef } from 'react';
 
 type UploadButtonProps = Parameters<typeof useUploadFile>[0] & {
   accept?: string;
+  metadata?: Record<string, unknown>;
 
   // Add any additional props you need.
 };
 
-export function UploadButton({ accept, ...params }: UploadButtonProps) {
+export function UploadButton({
+  accept,
+  metadata,
+  ...params
+}: UploadButtonProps) {
   const id = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -35,7 +40,7 @@ export function UploadButton({ accept, ...params }: UploadButtonProps) {
           accept={accept}
           onChange={(e) => {
             if (e.target.files?.[0]) {
-              upload(e.target.files[0]);
+              upload(e.target.files[0], { metadata });
             }
           }}
         />

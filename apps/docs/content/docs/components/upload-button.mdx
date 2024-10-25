@@ -123,6 +123,11 @@ The button will open a file picker dialog when clicked, and upload the selected 
       type: 'string | undefined',
       description: 'The file types that the input should accept.',
     },
+    metadata: {
+      type: 'Record<string, unknown> | undefined',
+      description:
+        'Metadata to send to your server on upload. Needs to be JSON serializable.',
+    },
     onBeforeUpload: {
       type: 'function | undefined',
       description:

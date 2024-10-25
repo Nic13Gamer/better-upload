@@ -153,6 +153,11 @@ Note that this is only cosmetic and does not enforce any restrictions client-sid
       type: 'string | undefined',
       description: 'The file types that the input should accept.',
     },
+    metadata: {
+      type: 'Record<string, unknown> | undefined',
+      description:
+        'Metadata to send to your server on upload. Needs to be JSON serializable.',
+    },
     description: {
       type: 'string | object | undefined',
       description:
