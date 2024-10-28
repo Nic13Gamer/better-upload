@@ -33,7 +33,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
       <body>
-        <RootProvider>
+        <RootProvider search={{ options: { type: 'static' } }}>
           <DocsLayout tree={source.pageTree} {...baseOptions}>
             {children}
           </DocsLayout>
