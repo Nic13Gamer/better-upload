@@ -1,5 +1,5 @@
 import { Analytics } from '@vercel/analytics/react';
-import { DocsLayout } from 'fumadocs-ui/layout';
+import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import { RootProvider } from 'fumadocs-ui/provider';
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
