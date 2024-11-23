@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.1.1
+
+### Patch Changes
+
+- [`8981d7e`](https://github.com/Nic13Gamer/better-upload/commit/8981d7e9fb960a5409f3f788fb469ff02f537b88) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Add jurisdiction option to Cloudflare R2 client helper
+
 ## 0.1.0
 
 ### Minor Changes
