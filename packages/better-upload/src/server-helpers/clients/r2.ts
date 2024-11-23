@@ -8,9 +8,10 @@ import type { CreateR2ClientParams } from '../types/internal';
  * - `CLOUDFLARE_ACCOUNT_ID`
  * - `AWS_ACCESS_KEY_ID`
  * - `AWS_SECRET_ACCESS_KEY`
+ * - `CLOUDFLARE_JURISDICTION`
  */
 export function r2(params?: CreateR2ClientParams) {
-  const { accountId, accessKeyId, secretAccessKey } = params ?? {
+  const { accountId, accessKeyId, secretAccessKey, jurisdiction } = params ?? {
     accountId: process.env.CLOUDFLARE_ACCOUNT_ID,
     accessKeyId:
       process.env.AWS_ACCESS_KEY_ID ||
@@ -20,6 +21,9 @@ export function r2(params?: CreateR2ClientParams) {
       process.env.AWS_SECRET_ACCESS_KEY ||
       process.env.CLOUDFLARE_SECRET_ACCESS_KEY ||
       process.env.CLOUDFLARE_SECRET_KEY,
+    jurisdiction:
+      process.env.CLOUDFLARE_JURISDICTION ||
+      process.env.CLOUDFLARE_R2_JURISDICTION,
   };
 
   if (!accountId || !accessKeyId || !secretAccessKey) {
@@ -27,7 +31,7 @@ export function r2(params?: CreateR2ClientParams) {
   }
 
   return new S3Client({
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+    endpoint: `https://${accountId}.${jurisdiction ? `${jurisdiction}.` : ''}r2.cloudflarestorage.com`,
     region: 'auto',
     credentials: {
       accessKeyId: accessKeyId,

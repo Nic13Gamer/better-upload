@@ -27,4 +27,11 @@ export type CreateR2ClientParams = {
    * Cloudflare R2 secret access key.
    */
   secretAccessKey: string;
+
+  /**
+   * The jurisdiction where the data is stored.
+   *
+   * Only use this if you created your R2 bucket using a jurisdiction.
+   */
+  jurisdiction?: 'eu' | 'fedramp';
 };
