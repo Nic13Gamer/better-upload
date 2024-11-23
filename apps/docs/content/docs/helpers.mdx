@@ -22,6 +22,21 @@ const client = r2({
 
 This returns an instance of an S3 Client from the AWS SDK, just like `new S3Client()`, but already configured for Cloudflare R2.
 
+#### Jurisdiction
+
+If your created your R2 bucket using a jurisdiction, you can specify it here.
+
+```ts
+import { r2 } from 'better-upload/server/helpers';
+
+const client = r2({
+  accountId: 'your-account-id',
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+  jurisdiction: 'eu', // [!code highlight]
+});
+```
+
 ## Bucket Objects
 
 ### Move object (rename)
