@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.1.2
+
+### Patch Changes
+
+- [`1808865`](https://github.com/Nic13Gamer/better-upload/commit/180886544c5a7f1725ce2fcd5e9f18045ac8b3db) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Minio helper client
+
 ## 0.1.1
 
 ### Patch Changes
