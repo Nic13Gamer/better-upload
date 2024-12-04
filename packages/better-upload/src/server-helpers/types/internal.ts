@@ -35,3 +35,25 @@ export type CreateR2ClientParams = {
    */
   jurisdiction?: 'eu' | 'fedramp';
 };
+
+export type CreateMinioClientParams = {
+  /**
+   * Minio region.
+   */
+  region: string;
+
+  /**
+   * Minio access key ID.
+   */
+  accessKeyId: string;
+
+  /**
+   * Minio secret access key.
+   */
+  secretAccessKey: string;
+
+  /**
+   * Minio endpoint.
+   */
+  endpoint: string;
+};
