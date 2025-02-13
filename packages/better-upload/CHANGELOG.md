@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.1.3
+
+### Patch Changes
+
+- [`3374121`](https://github.com/Nic13Gamer/better-upload/commit/337412184596f2231f7a6d28637e3c66f6bfadd9) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Bug fix
+
 ## 0.1.2
 
 ### Patch Changes
