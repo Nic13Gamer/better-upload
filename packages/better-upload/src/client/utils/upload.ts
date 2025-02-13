@@ -103,6 +103,14 @@ export async function uploadFiles(params: {
               }),
           });
         }
+
+        uploadedFiles.push({
+          raw: file,
+          name: data.file.name,
+          size: data.file.size,
+          type: data.file.type,
+          objectKey: data.file.objectKey,
+        });
       } catch (error) {
         if (multipart) {
           await fetch(data.abortSignedUrl, {
@@ -117,14 +125,6 @@ export async function uploadFiles(params: {
           });
         }
       }
-
-      uploadedFiles.push({
-        raw: file,
-        name: data.file.name,
-        size: data.file.size,
-        type: data.file.type,
-        objectKey: data.file.objectKey,
-      });
     });
 
     params.onBegin?.({
