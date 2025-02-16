@@ -1,14 +1,17 @@
-import { docs, meta } from '@/.source';
+import { docs } from '@/.source';
 import { create } from '@/components/ui/icon';
 import { loader } from 'fumadocs-core/source';
-import { createMDXSource } from 'fumadocs-mdx';
 import { icons } from 'lucide-react';
 
 export const source = loader({
   baseUrl: '/',
-  source: createMDXSource(docs, meta),
+  source: docs.toFumadocsSource(),
   icon(icon) {
-    if (icon && icon in icons) {
+    if (!icon) {
+      return;
+    }
+
+    if (icon in icons) {
       return create({ icon: icons[icon as keyof typeof icons] });
     }
   },

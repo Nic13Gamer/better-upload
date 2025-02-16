@@ -1,11 +1,12 @@
+import { source } from '@/lib/source';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import { RootProvider } from 'fumadocs-ui/provider';
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
-import './global.css';
 import { baseOptions } from './layout.config';
-import { source } from './source';
+
+import './global.css';
 
 const inter = Inter({
   subsets: ['latin'],

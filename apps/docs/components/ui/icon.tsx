@@ -1,14 +1,9 @@
-import type { LucideIcon } from 'lucide-react';
-import { TerminalIcon } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 
-export function create({
-  icon: Icon,
-}: {
-  icon?: LucideIcon;
-}): React.ReactElement {
+export function create({ icon: Icon }: { icon?: LucideIcon }) {
   return (
-    <div className="from-fd-secondary rounded-md border bg-gradient-to-b p-1 shadow-sm">
-      {Icon ? <Icon /> : <TerminalIcon />}
+    <div className="bg-fd-muted rounded-md border p-1 shadow-sm">
+      {Icon && <Icon />}
     </div>
   );
 }
