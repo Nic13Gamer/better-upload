@@ -24,6 +24,25 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 ```
 
+### TanStack Start
+
+Similarly to Remix, you can use `handleRequest` to handle a generic request in TanStack Start.
+
+```ts title="routes/api/upload.ts"
+import { createAPIFileRoute } from '@tanstack/start/api';
+import { handleRequest, type Router } from 'better-upload/server';
+
+const router: Router = {
+  // your router config...
+};
+
+export const APIRoute = createAPIFileRoute('/api/upload')({
+  POST: async ({ request }) => {
+    return handleRequest(request, router);
+  },
+});
+```
+
 ## Backend
 
 When using a different backend server, make sure to update the `api` option on the client hooks and components.
