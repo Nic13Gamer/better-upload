@@ -255,6 +255,7 @@ async function uploadMultipartFileToS3(params: {
   const completeXmlBody = `
 <CompleteMultipartUpload>
   ${uploadedParts
+    .sort((a, b) => a.number - b.number)
     .map(
       (part) => `<Part>
     <ETag>${part.etag}</ETag>
