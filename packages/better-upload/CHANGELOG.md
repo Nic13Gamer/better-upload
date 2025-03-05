@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.1.4
+
+### Patch Changes
+
+- [`9fcc8ff`](https://github.com/Nic13Gamer/better-upload/commit/9fcc8ffa3c8b14d0737e17b121e22a176c511835) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Fix multipart upload part order
+
 ## 0.1.3
 
 ### Patch Changes
