@@ -1,5 +1,15 @@
 # better-upload
 
+## 0.2.0
+
+### Minor Changes
+
+- [`b29dd5a`](https://github.com/Nic13Gamer/better-upload/commit/b29dd5a15c7ccc9931d28f4d23d21b74ccc747ad) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Choose other bucket name in route before upload callback
+
+### Patch Changes
+
+- [`a49916e`](https://github.com/Nic13Gamer/better-upload/commit/a49916e0831168e7a09f572f54ab7ec4cabd2f56) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Set progress to 0 for all files to be uploaded
+
 ## 0.1.4
 
 ### Patch Changes
