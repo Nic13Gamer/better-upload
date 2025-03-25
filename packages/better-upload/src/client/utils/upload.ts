@@ -55,13 +55,20 @@ export async function uploadFiles(params: {
 
     const partSize = 'multipart' in payload ? payload.multipart.partSize : 0;
 
-    if (!signedUrls) {
+    if (!signedUrls || signedUrls.length === 0) {
       throw new UploadFilesError({
         type: 'unknown',
         message:
           'No pre-signed URLs returned. Check your upload router config.',
       });
     }
+
+    signedUrls.forEach((url) => {
+      params.onProgress?.({
+        file: url.file,
+        progress: 0,
+      });
+    });
 
     const uploadedFiles: UploadedFile[] = [];
 
