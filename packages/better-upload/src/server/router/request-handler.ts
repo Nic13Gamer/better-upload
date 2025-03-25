@@ -76,7 +76,7 @@ export async function handleRequest(req: Request, router: Router) {
     return handleMultipartFiles({
       req,
       client: router.client,
-      bucketName: router.bucketName,
+      defaultBucketName: router.bucketName,
       route,
       data,
     });
@@ -85,7 +85,7 @@ export async function handleRequest(req: Request, router: Router) {
   return handleFiles({
     req,
     client: router.client,
-    bucketName: router.bucketName,
+    defaultBucketName: router.bucketName,
     route,
     data,
   });

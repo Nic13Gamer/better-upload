@@ -16,13 +16,13 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 export async function handleMultipartFiles({
   req,
   client,
-  bucketName,
+  defaultBucketName,
   route,
   data,
 }: {
   req: Request;
   client: S3Client;
-  bucketName: string;
+  defaultBucketName: string;
   route: Route;
   data: UploadFileSchema;
 }) {
@@ -77,6 +77,7 @@ export async function handleMultipartFiles({
   }
 
   let beforeUploadMetadata = {};
+  let bucketName = defaultBucketName;
   let generateObjectKeyCallback = null;
   try {
     const onBeforeUpload = await route.onBeforeUpload?.({
@@ -86,6 +87,7 @@ export async function handleMultipartFiles({
     });
 
     beforeUploadMetadata = onBeforeUpload?.metadata || {};
+    bucketName = onBeforeUpload?.bucketName || defaultBucketName;
     generateObjectKeyCallback = onBeforeUpload?.generateObjectKey || null;
   } catch (error) {
     if (error instanceof UploadFileError) {

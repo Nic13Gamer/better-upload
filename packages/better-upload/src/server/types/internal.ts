@@ -111,6 +111,13 @@ export type RouteConfig<
          * Metadata sent to `onAfterSignedUrl`.
          */
         metadata?: M;
+
+        /**
+         * The bucket name to upload to.
+         *
+         * If you wish to upload to a different bucket than the one specified in the router.
+         */
+        bucketName?: string;
       } & (U extends false
         ? { objectKey?: string }
         : {
@@ -131,6 +138,13 @@ export type RouteConfig<
              * Metadata sent to `onAfterSignedUrl`.
              */
             metadata?: M;
+
+            /**
+             * The bucket name to upload to.
+             *
+             * If you wish to upload to a different bucket than the one specified in the router.
+             */
+            bucketName?: string;
           } & (U extends false
             ? { objectKey?: string }
             : {
@@ -270,6 +284,7 @@ export type Route = {
     files: Omit<UploadedFileInfo, 'objectKey'>[];
   }) => Promise<{
     metadata?: Metadata;
+    bucketName?: string;
     generateObjectKey?: (data: {
       file: Omit<UploadedFileInfo, 'objectKey'>;
     }) => string | Promise<string>;

@@ -46,6 +46,7 @@ export function route<
 
               return {
                 metadata: res.metadata,
+                bucketName: res.bucketName,
                 generateObjectKey,
               };
             } else {
