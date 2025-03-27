@@ -71,3 +71,21 @@ await moveObject({
   This copies the object to the new location and then deletes the original
   object. It can be slow.
 </Callout>
+
+## Client-side
+
+There are also some helpers for your frontend.
+
+### Readable bytes
+
+Convert bytes to a human-readable format.
+
+```ts
+import { readableBytes } from 'better-upload/client/helpers';
+
+readableBytes(1000); // "1 kB"
+readableBytes(1000, { decimalPlaces: 2 }); // "1.00 kB"
+
+readableBytes(1024, { si: false }); // "1 KiB"
+readableBytes(1024, { decimalPlaces: 2, si: false }); // "1.00 KiB"
+```
