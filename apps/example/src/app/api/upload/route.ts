@@ -29,7 +29,7 @@ export const { POST } = createUploadRouteHandler({
     multipart: route({
       multipart: true,
       multipleFiles: true,
-      maxFiles: 1,
+      maxFiles: 5,
       partSize: 1024 * 1024 * 5, // 5MB
       maxFileSize: 1024 * 1024 * 80, // 80MB
     }),
