@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.2.1
+
+### Patch Changes
+
+- [`cb33d1f`](https://github.com/Nic13Gamer/better-upload/commit/cb33d1f58791c2c2b246579f384352b0cf9f4c71) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Readable bytes client helper
+
 ## 0.2.0
 
 ### Minor Changes
