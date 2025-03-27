@@ -5,6 +5,7 @@ export default defineConfig({
     'src/server/index.ts',
     'src/server-helpers/index.ts',
     'src/client/index.ts',
+    'src/client-helpers/index.ts',
   ],
   format: ['cjs', 'esm'],
   dts: true,

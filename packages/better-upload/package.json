@@ -26,6 +26,11 @@
       "import": "./dist/client/index.mjs",
       "types": "./dist/client/index.d.ts",
       "default": "./dist/client/index.js"
+    },
+    "./client/helpers": {
+      "import": "./dist/client-helpers/index.mjs",
+      "types": "./dist/client-helpers/index.d.ts",
+      "default": "./dist/client-helpers/index.js"
     }
   },
   "dependencies": {
