@@ -13,6 +13,11 @@ const components = [
     dependencies: ['better-upload', 'lucide-react', 'react-dropzone'],
     registryDependencies: [],
   },
+  {
+    name: 'upload-dropzone-progress',
+    dependencies: ['better-upload', 'lucide-react', 'react-dropzone'],
+    registryDependencies: ['progress'],
+  },
 ];
 
 const REGISTRY_PATH = path.join(process.cwd(), 'public/r');
