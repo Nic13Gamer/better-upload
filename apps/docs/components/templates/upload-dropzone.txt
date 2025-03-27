@@ -50,24 +50,24 @@ export function UploadDropzone({
   return (
     <div
       className={cn(
-        'relative rounded-lg border-2 border-dashed transition-colors',
+        'relative rounded-lg border border-dashed transition-colors',
         {
-          'border-foreground/60': isDragActive,
+          'border-primary/70': isDragActive,
         }
       )}
     >
       <label
         {...getRootProps()}
         className={cn(
-          'bg-muted/5 flex w-full min-w-64 cursor-pointer flex-col items-center justify-center px-2 py-6 transition-colors',
+          'bg-muted/5 dark:bg-background flex w-full min-w-64 cursor-pointer flex-col items-center justify-center rounded-lg px-2 py-6 transition-colors',
           {
-            'bg-muted/15 text-muted-foreground cursor-not-allowed': isPending,
-            'hover:dark:bg-muted/20 hover:bg-muted/25': !isPending,
+            'bg-muted/20 text-muted-foreground cursor-not-allowed': isPending,
+            'hover:dark:bg-muted/15 hover:bg-muted/30': !isPending,
           }
         )}
         htmlFor={id}
       >
-        <div className="bg-background rounded-full border border-dashed p-2.5">
+        <div className="my-2">
           {isPending ? (
             <Loader2 className="size-6 animate-spin" />
           ) : (
@@ -75,7 +75,7 @@ export function UploadDropzone({
           )}
         </div>
 
-        <div className="mt-2.5 space-y-1 text-center">
+        <div className="mt-3 space-y-1 text-center">
           <p className="text-sm font-semibold">Drag and drop files here</p>
 
           <p className="text-muted-foreground max-w-64 text-xs">
@@ -105,12 +105,12 @@ export function UploadDropzone({
 
       {isDragActive && (
         <div className="bg-background pointer-events-none absolute inset-0 rounded-lg">
-          <div className="bg-muted/10 flex size-full flex-col items-center justify-center">
-            <div className="bg-background rounded-full border border-dashed p-2.5">
+          <div className="bg-muted/15 flex size-full flex-col items-center justify-center rounded-lg">
+            <div className="my-2">
               <Upload className="size-6" />
             </div>
 
-            <p className="mt-2.5 text-sm font-semibold">Drop files here</p>
+            <p className="mt-3 text-sm font-semibold">Drop files here</p>
           </div>
         </div>
       )}
