@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.2.2
+
+### Patch Changes
+
+- [`d0dec32`](https://github.com/Nic13Gamer/better-upload/commit/d0dec32eff7fe72e0b466cebafb49095ce09e487) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Return which file failed to upload
+
 ## 0.2.1
 
 ### Patch Changes
