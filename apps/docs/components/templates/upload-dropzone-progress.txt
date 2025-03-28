@@ -33,7 +33,7 @@ export function UploadDropzoneProgress({
   const id = useId();
 
   const [progresses, setProgresses] = useState<
-    { file: Omit<UploadedFile, 'raw'>; progress: number }[]
+    { file: Omit<UploadedFile, 'raw'>; progress: number; failed: boolean }[]
   >([]);
 
   const { upload, reset, isPending } = useUploadFiles({
@@ -64,10 +64,21 @@ export function UploadDropzoneProgress({
           );
         }
 
-        return [...prev, { file, progress }];
+        return [...prev, { file, progress, failed: false }];
       });
 
       params.onUploadProgress?.({ file, progress });
+    },
+    onUploadError: (error) => {
+      setProgresses((prev) =>
+        prev.map((p) =>
+          error.objectKeys?.includes(p.file.objectKey)
+            ? { ...p, failed: true }
+            : p
+        )
+      );
+
+      params.onUploadError?.(error);
     },
   });
 
@@ -151,7 +162,9 @@ export function UploadDropzoneProgress({
         {progresses.map((progress) => (
           <div
             key={progress.file.objectKey}
-            className="flex flex-col gap-2.5 rounded-lg border p-3"
+            className={cn('flex flex-col gap-2.5 rounded-lg border p-3', {
+              'border-red-500/70 bg-red-500/[0.03]': progress.failed,
+            })}
           >
             <div className="flex items-center gap-2">
               <FileIcon type={progress.file.type} />
@@ -167,15 +180,19 @@ export function UploadDropzoneProgress({
                   <Dot className="text-muted-foreground size-4" />
 
                   <p>
-                    {progress.progress < 1
-                      ? `${(progress.progress * 100).toFixed(0)}%`
-                      : 'Completed'}
+                    {progress.failed ? (
+                      <span className="text-red-500">Failed</span>
+                    ) : progress.progress < 1 ? (
+                      `${(progress.progress * 100).toFixed(0)}%`
+                    ) : (
+                      'Completed'
+                    )}
                   </p>
                 </div>
               </div>
             </div>
 
-            {progress.progress < 1 && (
+            {progress.progress < 1 && !progress.failed && (
               <Progress className="h-1.5" value={progress.progress * 100} />
             )}
           </div>
