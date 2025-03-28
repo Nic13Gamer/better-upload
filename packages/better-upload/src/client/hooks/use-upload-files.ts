@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { UploadFilesError } from '../types/error';
 import type { ServerMetadata } from '../types/internal';
-import type { ClientUploadFileError, UploadedFile } from '../types/public';
+import type { ClientUploadFilesError, UploadedFile } from '../types/public';
 import { uploadFiles } from '../utils/upload';
 
 type UseUploadFilesProps = {
@@ -94,7 +94,7 @@ type UseUploadFilesProps = {
   /**
    * Event that is called if an error occurs during the files upload.
    */
-  onUploadError?: (error: ClientUploadFileError) => void;
+  onUploadError?: (error: ClientUploadFilesError) => void;
 
   /**
    * Event that is called after the file upload is either successfully completed or an error occurs.
@@ -120,7 +120,7 @@ export function useUploadFiles({
   const [isPending, setIsPending] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [error, setError] = useState<ClientUploadFileError | null>(null);
+  const [error, setError] = useState<ClientUploadFilesError | null>(null);
   const [progresses, setProgresses] = useState<Record<string, number>>({});
 
   const upload = useCallback(
@@ -200,8 +200,16 @@ export function useUploadFiles({
         setProgresses({});
 
         if (error instanceof UploadFilesError) {
-          setError({ type: error.type, message: error.message || null });
-          onUploadError?.({ type: error.type, message: error.message || null });
+          setError({
+            type: error.type,
+            message: error.message || null,
+            objectKeys: error.objectKeys,
+          });
+          onUploadError?.({
+            type: error.type,
+            message: error.message || null,
+            objectKeys: error.objectKeys,
+          });
         } else {
           setError({ type: 'unknown', message: null });
           onUploadError?.({ type: 'unknown', message: null });

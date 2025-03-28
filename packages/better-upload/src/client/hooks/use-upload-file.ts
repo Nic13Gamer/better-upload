@@ -1,8 +1,12 @@
 import { useCallback, useState } from 'react';
 import { UploadFilesError } from '../types/error';
 import type { ServerMetadata } from '../types/internal';
-import type { ClientUploadFileError, UploadedFile } from '../types/public';
+import type { ClientUploadFilesError, UploadedFile } from '../types/public';
 import { uploadFiles } from '../utils/upload';
+
+type ClientUploadFileError = Omit<ClientUploadFilesError, 'objectKeys'> & {
+  objectKey?: string;
+};
 
 type UseUploadFileProps = {
   /**
@@ -166,8 +170,16 @@ export function useUploadFile({
         setProgress(0);
 
         if (error instanceof UploadFilesError) {
-          setError({ type: error.type, message: error.message || null });
-          onUploadError?.({ type: error.type, message: error.message || null });
+          setError({
+            type: error.type,
+            message: error.message || null,
+            objectKey: error.objectKeys?.[0],
+          });
+          onUploadError?.({
+            type: error.type,
+            message: error.message || null,
+            objectKey: error.objectKeys?.[0],
+          });
         } else {
           setError({ type: 'unknown', message: null });
           onUploadError?.({ type: 'unknown', message: null });

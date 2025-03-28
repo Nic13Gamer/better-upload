@@ -122,13 +122,14 @@ export async function uploadFiles(params: {
         if (multipart) {
           await fetch(data.abortSignedUrl, {
             method: 'DELETE',
-          });
+          }).catch(() => {});
         }
 
         if (params.abortOnS3UploadError) {
           throw new UploadFilesError({
             type: 's3_upload',
             message: `Failed to upload file ${file.name} to S3.`,
+            objectKeys: signedUrls.map((url) => url.file.objectKey),
           });
         }
       }
