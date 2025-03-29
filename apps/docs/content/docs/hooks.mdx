@@ -56,6 +56,7 @@ export function MyComponent() {
   const {
     upload,
     uploadedFiles,
+    failedFiles,
     progresses,
     isPending,
     isSuccess,
@@ -194,7 +195,7 @@ useUploadFiles({
 
 ### On upload complete
 
-Event that is called after the file has been successfully uploaded.
+Event that is called after the file has been successfully uploaded. If some files failed to upload, they will be in the `failedFiles` array.
 
 <Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
 
@@ -212,7 +213,7 @@ useUploadFile({
 ```tsx
 useUploadFiles({
   route: 'demo',
-  onUploadComplete: ({ files, metadata }) => {
+  onUploadComplete: ({ files, failedFiles, metadata }) => {
     console.log(`${files.length} files uploaded`);
   },
 });
@@ -223,7 +224,7 @@ useUploadFiles({
 
 ### On upload error
 
-Event that is called if the upload fails.
+Event that is called if the upload fails. This can be called more than once for multiple files.
 
 <Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
 
@@ -278,3 +279,14 @@ useUploadFiles({
 </Tab>
 
 </Tabs>
+
+## Error handling
+
+### Failed multiple files
+
+When uploading multiple files, although rare, some files may fail to upload. In this case, the `failedFiles` array will contain the files that failed to upload.
+
+<Callout type="warn">
+  If this happens, `isSuccess` and `isError` will be `true`, and the upload
+  complete event will be called.
+</Callout>
