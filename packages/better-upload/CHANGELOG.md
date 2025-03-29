@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.2.3
+
+### Patch Changes
+
+- [`38f633d`](https://github.com/Nic13Gamer/better-upload/commit/38f633df1f3d8153297fb3516e42e64ca288869b) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Better client error handling
+
 ## 0.2.2
 
 ### Patch Changes
