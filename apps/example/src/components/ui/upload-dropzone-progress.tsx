@@ -72,9 +72,7 @@ export function UploadDropzoneProgress({
     onUploadError: (error) => {
       setProgresses((prev) =>
         prev.map((p) =>
-          error.objectKeys?.includes(p.file.objectKey)
-            ? { ...p, failed: true }
-            : p
+          error.objectKey === p.file.objectKey ? { ...p, failed: true } : p
         )
       );
 
