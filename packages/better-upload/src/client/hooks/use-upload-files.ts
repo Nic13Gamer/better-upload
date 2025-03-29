@@ -1,8 +1,12 @@
 import { useCallback, useState } from 'react';
-import { UploadFilesError } from '../types/error';
+import { UploadFileError } from '../types/error';
 import type { ServerMetadata } from '../types/internal';
-import type { ClientUploadFilesError, UploadedFile } from '../types/public';
-import { uploadFiles } from '../utils/upload';
+import type { ClientUploadFileError, UploadedFile } from '../types/public';
+import { uploadFiles } from '../utils/internal/upload';
+
+type ErrorState = Omit<ClientUploadFileError, 'objectKey'> & {
+  objectKeys?: string[];
+};
 
 type UseUploadFilesProps = {
   /**
@@ -86,15 +90,20 @@ type UseUploadFilesProps = {
     files: UploadedFile[];
 
     /**
+     * Information about the files that failed to be uploaded.
+     */
+    failedFiles: UploadedFile[];
+
+    /**
      * Metadata sent from the server.
      */
     metadata: ServerMetadata;
   }) => void;
 
   /**
-   * Event that is called if an error occurs during the files upload.
+   * Event that is called if an error occurs during the upload of a file.
    */
-  onUploadError?: (error: ClientUploadFilesError) => void;
+  onUploadError?: (error: ClientUploadFileError) => void;
 
   /**
    * Event that is called after the file upload is either successfully completed or an error occurs.
@@ -117,10 +126,11 @@ export function useUploadFiles({
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[] | null>(
     null
   );
+  const [failedFiles, setFailedFiles] = useState<UploadedFile[] | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [error, setError] = useState<ClientUploadFilesError | null>(null);
+  const [error, setError] = useState<ErrorState | null>(null);
   const [progresses, setProgresses] = useState<Record<string, number>>({});
 
   const upload = useCallback(
@@ -129,6 +139,7 @@ export function useUploadFiles({
       { metadata }: { metadata?: ServerMetadata } = {}
     ) => {
       setUploadedFiles(null);
+      setFailedFiles(null);
       setIsSuccess(false);
       setIsError(false);
       setError(null);
@@ -156,7 +167,7 @@ export function useUploadFiles({
 
           if (Array.isArray(result)) {
             if (result.length === 0) {
-              throw new UploadFilesError({
+              throw new UploadFileError({
                 type: 'no_files',
                 message: 'No files to upload.',
               });
@@ -166,31 +177,61 @@ export function useUploadFiles({
           }
         }
 
-        const { uploadedFiles: s3UploadedFiles, serverMetadata } =
-          await uploadFiles({
-            api,
-            route,
-            files: filesToUpload,
-            metadata,
-            sequential,
-            abortOnS3UploadError: true,
-            multipartBatchSize,
-            onBegin: onUploadBegin,
-            onProgress: (data) => {
-              setProgresses((prev) => ({
-                ...prev,
-                [data.file.objectKey]: data.progress,
-              }));
-              onUploadProgress?.(data);
-            },
-          });
+        const {
+          uploadedFiles: s3UploadedFiles,
+          failedFiles: s3FailedFiles,
+          serverMetadata,
+        } = await uploadFiles({
+          api,
+          route,
+          files: filesToUpload,
+          metadata,
+          sequential,
+          throwOnError: false,
+          multipartBatchSize,
+          onBegin: onUploadBegin,
+          onProgress: (data) => {
+            setProgresses((prev) => ({
+              ...prev,
+              [data.file.objectKey]: data.progress,
+            }));
+            onUploadProgress?.(data);
+          },
+          onError: (error) => {
+            setIsError(true);
+
+            setError((prev) => {
+              const newError = {
+                type: error.type,
+                message: error.message || null,
+                objectKeys: error.objectKey ? [error.objectKey] : undefined,
+              };
+
+              if (prev?.objectKeys && error.objectKey) {
+                return {
+                  ...prev,
+                  objectKeys: [...prev.objectKeys, error.objectKey],
+                };
+              }
+
+              return newError;
+            });
+            onUploadError?.({
+              type: error.type,
+              message: error.message || null,
+              objectKey: error.objectKey,
+            });
+          },
+        });
 
         setUploadedFiles(s3UploadedFiles);
+        setFailedFiles(s3FailedFiles);
         setIsPending(false);
         setIsSuccess(true);
 
         onUploadComplete?.({
           files: s3UploadedFiles,
+          failedFiles: s3FailedFiles,
           metadata: serverMetadata,
         });
       } catch (error) {
@@ -199,16 +240,27 @@ export function useUploadFiles({
         setIsPending(false);
         setProgresses({});
 
-        if (error instanceof UploadFilesError) {
-          setError({
-            type: error.type,
-            message: error.message || null,
-            objectKeys: error.objectKeys,
+        if (error instanceof UploadFileError) {
+          setError((prev) => {
+            const newError = {
+              type: error.type,
+              message: error.message || null,
+              objectKeys: error.objectKey ? [error.objectKey] : undefined,
+            };
+
+            if (prev?.objectKeys && error.objectKey) {
+              return {
+                ...prev,
+                objectKeys: [...prev.objectKeys, error.objectKey],
+              };
+            }
+
+            return newError;
           });
           onUploadError?.({
             type: error.type,
             message: error.message || null,
-            objectKeys: error.objectKeys,
+            objectKey: error.objectKey,
           });
         } else {
           setError({ type: 'unknown', message: null });
@@ -234,6 +286,7 @@ export function useUploadFiles({
 
   const reset = useCallback(() => {
     setUploadedFiles(null);
+    setFailedFiles(null);
     setIsPending(false);
     setIsSuccess(false);
     setIsError(false);
@@ -245,6 +298,7 @@ export function useUploadFiles({
     upload,
     reset,
     uploadedFiles,
+    failedFiles,
     progresses,
     isPending,
     isSuccess,

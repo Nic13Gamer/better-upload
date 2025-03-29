@@ -1,12 +1,8 @@
 import { useCallback, useState } from 'react';
-import { UploadFilesError } from '../types/error';
+import { UploadFileError } from '../types/error';
 import type { ServerMetadata } from '../types/internal';
-import type { ClientUploadFilesError, UploadedFile } from '../types/public';
-import { uploadFiles } from '../utils/upload';
-
-type ClientUploadFileError = Omit<ClientUploadFilesError, 'objectKeys'> & {
-  objectKey?: string;
-};
+import type { ClientUploadFileError, UploadedFile } from '../types/public';
+import { uploadFiles } from '../utils/internal/upload';
 
 type UseUploadFileProps = {
   /**
@@ -141,7 +137,7 @@ export function useUploadFile({
             files: [fileToUpload],
             metadata,
             sequential: false,
-            abortOnS3UploadError: true,
+            throwOnError: true,
             multipartBatchSize,
             onBegin: (data) => {
               onUploadBegin?.({
@@ -169,16 +165,16 @@ export function useUploadFile({
         setIsPending(false);
         setProgress(0);
 
-        if (error instanceof UploadFilesError) {
+        if (error instanceof UploadFileError) {
           setError({
             type: error.type,
             message: error.message || null,
-            objectKey: error.objectKeys?.[0],
+            objectKey: error.objectKey,
           });
           onUploadError?.({
             type: error.type,
             message: error.message || null,
-            objectKey: error.objectKeys?.[0],
+            objectKey: error.objectKey,
           });
         } else {
           setError({ type: 'unknown', message: null });

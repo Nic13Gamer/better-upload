@@ -6,7 +6,7 @@ export type UploadedFile = {
   objectKey: string;
 };
 
-export type ClientUploadFilesError = {
+export type ClientUploadFileError = {
   type:
     | 'unknown'
     | 'invalid_request'
@@ -17,5 +17,5 @@ export type ClientUploadFilesError = {
     | 'rejected'
     | 'too_many_files';
   message: string | null;
-  objectKeys?: string[];
+  objectKey?: string;
 };

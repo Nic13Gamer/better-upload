@@ -1,6 +1,6 @@
-import { UploadFilesError } from '../types/error';
-import type { UploadRouterSuccessResponse } from '../types/internal';
-import type { UploadedFile } from '../types/public';
+import { UploadFileError } from '../../types/error';
+import type { UploadRouterSuccessResponse } from '../../types/internal';
+import type { ClientUploadFileError, UploadedFile } from '../../types/public';
 
 export async function uploadFiles(params: {
   api: string;
@@ -9,8 +9,9 @@ export async function uploadFiles(params: {
   metadata?: Record<string, unknown>;
 
   sequential?: boolean;
-  abortOnS3UploadError?: boolean;
   multipartBatchSize?: number;
+
+  throwOnError?: boolean;
 
   onBegin?: (data: {
     files: UploadedFile[];
@@ -20,6 +21,7 @@ export async function uploadFiles(params: {
     file: Omit<UploadedFile, 'raw'>;
     progress: number;
   }) => void;
+  onError?: (error: ClientUploadFileError) => void;
 }) {
   try {
     const signedUrlRes = await fetch(params.api, {
@@ -41,10 +43,13 @@ export async function uploadFiles(params: {
     if (!signedUrlRes.ok) {
       const { error } = (await signedUrlRes.json()) as any;
 
-      throw new UploadFilesError({
-        type: error.type || 'unknown',
-        message: error.message || '',
-      });
+      handleUploadError(
+        { shouldThrow: params.throwOnError, callback: params.onError },
+        {
+          type: error.type || 'unknown',
+          message: error.message || 'Failed to upload files.',
+        }
+      );
     }
 
     const payload = (await signedUrlRes.json()) as UploadRouterSuccessResponse;
@@ -56,11 +61,14 @@ export async function uploadFiles(params: {
     const partSize = 'multipart' in payload ? payload.multipart.partSize : 0;
 
     if (!signedUrls || signedUrls.length === 0) {
-      throw new UploadFilesError({
-        type: 'unknown',
-        message:
-          'No pre-signed URLs returned. Check your upload router config.',
-      });
+      handleUploadError(
+        { shouldThrow: params.throwOnError, callback: params.onError },
+        {
+          type: 'unknown',
+          message:
+            'No pre-signed URLs returned. Check your upload router config.',
+        }
+      );
     }
 
     signedUrls.forEach((url) => {
@@ -71,6 +79,7 @@ export async function uploadFiles(params: {
     });
 
     const uploadedFiles: UploadedFile[] = [];
+    const failedFiles: UploadedFile[] = [];
 
     const uploadPromises = params.files.map((file) => async () => {
       const data = signedUrls.find(
@@ -125,13 +134,22 @@ export async function uploadFiles(params: {
           }).catch(() => {});
         }
 
-        if (params.abortOnS3UploadError) {
-          throw new UploadFilesError({
+        failedFiles.push({
+          raw: file,
+          name: data.file.name,
+          size: data.file.size,
+          type: data.file.type,
+          objectKey: data.file.objectKey,
+        });
+
+        handleUploadError(
+          { shouldThrow: params.throwOnError, callback: params.onError },
+          {
             type: 's3_upload',
-            message: `Failed to upload file ${file.name} to S3.`,
-            objectKeys: signedUrls.map((url) => url.file.objectKey),
-          });
-        }
+            message: 'Failed to upload file.',
+            objectKey: data.file.objectKey,
+          }
+        );
       }
     });
 
@@ -158,14 +176,22 @@ export async function uploadFiles(params: {
 
     return {
       uploadedFiles,
+      failedFiles,
       serverMetadata,
     };
   } catch (error) {
-    if (error instanceof UploadFilesError) {
-      throw error;
+    if (error instanceof UploadFileError) {
+      handleUploadError(
+        { shouldThrow: params.throwOnError, callback: params.onError },
+        error
+      );
     }
 
-    throw new UploadFilesError({
+    params.onError?.({
+      type: 'unknown',
+      message: 'Failed to upload files.',
+    });
+    throw new UploadFileError({
       type: 'unknown',
       message: 'Failed to upload files.',
     });
@@ -286,5 +312,23 @@ async function uploadMultipartFileToS3(params: {
 
   if (!completeRes.ok) {
     throw new Error('Failed to complete multipart upload.');
+  }
+}
+
+function handleUploadError(
+  params: {
+    shouldThrow?: boolean;
+    callback?: (error: ClientUploadFileError) => void;
+  },
+  error: ClientUploadFileError
+) {
+  params.callback?.(error);
+
+  if (params.shouldThrow) {
+    throw new UploadFileError({
+      type: error.type || 'unknown',
+      message: error.message || 'Failed to upload files.',
+      objectKey: error.objectKey,
+    });
   }
 }
