@@ -8,9 +8,9 @@ description: A collection of helper functions and utilities for your project.
 
 `better-upload` has some built-in clients for popular S3-compatible storage services, like Cloudflare R2. Suggest a new client by [opening an issue](https://github.com/Nic13Gamer/better-upload/issues).
 
-### Cloudflare R2
+All clients returns an instance of an S3 client from the AWS SDK, just like `new S3Client()`, but already configured for the specific service.
 
-```ts
+```ts tab="Cloudflare R2"
 import { r2 } from 'better-upload/server/helpers';
 
 const client = r2({
@@ -18,33 +18,41 @@ const client = r2({
   accessKeyId: 'your-access-key-id',
   secretAccessKey: 'your-secret-access-key',
 });
-```
 
-This returns an instance of an S3 Client from the AWS SDK, just like `new S3Client()`, but already configured for Cloudflare R2.
-
-#### Jurisdiction
-
-If you created your R2 bucket using a jurisdiction, you can specify it here.
-
-```ts
-import { r2 } from 'better-upload/server/helpers';
-
-const client = r2({
+const jurisdictionClient = r2({
   accountId: 'your-account-id',
   accessKeyId: 'your-access-key-id',
   secretAccessKey: 'your-secret-access-key',
-  jurisdiction: 'eu', // [!code highlight]
+  jurisdiction: 'eu', // If you created your R2 bucket using a jurisdiction. // [!code highlight]
 });
 ```
 
-### Minio
-
-```ts
+```ts tab="Minio"
 import { minio } from 'better-upload/server/helpers';
 
 const client = minio({
   region: 'your-minio-region',
   endpoint: 'https://minio.example.com'
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+});
+```
+
+```ts tab="Backblaze B2"
+import { backblaze } from 'better-upload/server/helpers';
+
+const client = backblaze({
+  region: 'your-backblaze-region',
+  applicationKeyId: 'your-application-key-id',
+  applicationKey: 'your-application-key',
+});
+```
+
+```ts tab="Wasabi"
+import { wasabi } from 'better-upload/server/helpers';
+
+const client = wasabi({
+  region: 'your-wasabi-region',
   accessKeyId: 'your-access-key-id',
   secretAccessKey: 'your-secret-access-key',
 });
