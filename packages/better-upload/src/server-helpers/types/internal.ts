@@ -74,3 +74,20 @@ export type CreateBackblazeClientParams = {
    */
   applicationKey: string;
 };
+
+export type CreateWasabiClientParams = {
+  /**
+   * Wasabi region.
+   */
+  region: string;
+
+  /**
+   * Wasabi access key ID.
+   */
+  accessKeyId: string;
+
+  /**
+   * Wasabi secret access key.
+   */
+  secretAccessKey: string;
+};
