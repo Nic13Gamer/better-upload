@@ -57,3 +57,20 @@ export type CreateMinioClientParams = {
    */
   endpoint: string;
 };
+
+export type CreateBackblazeClientParams = {
+  /**
+   * Backblaze B2 region.
+   */
+  region: string;
+
+  /**
+   * Backblaze B2 application key ID.
+   */
+  applicationKeyId: string;
+
+  /**
+   * Backblaze B2 application key.
+   */
+  applicationKey: string;
+};
