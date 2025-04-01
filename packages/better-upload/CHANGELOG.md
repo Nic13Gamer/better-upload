@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.2.4
+
+### Patch Changes
+
+- [`f373d9b`](https://github.com/Nic13Gamer/better-upload/commit/f373d9b13e5059c4590f6f653f18d20e4c3376ee) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Add Backblaze B2 and Wasabi helper clients.
+
 ## 0.2.3
 
 ### Patch Changes
