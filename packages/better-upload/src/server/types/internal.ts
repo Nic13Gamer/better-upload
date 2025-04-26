@@ -1,4 +1,5 @@
 export type Metadata = Record<string, unknown>;
+export type ObjectMetadata = Record<string, string>;
 
 export type UploadedFileInfo = {
   /**
@@ -106,60 +107,9 @@ export type RouteConfig<
           files: Omit<UploadedFileInfo, 'objectKey'>[];
         })
   ) =>
-    | ({
-        /**
-         * Metadata sent to `onAfterSignedUrl`.
-         */
-        metadata?: M;
-
-        /**
-         * The bucket name to upload to.
-         *
-         * If you wish to upload to a different bucket than the one specified in the router.
-         */
-        bucketName?: string;
-      } & (U extends false
-        ? { objectKey?: string }
-        : {
-            /**
-             * Use this callback to generate a custom object key for a file. Will be called for each file, in parallel.
-             */
-            generateObjectKey?: (data: {
-              /**
-               * Information about the file to be uploaded.
-               */
-              file: Omit<UploadedFileInfo, 'objectKey'>;
-            }) => string | Promise<string>;
-          }))
+    | BeforeUploadCallbackResult<U, M>
     | void
-    | Promise<
-        | ({
-            /**
-             * Metadata sent to `onAfterSignedUrl`.
-             */
-            metadata?: M;
-
-            /**
-             * The bucket name to upload to.
-             *
-             * If you wish to upload to a different bucket than the one specified in the router.
-             */
-            bucketName?: string;
-          } & (U extends false
-            ? { objectKey?: string }
-            : {
-                /**
-                 * Use this callback to generate a custom object key for a file. Will be called for each file, in parallel.
-                 */
-                generateObjectKey?: (data: {
-                  /**
-                   * Information about the file to be uploaded.
-                   */
-                  file: Omit<UploadedFileInfo, 'objectKey'>;
-                }) => string | Promise<string>;
-              }))
-        | void
-      >;
+    | Promise<BeforeUploadCallbackResult<U, M> | void>;
 
   /**
    * Use this callback to run custom logic after creating the signed URL, such as saving data to a database. This runs only once regardless of the number of files uploaded.
@@ -197,7 +147,10 @@ export type RouteConfig<
            */
           files: UploadedFileInfo[];
         })
-  ) => { metadata?: Metadata } | void | Promise<{ metadata?: Metadata } | void>;
+  ) =>
+    | AfterSignedUrlCallbackResult
+    | void
+    | Promise<AfterSignedUrlCallbackResult | void>;
 } & (U extends true
   ? {
       /**
@@ -265,6 +218,62 @@ export type RouteConfig<
         multipart?: T;
       });
 
+type BeforeUploadCallbackResult<T extends boolean, M extends Metadata> = {
+  /**
+   * Metadata sent to `onAfterSignedUrl`.
+   */
+  metadata?: M;
+
+  /**
+   * The bucket name to upload to.
+   *
+   * If you wish to upload to a different bucket than the one specified in the router.
+   */
+  bucketName?: string;
+} & (T extends false
+  ? {
+      /**
+       * The object key to upload to.
+       */
+      objectKey?: string;
+
+      /**
+       * Custom object metadata for S3.
+       *
+       * **WARNING:** All values here will be exposed to the client. Do not use this for sensitive data.
+       */
+      objectMetadata?: ObjectMetadata;
+    }
+  : {
+      /**
+       * Use this callback to generate a custom object key for a file. Will be called for each file, in parallel.
+       */
+      generateObjectKey?: (data: {
+        /**
+         * Information about the file to be uploaded.
+         */
+        file: Omit<UploadedFileInfo, 'objectKey'>;
+      }) => string | Promise<string>;
+
+      /**
+       * Use this callback to generate custom object metadata for S3. Will be called for each file, in parallel.
+       *
+       * **WARNING:** All values here will be exposed to the client. Do not use this for sensitive data.
+       */
+      generateObjectMetadata?: (data: {
+        file: UploadedFileInfo;
+      }) => ObjectMetadata | Promise<ObjectMetadata>;
+    });
+
+type AfterSignedUrlCallbackResult = {
+  /**
+   * Metadata sent back to the client.
+   *
+   * Needs to be JSON serializable.
+   */
+  metadata?: Metadata;
+};
+
 export type Route = {
   maxFileSize?: number;
   fileTypes?: string[];
@@ -288,6 +297,9 @@ export type Route = {
     generateObjectKey?: (data: {
       file: Omit<UploadedFileInfo, 'objectKey'>;
     }) => string | Promise<string>;
+    generateObjectMetadata?: (data: {
+      file: UploadedFileInfo;
+    }) => ObjectMetadata | Promise<ObjectMetadata>;
   } | void>;
 
   onAfterSignedUrl?: (data: {

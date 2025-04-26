@@ -1,6 +1,7 @@
 import type {
   ExecRoute,
   Metadata,
+  ObjectMetadata,
   Route,
   RouteConfig,
 } from '../types/internal';
@@ -44,10 +45,18 @@ export function route<
                     ? () => res.objectKey as string
                     : undefined;
 
+              const generateObjectMetadata =
+                'generateObjectMetadata' in res
+                  ? res.generateObjectMetadata
+                  : 'objectMetadata' in res
+                    ? () => res.objectMetadata as ObjectMetadata
+                    : undefined;
+
               return {
                 metadata: res.metadata,
                 bucketName: res.bucketName,
                 generateObjectKey,
+                generateObjectMetadata,
               };
             } else {
               return res;
