@@ -1,5 +1,9 @@
 import { UploadFileError } from '../../types/error';
-import type { UploadRouterSuccessResponse } from '../../types/internal';
+import type {
+  ObjectMetadata,
+  ServerMetadata,
+  UploadRouterSuccessResponse,
+} from '../../types/internal';
 import type { ClientUploadFileError, UploadedFile } from '../../types/public';
 
 export async function uploadFiles(params: {
@@ -13,10 +17,7 @@ export async function uploadFiles(params: {
 
   throwOnError?: boolean;
 
-  onBegin?: (data: {
-    files: UploadedFile[];
-    metadata: Record<string, unknown | undefined>;
-  }) => void;
+  onBegin?: (data: { files: UploadedFile[]; metadata: ServerMetadata }) => void;
   onProgress?: (data: {
     file: Omit<UploadedFile, 'raw'>;
     progress: number;
@@ -111,6 +112,7 @@ export async function uploadFiles(params: {
           await uploadFileToS3({
             file,
             signedUrl: data.signedUrl,
+            objectMetadata: data.file.objectMetadata,
 
             onProgress: (progress) =>
               params.onProgress?.({
@@ -126,6 +128,7 @@ export async function uploadFiles(params: {
           size: data.file.size,
           type: data.file.type,
           objectKey: data.file.objectKey,
+          objectMetadata: data.file.objectMetadata,
         });
       } catch (error) {
         if (multipart) {
@@ -140,6 +143,7 @@ export async function uploadFiles(params: {
           size: data.file.size,
           type: data.file.type,
           objectKey: data.file.objectKey,
+          objectMetadata: data.file.objectMetadata,
         });
 
         handleUploadError(
@@ -201,6 +205,7 @@ export async function uploadFiles(params: {
 async function uploadFileToS3(params: {
   signedUrl: string;
   file: File;
+  objectMetadata: ObjectMetadata;
   onProgress?: (progress: number) => void;
 }) {
   const xhr = new XMLHttpRequest();
@@ -222,6 +227,10 @@ async function uploadFileToS3(params: {
 
     xhr.open('PUT', params.signedUrl, true);
     xhr.setRequestHeader('Content-Type', params.file.type);
+
+    Object.entries(params.objectMetadata).forEach(([key, value]) => {
+      xhr.setRequestHeader(`x-amz-meta-${key}`, value);
+    });
 
     xhr.send(params.file);
   });

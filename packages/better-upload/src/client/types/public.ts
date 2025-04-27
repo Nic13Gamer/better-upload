@@ -1,9 +1,12 @@
+import type { ObjectMetadata } from './internal';
+
 export type UploadedFile = {
+  objectKey: string;
+  objectMetadata: ObjectMetadata;
   raw: File;
   name: string;
   size: number;
   type: string;
-  objectKey: string;
 };
 
 export type ClientUploadFileError = {
