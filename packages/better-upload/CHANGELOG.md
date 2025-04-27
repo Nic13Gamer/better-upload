@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.2.5
+
+### Patch Changes
+
+- [`7dfe959`](https://github.com/Nic13Gamer/better-upload/commit/7dfe95991638ca05881c693c7f249f54e42ea90e) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - S3 object metadata
+
 ## 0.2.4
 
 ### Patch Changes
