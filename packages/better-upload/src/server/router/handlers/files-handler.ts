@@ -1,6 +1,6 @@
 import { config } from '@/server/config';
 import { UploadFileError } from '@/server/error';
-import type { Route } from '@/server/types/internal';
+import type { ObjectMetadata, Route } from '@/server/types/internal';
 import { isFileTypeAllowed } from '@/server/utils/internal/file-type';
 import { createSlug } from '@/server/utils/internal/slug';
 import type { UploadFileSchema } from '@/server/validations';
@@ -78,9 +78,10 @@ export async function handleFiles({
     }
   }
 
-  let beforeUploadMetadata = {};
-  let bucketName = defaultBucketName;
-  let generateObjectKeyCallback = null;
+  let beforeUploadMetadata,
+    bucketName,
+    generateObjectKeyCallback,
+    generateObjectMetadataCallback;
   try {
     const onBeforeUpload = await route.onBeforeUpload?.({
       req,
@@ -91,6 +92,8 @@ export async function handleFiles({
     beforeUploadMetadata = onBeforeUpload?.metadata || {};
     bucketName = onBeforeUpload?.bucketName || defaultBucketName;
     generateObjectKeyCallback = onBeforeUpload?.generateObjectKey || null;
+    generateObjectMetadataCallback =
+      onBeforeUpload?.generateObjectMetadata || null;
   } catch (error) {
     if (error instanceof UploadFileError) {
       return Response.json(
@@ -105,11 +108,21 @@ export async function handleFiles({
   const signedUrls = await Promise.all(
     files.map(async (file) => {
       let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
-
       if (generateObjectKeyCallback) {
         objectKey = await generateObjectKeyCallback({
           file,
         });
+      }
+
+      let objectMetadata = {} as ObjectMetadata;
+      if (generateObjectMetadataCallback) {
+        objectMetadata = Object.fromEntries(
+          Object.entries(
+            await generateObjectMetadataCallback({
+              file: { ...file, objectKey },
+            })
+          ).map(([key, value]) => [key.toLowerCase(), value])
+        );
       }
 
       const signedUrl = await getSignedUrl(
@@ -119,17 +132,21 @@ export async function handleFiles({
           Key: objectKey,
           ContentType: file.type,
           ContentLength: file.size,
+          Metadata: objectMetadata,
         }),
         {
           expiresIn: signedUrlExpiresIn,
+          unhoistableHeaders: new Set(
+            Object.keys(objectMetadata).map((key) => `x-amz-meta-${key}`)
+          ),
         }
       );
 
-      return { signedUrl, file: { ...file, objectKey } };
+      return { signedUrl, file: { ...file, objectKey, objectMetadata } };
     })
   );
 
-  let responseMetadata = {};
+  let responseMetadata;
   try {
     const onAfterSignedUrl = await route.onAfterSignedUrl?.({
       req,

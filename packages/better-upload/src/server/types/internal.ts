@@ -218,7 +218,7 @@ export type RouteConfig<
         multipart?: T;
       });
 
-type BeforeUploadCallbackResult<T extends boolean, M extends Metadata> = {
+type BeforeUploadCallbackResult<U extends boolean, M extends Metadata> = {
   /**
    * Metadata sent to `onAfterSignedUrl`.
    */
@@ -230,7 +230,7 @@ type BeforeUploadCallbackResult<T extends boolean, M extends Metadata> = {
    * If you wish to upload to a different bucket than the one specified in the router.
    */
   bucketName?: string;
-} & (T extends false
+} & (U extends false
   ? {
       /**
        * The object key to upload to.
@@ -239,6 +239,8 @@ type BeforeUploadCallbackResult<T extends boolean, M extends Metadata> = {
 
       /**
        * Custom object metadata for S3.
+       *
+       * **All keys will be lower cased.**
        *
        * **WARNING:** All values here will be exposed to the client. Do not use this for sensitive data.
        */
@@ -257,6 +259,8 @@ type BeforeUploadCallbackResult<T extends boolean, M extends Metadata> = {
 
       /**
        * Use this callback to generate custom object metadata for S3. Will be called for each file, in parallel.
+       *
+       * **All keys will be lower cased.**
        *
        * **WARNING:** All values here will be exposed to the client. Do not use this for sensitive data.
        */

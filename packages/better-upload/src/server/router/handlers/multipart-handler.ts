@@ -1,6 +1,6 @@
 import { config } from '@/server/config';
 import { UploadFileError } from '@/server/error';
-import type { Route } from '@/server/types/internal';
+import type { ObjectMetadata, Route } from '@/server/types/internal';
 import { isFileTypeAllowed } from '@/server/utils/internal/file-type';
 import { createSlug } from '@/server/utils/internal/slug';
 import type { UploadFileSchema } from '@/server/validations';
@@ -76,9 +76,10 @@ export async function handleMultipartFiles({
     }
   }
 
-  let beforeUploadMetadata = {};
-  let bucketName = defaultBucketName;
-  let generateObjectKeyCallback = null;
+  let beforeUploadMetadata,
+    bucketName,
+    generateObjectKeyCallback,
+    generateObjectMetadataCallback;
   try {
     const onBeforeUpload = await route.onBeforeUpload?.({
       req,
@@ -89,6 +90,8 @@ export async function handleMultipartFiles({
     beforeUploadMetadata = onBeforeUpload?.metadata || {};
     bucketName = onBeforeUpload?.bucketName || defaultBucketName;
     generateObjectKeyCallback = onBeforeUpload?.generateObjectKey || null;
+    generateObjectMetadataCallback =
+      onBeforeUpload?.generateObjectMetadata || null;
   } catch (error) {
     if (error instanceof UploadFileError) {
       return Response.json(
@@ -103,11 +106,21 @@ export async function handleMultipartFiles({
   const signedUrls = await Promise.all(
     files.map(async (file) => {
       let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
-
       if (generateObjectKeyCallback) {
         objectKey = await generateObjectKeyCallback({
           file,
         });
+      }
+
+      let objectMetadata = {} as ObjectMetadata;
+      if (generateObjectMetadataCallback) {
+        objectMetadata = Object.fromEntries(
+          Object.entries(
+            await generateObjectMetadataCallback({
+              file: { ...file, objectKey },
+            })
+          ).map(([key, value]) => [key.toLowerCase(), value])
+        );
       }
 
       const { UploadId: s3UploadId } = await client.send(
@@ -115,6 +128,7 @@ export async function handleMultipartFiles({
           Bucket: bucketName,
           Key: objectKey,
           ContentType: file.type,
+          Metadata: objectMetadata,
         })
       );
 
@@ -172,7 +186,7 @@ export async function handleMultipartFiles({
       ]);
 
       return {
-        file: { ...file, objectKey },
+        file: { ...file, objectKey, objectMetadata },
         parts: partSignedUrls,
         uploadId: s3UploadId!,
         completeSignedUrl,
@@ -181,7 +195,7 @@ export async function handleMultipartFiles({
     })
   );
 
-  let responseMetadata = {};
+  let responseMetadata;
   try {
     const onAfterSignedUrl = await route.onAfterSignedUrl?.({
       req,
