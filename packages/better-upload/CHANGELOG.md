@@ -1,5 +1,13 @@
 # better-upload
 
+## 0.2.7
+
+### Patch Changes
+
+- [`c6cda1d`](https://github.com/Nic13Gamer/better-upload/commit/c6cda1d99afd3a20c3d933eafb9ec3b631c593b6) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Return uploaded files in hook upload promise
+
+- [`175bd1d`](https://github.com/Nic13Gamer/better-upload/commit/175bd1ddb37d04629a815a3fa00bc98e15b33e88) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Allow promises on some hook events
+
 ## 0.2.6
 
 ### Patch Changes
