@@ -154,7 +154,12 @@ export function useUploadFiles({
         setError({ type: 'no_files', message: 'No files to upload.' });
         onUploadError?.({ type: 'no_files', message: 'No files to upload.' });
         onUploadSettled?.();
-        return;
+
+        return {
+          files: [],
+          failedFiles: [],
+          metadata: {},
+        };
       }
 
       let s3UploadedFiles: UploadedFile[] = [],
@@ -273,7 +278,7 @@ export function useUploadFiles({
       await onUploadSettled?.();
 
       return {
-        uploadedFiles: s3UploadedFiles,
+        files: s3UploadedFiles,
         failedFiles: s3FailedFiles,
         metadata: serverMetadata,
       };
