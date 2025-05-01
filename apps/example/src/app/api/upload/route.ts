@@ -33,5 +33,14 @@ export const { POST } = createUploadRouteHandler({
       partSize: 1024 * 1024 * 5, // 5MB
       maxFileSize: 1024 * 1024 * 80, // 80MB
     }),
+    form: route({
+      multipleFiles: true,
+      maxFiles: 5,
+      onBeforeUpload() {
+        return {
+          generateObjectKey: () => `form/${crypto.randomUUID()}`,
+        };
+      },
+    }),
   },
 });
