@@ -98,7 +98,7 @@ type UseUploadFilesProps = {
      * Metadata sent from the server.
      */
     metadata: ServerMetadata;
-  }) => void;
+  }) => void | Promise<void>;
 
   /**
    * Event that is called if an error occurs during the upload of a file.
@@ -108,7 +108,7 @@ type UseUploadFilesProps = {
   /**
    * Event that is called after the file upload is either successfully completed or an error occurs.
    */
-  onUploadSettled?: () => void;
+  onUploadSettled?: () => void | Promise<void>;
 };
 
 export function useUploadFiles({
@@ -227,7 +227,7 @@ export function useUploadFiles({
         setIsPending(false);
         setIsSuccess(true);
 
-        onUploadComplete?.({
+        await onUploadComplete?.({
           files: s3UploadedFiles,
           failedFiles: s3FailedFiles,
           metadata: serverMetadata,
@@ -266,7 +266,7 @@ export function useUploadFiles({
         }
       }
 
-      onUploadSettled?.();
+      await onUploadSettled?.();
     },
     [
       api,
