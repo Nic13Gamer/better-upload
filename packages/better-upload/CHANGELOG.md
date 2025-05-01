@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.2.6
+
+### Patch Changes
+
+- [`1220e88`](https://github.com/Nic13Gamer/better-upload/commit/1220e88b8e2a7c5c16d6eae940a6d16918591202) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Files arrays in hook should never be null
+
 ## 0.2.5
 
 ### Patch Changes
