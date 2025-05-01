@@ -123,10 +123,8 @@ export function useUploadFiles({
   onUploadError,
   onUploadSettled,
 }: UseUploadFilesProps) {
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[] | null>(
-    null
-  );
-  const [failedFiles, setFailedFiles] = useState<UploadedFile[] | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [failedFiles, setFailedFiles] = useState<UploadedFile[]>([]);
   const [isPending, setIsPending] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -138,8 +136,8 @@ export function useUploadFiles({
       files: File[] | FileList,
       { metadata }: { metadata?: ServerMetadata } = {}
     ) => {
-      setUploadedFiles(null);
-      setFailedFiles(null);
+      setUploadedFiles([]);
+      setFailedFiles([]);
       setIsSuccess(false);
       setIsError(false);
       setError(null);
@@ -285,8 +283,8 @@ export function useUploadFiles({
   );
 
   const reset = useCallback(() => {
-    setUploadedFiles(null);
-    setFailedFiles(null);
+    setUploadedFiles([]);
+    setFailedFiles([]);
     setIsPending(false);
     setIsSuccess(false);
     setIsError(false);
