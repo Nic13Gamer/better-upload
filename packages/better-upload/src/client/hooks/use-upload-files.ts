@@ -157,6 +157,10 @@ export function useUploadFiles({
         return;
       }
 
+      let s3UploadedFiles: UploadedFile[] = [],
+        s3FailedFiles: UploadedFile[] = [],
+        serverMetadata: ServerMetadata = {};
+
       try {
         let filesToUpload = fileArray;
 
@@ -175,11 +179,7 @@ export function useUploadFiles({
           }
         }
 
-        const {
-          uploadedFiles: s3UploadedFiles,
-          failedFiles: s3FailedFiles,
-          serverMetadata,
-        } = await uploadFiles({
+        const res = await uploadFiles({
           api,
           route,
           files: filesToUpload,
@@ -221,6 +221,10 @@ export function useUploadFiles({
             });
           },
         });
+
+        s3UploadedFiles = res.uploadedFiles;
+        s3FailedFiles = res.failedFiles;
+        serverMetadata = res.serverMetadata;
 
         setUploadedFiles(s3UploadedFiles);
         setFailedFiles(s3FailedFiles);
@@ -267,6 +271,12 @@ export function useUploadFiles({
       }
 
       await onUploadSettled?.();
+
+      return {
+        uploadedFiles: s3UploadedFiles,
+        failedFiles: s3FailedFiles,
+        metadata: serverMetadata,
+      };
     },
     [
       api,

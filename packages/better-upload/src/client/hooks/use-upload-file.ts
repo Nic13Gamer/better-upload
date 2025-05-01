@@ -119,6 +119,9 @@ export function useUploadFile({
 
       setIsPending(true);
 
+      let s3UploadedFile = null,
+        serverMetadata: ServerMetadata = {};
+
       try {
         let fileToUpload = file;
 
@@ -130,28 +133,28 @@ export function useUploadFile({
           }
         }
 
-        const { uploadedFiles: s3UploadedFiles, serverMetadata } =
-          await uploadFiles({
-            api,
-            route,
-            files: [fileToUpload],
-            metadata,
-            sequential: false,
-            throwOnError: true,
-            multipartBatchSize,
-            onBegin: (data) => {
-              onUploadBegin?.({
-                file: data.files[0]!,
-                metadata: data.metadata,
-              });
-            },
-            onProgress: (data) => {
-              setProgress(data.progress);
-              onUploadProgress?.(data);
-            },
-          });
+        const res = await uploadFiles({
+          api,
+          route,
+          files: [fileToUpload],
+          metadata,
+          sequential: false,
+          throwOnError: true,
+          multipartBatchSize,
+          onBegin: (data) => {
+            onUploadBegin?.({
+              file: data.files[0]!,
+              metadata: data.metadata,
+            });
+          },
+          onProgress: (data) => {
+            setProgress(data.progress);
+            onUploadProgress?.(data);
+          },
+        });
 
-        const s3UploadedFile = s3UploadedFiles[0]!;
+        s3UploadedFile = res.uploadedFiles[0]!;
+        serverMetadata = res.serverMetadata;
 
         setUploadedFile(s3UploadedFile);
         setIsPending(false);
@@ -186,6 +189,11 @@ export function useUploadFile({
       }
 
       await onUploadSettled?.();
+
+      return {
+        file: s3UploadedFile,
+        metadata: serverMetadata,
+      };
     },
     [
       api,
