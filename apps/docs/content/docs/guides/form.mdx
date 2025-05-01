@@ -1,0 +1,278 @@
+---
+title: Form
+---
+
+It's common for file uploads to be part of a form. In this guide, we'll take a look at how to add file uploads to a form built using [shadcn/ui](https://ui.shadcn.com/docs/components/form). This guide will assume you have a basic understanding of:
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/form)
+- [react-hook-form](https://react-hook-form.com)
+- [zod](https://zod.dev)
+
+This guide is for uploading multiple files, but the same principles apply for single file uploads.
+
+## Using pre-built components
+
+<Steps>
+
+<Step>
+
+### Installation
+
+To follow along with this guide, install the following shadcn/ui components:
+
+```package-install
+npx shadcn@latest add form input button
+```
+
+This will also automatically install all required dependencies.
+
+</Step>
+
+<Step>
+
+### Set up upload route
+
+Set up your upload route. Use your preferred framework, but for this example, we'll use Next.js.
+
+```ts title="app/api/upload/route.ts"
+import { S3Client } from '@aws-sdk/client-s3';
+import { createUploadRouteHandler, route } from 'better-upload/server';
+
+const s3 = new S3Client();
+
+export const { POST } = createUploadRouteHandler({
+  client: s3,
+  bucketName: 'your-bucket-name',
+  routes: {
+    form: route({
+      multipleFiles: true,
+      maxFiles: 5,
+      onBeforeUpload() {
+        return {
+          generateObjectKey: () => `form/${crypto.randomUUID()}`,
+        };
+      },
+    }),
+  },
+});
+```
+
+We create the upload route `form` for multiple files. All files will have the same prefix `form/` in the S3 bucket.
+
+</Step>
+
+<Step>
+
+### Define the form schema
+
+We'll now create the form. The form uses the [Upload Dropzone](/components/upload-dropzone) component to allow users to upload files. The form also has an input field for arbitrary text.
+
+Define the form schema using `zod`. The schema contains two fields:
+
+- `folderName`: For the arbitrary text input
+- `objectKeys`: For the uploaded files, stores the S3 object keys
+
+```tsx title="components/my-form.tsx"
+'use client'; // for next.js
+
+import { z } from 'zod';
+
+const formSchema = z.object({
+  folderName: z.string().min(1),
+  objectKeys: z.array(z.string()).min(1),
+});
+```
+
+</Step>
+
+<Step>
+
+### Define the form
+
+Use the `useForm` hook from `react-hook-form` to create the form.
+
+```tsx
+'use client';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+const formSchema = z.object({
+  folderName: z.string().min(1),
+  objectKeys: z.array(z.string()).min(1),
+});
+
+export function MyForm() {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      folderName: '',
+      objectKeys: [],
+    },
+  });
+
+  function onSubmit(data: z.infer<typeof formSchema>) {
+    // call your API here
+    console.log(data);
+  }
+}
+```
+
+Feel free to make changes to the code to suit your needs, such as calling your API on `onSubmit`.
+
+</Step>
+
+<Step>
+
+### Build the form UI
+
+We can now use the `<Form />` component from `shadcn/ui` to build our form.
+
+```tsx
+'use client';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { UploadDropzone } from '@/components/ui/upload-dropzone';
+
+const formSchema = z.object({
+  folderName: z.string().min(1),
+  objectKeys: z.array(z.string()).min(1),
+});
+
+export function MyForm() {
+  // ...
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="folderName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Folder name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="objectKeys"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Files</FormLabel>
+              <FormControl>
+                <UploadDropzone
+                  route="form"
+                  onUploadComplete={({ files }) => {
+                    field.onChange(files.map((file) => file.objectKey));
+                  }}
+                  onUploadError={(error) => {
+                    form.setError('objectKeys', {
+                      message: error.message || 'An error occurred',
+                    });
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  );
+}
+```
+
+</Step>
+
+<Step>
+
+### Optional: Hide dropzone after upload
+
+Now let's hide the dropzone after the user has uploaded files. We can do this by using `useState` to track the uploaded files and list them in the UI.
+
+```tsx
+'use client';
+
+import { useState } from 'react'; // [!code highlight]
+import { UploadedFile } from 'better-upload/client'; // [!code highlight]
+
+export function MyForm() {
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]); // [!code highlight]
+
+  // ...
+
+  return (
+    <Form>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {/* ... */}
+
+        {uploadedFiles.length > 0 ? (
+          <div className="flex flex-col">
+            {uploadedFiles.map((file) => (
+              <p key={file.objectKey}>{file.name}</p>
+            ))}
+          </div>
+        ) : (
+          <FormField
+            control={form.control}
+            name="objectKeys"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Files</FormLabel>
+                <FormControl>
+                  <UploadDropzone
+                    route="form"
+                    onUploadComplete={({ files }) => {
+                      field.onChange(files.map((file) => file.objectKey));
+                      setUploadedFiles(files); // [!code highlight]
+                    }}
+                    onUploadError={(error) => {
+                      form.setError('objectKeys', {
+                        message: error.message || 'An error occurred',
+                      });
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  );
+}
+```
+
+<Callout>
+  If you need more control over the upload process, we recommend using the
+  `useUploadFiles` hook directly.
+</Callout>
+
+</Step>
+
+</Steps>

@@ -2,8 +2,6 @@
 @import 'fumadocs-ui/css/black.css';
 @import 'fumadocs-ui/css/preset.css';
 
-@source '../node_modules/fumadocs-ui/dist/**/*.js';
-
 :root {
   --color-fd-primary: hsl(220, 91%, 54%);
 }
