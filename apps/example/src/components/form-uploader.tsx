@@ -11,8 +11,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { UploadedFile } from 'better-upload/client';
-import { useState } from 'react';
+import { useUploadFiles } from 'better-upload/client';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { UploadDropzone } from './ui/upload-dropzone';
@@ -23,7 +22,20 @@ const formSchema = z.object({
 });
 
 export function FormUploader() {
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const { control: uploadControl, uploadedFiles } = useUploadFiles({
+    route: 'form',
+    onUploadComplete: ({ files }) => {
+      form.setValue(
+        'objectKeys',
+        files.map((file) => file.objectKey)
+      );
+    },
+    onError: (error) => {
+      form.setError('objectKeys', {
+        message: error.message || 'An error occurred',
+      });
+    },
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,22 +77,11 @@ export function FormUploader() {
           <FormField
             control={form.control}
             name="objectKeys"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Files</FormLabel>
                 <FormControl>
-                  <UploadDropzone
-                    route="form"
-                    onUploadComplete={({ files }) => {
-                      field.onChange(files.map((file) => file.objectKey));
-                      setUploadedFiles(files);
-                    }}
-                    onUploadError={(error) => {
-                      form.setError('objectKeys', {
-                        message: error.message || 'An error occurred',
-                      });
-                    }}
-                  />
+                  <UploadDropzone control={uploadControl} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
