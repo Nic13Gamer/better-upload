@@ -1,321 +1,267 @@
-import { useCallback, useState } from 'react';
-import { UploadFileError } from '../types/error';
-import type { ServerMetadata } from '../types/internal';
-import type { ClientUploadFileError, UploadedFile } from '../types/public';
-import { uploadFiles } from '../utils/internal/upload';
-
-type ErrorState = Omit<ClientUploadFileError, 'objectKey'> & {
-  objectKeys?: string[];
-};
-
-type UseUploadFilesProps = {
-  /**
-   * The API endpoint to use for uploading files.
-   *
-   * @default '/api/upload'
-   */
-  api?: string;
-
-  /**
-   * The route to use to upload the files. Should match the upload route name defined in the server, and `multipleFiles` should be `true`.
-   */
-  route: string;
-
-  /**
-   * Whether files should be uploaded sequentially, rather than in parallel.
-   *
-   * This can be useful to reduce the load on the S3 server, but it will take longer to upload all files.
-   *
-   * @default false
-   */
-  sequential?: boolean;
-
-  /**
-   * The number of parts that will be uploaded in parallel when uploading a file.
-   *
-   * **Only used in multipart uploads.**
-   *
-   * @default All parts at once.
-   */
-  multipartBatchSize?: number;
-
-  /**
-   * Callback that is called before requesting the pre-signed URLs. Use this to modify the files before uploading them, like resizing or compressing.
-   *
-   * You can also throw an error to reject the file upload.
-   */
-  onBeforeUpload?: (data: {
-    files: File[];
-  }) => void | File[] | Promise<void | File[]>;
-
-  /**
-   * Event that is called when the files start being uploaded to S3. This happens after the server responds with the pre-signed URL.
-   */
-  onUploadBegin?: (data: {
-    /**
-     * Information about the files to be uploaded.
-     */
-    files: UploadedFile[];
-
-    /**
-     * Metadata sent from the server.
-     */
-    metadata: ServerMetadata;
-  }) => void;
-
-  /**
-   * Event that is called when a file upload progress changes.
-   */
-  onUploadProgress?: (data: {
-    /**
-     * Information about the file being uploaded.
-     */
-    file: Omit<UploadedFile, 'raw'>;
-
-    /**
-     * The progress of the upload, goes from 0 to 1.
-     *
-     * @example 0.5
-     */
-    progress: number;
-  }) => void;
-
-  /**
-   * Event that is called after the files are successfully uploaded.
-   */
-  onUploadComplete?: (data: {
-    /**
-     * Information about the uploaded files.
-     */
-    files: UploadedFile[];
-
-    /**
-     * Information about the files that failed to be uploaded.
-     */
-    failedFiles: UploadedFile[];
-
-    /**
-     * Metadata sent from the server.
-     */
-    metadata: ServerMetadata;
-  }) => void | Promise<void>;
-
-  /**
-   * Event that is called if an error occurs during the upload of a file.
-   */
-  onUploadError?: (error: ClientUploadFileError) => void;
-
-  /**
-   * Event that is called after the file upload is either successfully completed or an error occurs.
-   */
-  onUploadSettled?: () => void | Promise<void>;
-};
+import { useCallback, useMemo, useState } from 'react';
+import { ClientUploadErrorClass } from '../types/error';
+import type {
+  ServerMetadata,
+  UploadHookProps,
+  UploadHookReturn,
+  UploadStatus,
+} from '../types/internal';
+import type { ClientUploadError, FileUploadInfo } from '../types/public';
+import { uploadFiles } from '../utils/upload';
 
 export function useUploadFiles({
-  api = '/api/upload',
+  api,
   route,
-  sequential,
+  uploadBatchSize,
   multipartBatchSize,
-  onUploadBegin,
+  headers,
+  signal,
+  onError,
   onBeforeUpload,
-  onUploadProgress,
+  onUploadBegin,
   onUploadComplete,
-  onUploadError,
-  onUploadSettled,
-}: UseUploadFilesProps) {
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [failedFiles, setFailedFiles] = useState<UploadedFile[]>([]);
-  const [isPending, setIsPending] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [error, setError] = useState<ErrorState | null>(null);
-  const [progresses, setProgresses] = useState<Record<string, number>>({});
+  onUploadFail,
+  onUploadProgress,
+  onUploadSettle,
+}: UploadHookProps<true>): UploadHookReturn<true> {
+  const [uploads, setUploads] = useState(
+    () => new Map<string, FileUploadInfo<UploadStatus>>()
+  );
+  const [serverMetadata, setServerMetadata] = useState<ServerMetadata>({});
 
-  const upload = useCallback(
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<ClientUploadError | null>(null);
+
+  const uploadsArray = useMemo(() => Array.from(uploads.values()), [uploads]);
+  const uploadedFiles = useMemo(
+    () =>
+      uploadsArray.filter(
+        (file) => file.status === 'complete'
+      ) as FileUploadInfo<'complete'>[],
+    [uploadsArray]
+  );
+  const failedFiles = useMemo(
+    () =>
+      uploadsArray.filter(
+        (file) => file.status === 'failed'
+      ) as FileUploadInfo<'failed'>[],
+    [uploadsArray]
+  );
+  const allSucceeded = useMemo(
+    () => uploadsArray.every((file) => file.status === 'complete'),
+    [uploadsArray]
+  );
+  const hasFailedFiles = useMemo(
+    () => uploadsArray.some((file) => file.status === 'failed'),
+    [uploadsArray]
+  );
+  const isSettled = useMemo(
+    () =>
+      uploadsArray.every(
+        (file) => file.status === 'complete' || file.status === 'failed'
+      ),
+    [uploadsArray]
+  );
+  const averageProgress = useMemo(() => {
+    if (uploadsArray.length === 0) {
+      return 0;
+    }
+
+    return (
+      uploadsArray.reduce((acc, file) => acc + file.progress, 0) /
+      uploadsArray.length
+    );
+  }, [uploadsArray]);
+
+  const uploadAsync = useCallback(
     async (
       files: File[] | FileList,
       { metadata }: { metadata?: ServerMetadata } = {}
     ) => {
-      setUploadedFiles([]);
-      setFailedFiles([]);
-      setIsSuccess(false);
-      setIsError(false);
-      setError(null);
-      setProgresses({});
+      reset();
 
       setIsPending(true);
 
       const fileArray = Array.from(files);
 
       if (fileArray.length === 0) {
-        setIsError(true);
-        setIsSuccess(false);
-        setIsPending(false);
-        setError({ type: 'no_files', message: 'No files to upload.' });
-        onUploadError?.({ type: 'no_files', message: 'No files to upload.' });
-        onUploadSettled?.();
+        const error = {
+          type: 'no_files',
+          message: 'No files to upload.',
+        } as const;
 
+        onError?.(error);
+        setError(error);
+        throw new ClientUploadErrorClass(error);
+      }
+
+      try {
+        let filesToUpload = fileArray;
+
+        if (onBeforeUpload) {
+          const callbackResult = await onBeforeUpload({ files: fileArray });
+
+          if (Array.isArray(callbackResult)) {
+            if (callbackResult.length === 0) {
+              const error = {
+                type: 'no_files',
+                message: 'No files to upload.',
+              } as const;
+
+              onError?.(error);
+              setError(error);
+              throw new ClientUploadErrorClass(error);
+            }
+
+            filesToUpload = callbackResult;
+          }
+        }
+
+        const result = await uploadFiles({
+          api,
+          route,
+          files: filesToUpload,
+          metadata,
+          uploadBatchSize,
+          multipartBatchSize,
+          headers,
+          signal,
+          onUploadBegin,
+          onFileStateChange: ({ file }) => {
+            setUploads((prev) => new Map(prev).set(file.objectKey, file));
+
+            if (file.status === 'uploading') {
+              onUploadProgress?.({ file: file as FileUploadInfo<'uploading'> });
+            }
+          },
+        });
+
+        if (result.files.length > 0) {
+          await onUploadComplete?.(result);
+        }
+
+        if (result.failedFiles.length > 0) {
+          await onUploadFail?.({
+            succeededFiles: result.files,
+            failedFiles: result.failedFiles,
+            metadata: result.metadata,
+          });
+        }
+
+        setIsPending(false);
+        setServerMetadata(result.metadata);
+        await onUploadSettle?.(result);
+
+        return result;
+      } catch (error) {
+        setIsPending(false);
+        await onUploadSettle?.({ files: [], failedFiles: [], metadata: {} });
+
+        if (error instanceof ClientUploadErrorClass) {
+          onError?.(error);
+          setError(error);
+          throw error;
+        } else if (error instanceof Error) {
+          const _error = new ClientUploadErrorClass({
+            type: 'unknown',
+            message: error.message,
+          });
+
+          onError?.(_error);
+          setError(_error);
+          throw _error;
+        } else {
+          const _error = new ClientUploadErrorClass({
+            type: 'unknown',
+            message: 'Failed to upload files.',
+          });
+
+          onError?.(_error);
+          setError(_error);
+          throw _error;
+        }
+      }
+    },
+    [
+      api,
+      route,
+      uploadBatchSize,
+      multipartBatchSize,
+      headers,
+      signal,
+      onError,
+      onBeforeUpload,
+      onUploadBegin,
+      onUploadComplete,
+      onUploadFail,
+      onUploadProgress,
+      onUploadSettle,
+    ]
+  );
+
+  const upload = useCallback(
+    async (
+      files: File[] | FileList,
+      options: { metadata?: ServerMetadata } = {}
+    ) => {
+      try {
+        const result = await uploadAsync(files, options);
+
+        return result;
+      } catch (error) {
         return {
           files: [],
           failedFiles: [],
           metadata: {},
         };
       }
-
-      let s3UploadedFiles: UploadedFile[] = [],
-        s3FailedFiles: UploadedFile[] = [],
-        serverMetadata: ServerMetadata = {};
-
-      try {
-        let filesToUpload = fileArray;
-
-        if (onBeforeUpload) {
-          const result = await onBeforeUpload({ files: fileArray });
-
-          if (Array.isArray(result)) {
-            if (result.length === 0) {
-              throw new UploadFileError({
-                type: 'no_files',
-                message: 'No files to upload.',
-              });
-            }
-
-            filesToUpload = result;
-          }
-        }
-
-        const res = await uploadFiles({
-          api,
-          route,
-          files: filesToUpload,
-          metadata,
-          sequential,
-          throwOnError: false,
-          multipartBatchSize,
-          onBegin: onUploadBegin,
-          onProgress: (data) => {
-            setProgresses((prev) => ({
-              ...prev,
-              [data.file.objectKey]: data.progress,
-            }));
-            onUploadProgress?.(data);
-          },
-          onError: (error) => {
-            setIsError(true);
-
-            setError((prev) => {
-              const newError = {
-                type: error.type,
-                message: error.message || null,
-                objectKeys: error.objectKey ? [error.objectKey] : undefined,
-              };
-
-              if (prev?.objectKeys && error.objectKey) {
-                return {
-                  ...prev,
-                  objectKeys: [...prev.objectKeys, error.objectKey],
-                };
-              }
-
-              return newError;
-            });
-            onUploadError?.({
-              type: error.type,
-              message: error.message || null,
-              objectKey: error.objectKey,
-            });
-          },
-        });
-
-        s3UploadedFiles = res.uploadedFiles;
-        s3FailedFiles = res.failedFiles;
-        serverMetadata = res.serverMetadata;
-
-        setUploadedFiles(s3UploadedFiles);
-        setFailedFiles(s3FailedFiles);
-        setIsPending(false);
-        setIsSuccess(true);
-
-        await onUploadComplete?.({
-          files: s3UploadedFiles,
-          failedFiles: s3FailedFiles,
-          metadata: serverMetadata,
-        });
-      } catch (error) {
-        setIsError(true);
-        setIsSuccess(false);
-        setIsPending(false);
-        setProgresses({});
-
-        if (error instanceof UploadFileError) {
-          setError((prev) => {
-            const newError = {
-              type: error.type,
-              message: error.message || null,
-              objectKeys: error.objectKey ? [error.objectKey] : undefined,
-            };
-
-            if (prev?.objectKeys && error.objectKey) {
-              return {
-                ...prev,
-                objectKeys: [...prev.objectKeys, error.objectKey],
-              };
-            }
-
-            return newError;
-          });
-          onUploadError?.({
-            type: error.type,
-            message: error.message || null,
-            objectKey: error.objectKey,
-          });
-        } else {
-          setError({ type: 'unknown', message: null });
-          onUploadError?.({ type: 'unknown', message: null });
-        }
-      }
-
-      await onUploadSettled?.();
-
-      return {
-        files: s3UploadedFiles,
-        failedFiles: s3FailedFiles,
-        metadata: serverMetadata,
-      };
     },
-    [
-      api,
-      route,
-      sequential,
-      multipartBatchSize,
-      onBeforeUpload,
-      onUploadBegin,
-      onUploadProgress,
-      onUploadComplete,
-      onUploadError,
-      onUploadSettled,
-    ]
+    [uploadAsync]
   );
 
   const reset = useCallback(() => {
-    setUploadedFiles([]);
-    setFailedFiles([]);
+    setUploads(new Map<string, FileUploadInfo<UploadStatus>>());
+    setServerMetadata({});
     setIsPending(false);
-    setIsSuccess(false);
-    setIsError(false);
     setError(null);
-    setProgresses({});
   }, []);
 
+  const control = useMemo(
+    () => ({
+      uploadAsync,
+      upload,
+      reset,
+      progresses: uploadsArray,
+      allSucceeded,
+      hasFailedFiles,
+      uploadedFiles,
+      failedFiles,
+      isSettled,
+      averageProgress,
+      isPending,
+      isError: !!error,
+      error,
+      metadata: serverMetadata,
+    }),
+    [
+      uploadAsync,
+      upload,
+      reset,
+      uploadsArray,
+      allSucceeded,
+      hasFailedFiles,
+      uploadedFiles,
+      failedFiles,
+      isSettled,
+      averageProgress,
+      isPending,
+      error,
+      serverMetadata,
+    ]
+  );
+
   return {
-    upload,
-    reset,
-    uploadedFiles,
-    failedFiles,
-    progresses,
-    isPending,
-    isSuccess,
-    isError,
-    error,
+    ...control,
+    control,
   };
 }
