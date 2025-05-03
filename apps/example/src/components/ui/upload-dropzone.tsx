@@ -1,13 +1,13 @@
 import { cn } from '@/lib/utils';
-import { useUploadFiles } from 'better-upload/client';
+import type { UploadHookControl } from 'better-upload/client';
 import { Loader2, Upload } from 'lucide-react';
 import { useId } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-type UploadDropzoneProps = Parameters<typeof useUploadFiles>[0] & {
+type UploadDropzoneProps = {
+  control: UploadHookControl<true>;
   accept?: string;
   metadata?: Record<string, unknown>;
-
   description?:
     | {
         fileTypes?: string;
@@ -20,29 +20,19 @@ type UploadDropzoneProps = Parameters<typeof useUploadFiles>[0] & {
 };
 
 export function UploadDropzone({
+  control: { upload, isPending },
   accept,
   metadata,
   description,
-  ...params
 }: UploadDropzoneProps) {
   const id = useId();
 
-  const { upload, isPending } = useUploadFiles({
-    ...params,
-    onUploadSettled: () => {
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
-
-      params.onUploadSettled?.();
-    },
-  });
-
   const { getRootProps, getInputProps, isDragActive, inputRef } = useDropzone({
     onDrop: (files) => {
-      if (files.length > 0) {
+      if (files.length > 0 && !isPending) {
         upload(files, { metadata });
       }
+      inputRef.current.value = '';
     },
     noClick: true,
   });

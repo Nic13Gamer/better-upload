@@ -1,15 +1,15 @@
 import { cn } from '@/lib/utils';
-import { type UploadedFile, useUploadFiles } from 'better-upload/client';
+import type { UploadHookControl } from 'better-upload/client';
 import { readableBytes } from 'better-upload/client/helpers';
 import { Dot, File, Upload } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useId } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Progress } from './progress';
 
-type UploadDropzoneProgressProps = Parameters<typeof useUploadFiles>[0] & {
+type UploadDropzoneProgressProps = {
+  control: UploadHookControl<true>;
   accept?: string;
   metadata?: Record<string, unknown>;
-
   description?:
     | {
         fileTypes?: string;
@@ -18,73 +18,23 @@ type UploadDropzoneProgressProps = Parameters<typeof useUploadFiles>[0] & {
       }
     | string;
 
-  resetAfterSettled?: boolean;
-
   // Add any additional props you need.
 };
 
 export function UploadDropzoneProgress({
+  control: { upload, isPending, progresses },
   accept,
   metadata,
   description,
-  resetAfterSettled,
-  ...params
 }: UploadDropzoneProgressProps) {
   const id = useId();
-
-  const [progresses, setProgresses] = useState<
-    { file: Omit<UploadedFile, 'raw'>; progress: number; failed: boolean }[]
-  >([]);
-
-  const { upload, reset, isPending } = useUploadFiles({
-    ...params,
-    onUploadSettled: () => {
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
-
-      if (resetAfterSettled) {
-        setProgresses([]);
-        reset();
-      }
-
-      params.onUploadSettled?.();
-    },
-    onBeforeUpload: (args) => {
-      setProgresses([]);
-
-      return params.onBeforeUpload?.(args);
-    },
-    onUploadProgress: ({ file, progress }) => {
-      setProgresses((prev) => {
-        const existing = prev.find((p) => p.file.objectKey === file.objectKey);
-        if (existing) {
-          return prev.map((p) =>
-            p.file.objectKey === file.objectKey ? { ...p, progress } : p
-          );
-        }
-
-        return [...prev, { file, progress, failed: false }];
-      });
-
-      params.onUploadProgress?.({ file, progress });
-    },
-    onUploadError: (error) => {
-      setProgresses((prev) =>
-        prev.map((p) =>
-          error.objectKey === p.file.objectKey ? { ...p, failed: true } : p
-        )
-      );
-
-      params.onUploadError?.(error);
-    },
-  });
 
   const { getRootProps, getInputProps, isDragActive, inputRef } = useDropzone({
     onDrop: (files) => {
       if (files.length > 0) {
         upload(files, { metadata });
       }
+      inputRef.current.value = '';
     },
     noClick: true,
   });
@@ -159,26 +109,27 @@ export function UploadDropzoneProgress({
       <div className="flex flex-col gap-2">
         {progresses.map((progress) => (
           <div
-            key={progress.file.objectKey}
+            key={progress.objectKey}
             className={cn('flex flex-col gap-2.5 rounded-lg border p-3', {
-              'border-red-500/70 bg-red-500/[0.03]': progress.failed,
+              'border-red-500/70 bg-red-500/[0.03]':
+                progress.status === 'failed',
             })}
           >
             <div className="flex items-center gap-2">
-              <FileIcon type={progress.file.type} />
+              <FileIcon type={progress.type} />
 
               <div className="space-y-1">
-                <p className="text-sm font-medium">{progress.file.name}</p>
+                <p className="text-sm font-medium">{progress.name}</p>
 
                 <div className="flex items-center gap-0.5 text-xs">
                   <p className="text-muted-foreground">
-                    {readableBytes(progress.file.size)}
+                    {readableBytes(progress.size)}
                   </p>
 
                   <Dot className="text-muted-foreground size-4" />
 
                   <p>
-                    {progress.failed ? (
+                    {progress.status === 'failed' ? (
                       <span className="text-red-500">Failed</span>
                     ) : progress.progress < 1 ? (
                       `${(progress.progress * 100).toFixed(0)}%`
@@ -190,7 +141,7 @@ export function UploadDropzoneProgress({
               </div>
             </div>
 
-            {progress.progress < 1 && !progress.failed && (
+            {progress.progress < 1 && progress.status !== 'failed' && (
               <Progress className="h-1.5" value={progress.progress * 100} />
             )}
           </div>

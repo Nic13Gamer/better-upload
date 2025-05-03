@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button';
-import { useUploadFile } from 'better-upload/client';
+import type { UploadHookControl } from 'better-upload/client';
 import { Loader2, Upload } from 'lucide-react';
-import { useId, useRef } from 'react';
+import { useId } from 'react';
 
-type UploadButtonProps = Parameters<typeof useUploadFile>[0] & {
+type UploadButtonProps = {
+  control: UploadHookControl<false>;
   accept?: string;
   metadata?: Record<string, unknown>;
 
@@ -11,37 +12,25 @@ type UploadButtonProps = Parameters<typeof useUploadFile>[0] & {
 };
 
 export function UploadButton({
+  control: { upload, isPending },
   accept,
   metadata,
-  ...params
 }: UploadButtonProps) {
   const id = useId();
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  const { upload, isPending } = useUploadFile({
-    ...params,
-    onUploadSettled: () => {
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
-
-      params.onUploadSettled?.();
-    },
-  });
 
   return (
     <Button disabled={isPending} className="relative" type="button">
       <label htmlFor={id} className="absolute inset-0 cursor-pointer">
         <input
           id={id}
-          ref={inputRef}
           className="absolute inset-0 size-0 opacity-0"
           type="file"
           accept={accept}
           onChange={(e) => {
-            if (e.target.files?.[0]) {
+            if (e.target.files?.[0] && !isPending) {
               upload(e.target.files[0], { metadata });
             }
+            e.target.value = '';
           }}
         />
       </label>
