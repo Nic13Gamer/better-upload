@@ -71,13 +71,6 @@ export type UploadHookProps<T extends boolean> = {
   multipartBatchSize?: number;
 
   /**
-   * Event that is called if a critical error occurs before the upload to S3, and no files were able to be uploaded. For example, if your server is unreachable.
-   *
-   * Is also called some input is invalid. For example, if no files were selected.
-   */
-  onError?: (error: ClientUploadError) => void;
-
-  /**
    * Callback that is called before requesting the pre-signed URLs. Use this to modify files before uploading them, like resizing or compressing.
    *
    * You can also throw an error to reject the file upload.
@@ -129,25 +122,6 @@ export type UploadHookProps<T extends boolean> = {
   ) => void | Promise<void>;
 
   /**
-   * Event that is called after the entire upload if a file fails to upload.
-   *
-   * This event is called even if some files succeed to upload, but some fail. This event is not called if all files succeed.
-   */
-  onUploadFail?: (
-    data: {
-      /**
-       * Metadata sent back from the server.
-       */
-      metadata: ServerMetadata;
-    } & (T extends true
-      ? {
-          succeededFiles: FileUploadInfo<'complete'>[];
-          failedFiles: FileUploadInfo<'failed'>[];
-        }
-      : { failedFile: FileUploadInfo<'failed'> })
-  ) => void | Promise<void>;
-
-  /**
    * Event that is called after the upload settles (either successfully completed or an error occurs).
    */
   onUploadSettle?: (
@@ -181,8 +155,37 @@ export type UploadHookProps<T extends boolean> = {
        * By default, all files are uploaded in parallel.
        */
       uploadBatchSize?: number;
+
+      /**
+       * Event that is called after the entire upload if a file fails to upload.
+       *
+       * This event is called even if some files succeed to upload, but some fail. This event is not called if all files succeed.
+       */
+      onUploadFail?: (data: {
+        /**
+         * Metadata sent back from the server.
+         */
+        metadata: ServerMetadata;
+
+        succeededFiles: FileUploadInfo<'complete'>[];
+        failedFiles: FileUploadInfo<'failed'>[];
+      }) => void | Promise<void>;
+
+      /**
+       * Event that is called if a critical error occurs before the upload to S3, and no files were able to be uploaded. For example, if your server is unreachable.
+       *
+       * Is also called some input is invalid. For example, if no files were selected.
+       */
+      onError?: (error: ClientUploadError) => void;
     }
-  : {});
+  : {
+      /**
+       * Event that is called if the upload fails.
+       *
+       * Also called if some input is invalid. For example, if no files were selected.
+       */
+      onError?: (error: ClientUploadError) => void;
+    });
 
 export type UploadHookReturn<T extends boolean> = UploadHookControl<T> & {
   control: UploadHookControl<T>;

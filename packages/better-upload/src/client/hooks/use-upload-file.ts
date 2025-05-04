@@ -44,11 +44,11 @@ export function useUploadFile(
           await props.onUploadComplete!({ file: files[0]!, metadata });
         }
       : undefined,
-    onUploadFail: props.onUploadFail
-      ? async ({ failedFiles, metadata }) => {
-          await props.onUploadFail!({
-            failedFile: failedFiles[0]!,
-            metadata,
+    onUploadFail: props.onError
+      ? async ({ failedFiles }) => {
+          props.onError?.({
+            type: failedFiles[0]!.error.type,
+            message: failedFiles[0]!.error.message,
           });
         }
       : undefined,
