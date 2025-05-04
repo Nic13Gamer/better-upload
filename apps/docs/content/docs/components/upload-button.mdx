@@ -65,44 +65,22 @@ Also add the [shadcn/ui button](https://ui.shadcn.com/docs/components/button) co
 
 ## Usage
 
-The `<UploadButton />` should be used inside a client component.
+The `<UploadButton />` should be used with the `useUploadFile` hook.
 
 ```tsx
 'use client';
 
+import { useUploadFile } from 'better-upload/client';
 import { UploadButton } from '@/components/ui/upload-button';
-```
 
-```tsx
-<UploadButton
-  route="demo"
-  accept="image/*"
-  onBeforeUpload={({ file }) => {
-    // rename the file
-    return new File([file], 'renamed-' + file.name, { type: file.type });
-  }}
-  onUploadBegin={({ file, metadata }) => {
-    console.log('Upload begin');
-  }}
-  onUploadProgress={({ file, progress }) => {
-    console.log(`Upload progress: ${progress * 100}%`);
-  }}
-  onUploadComplete={({ file, metadata }) => {
-    console.log('Upload complete');
-  }}
-  onUploadError={(error) => {
-    console.log(error.message);
-  }}
-  onUploadSettled={() => {
-    console.log('Upload settled');
-  }}
-/>
-```
+export function Uploader() {
+  const { control } = useUploadFile({
+    route: 'demo',
+  });
 
-<Callout>
-  If your upload route handler is not located at `/api/upload`, modify the `api`
-  prop to match your path.
-</Callout>
+  return <UploadButton control={control} accept="image/*" />;
+}
+```
 
 The button will open a file picker dialog when clicked, and upload the selected file to the desired route.
 
@@ -110,15 +88,6 @@ The button will open a file picker dialog when clicked, and upload the selected 
 
 <TypeTable
   type={{
-    api: {
-      type: 'string',
-      description: 'The API endpoint to use for uploading files.',
-      default: '/api/upload',
-    },
-    route: {
-      type: 'string',
-      description: 'The upload route to use.',
-    },
     accept: {
       type: 'string | undefined',
       description: 'The file types that the input should accept.',
@@ -128,35 +97,10 @@ The button will open a file picker dialog when clicked, and upload the selected 
       description:
         'Metadata to send to your server on upload. Needs to be JSON serializable.',
     },
-    onBeforeUpload: {
-      type: 'function | undefined',
-      description:
-        'Callback that is called before requesting the pre-signed URLs. Use this to modify the files before uploading them, like resizing or compressing.',
-    },
-    onUploadBegin: {
-      type: 'function | undefined',
-      description:
-        'Event that is called when the file starts being uploaded to S3. Has the file and metadata sent from the server.',
-    },
-    onUploadProgress: {
-      type: 'function | undefined',
-      description:
-        'Event that is called when the file upload progress changes.',
-    },
-    onUploadComplete: {
-      type: 'function | undefined',
-      description:
-        'Event that is called after the file has been uploaded. Has the file and metadata sent from the server.',
-    },
-    onUploadError: {
-      type: 'function | undefined',
-      description:
-        'Event that is called if the upload fails. Has error details.',
-    },
-    onUploadSettled: {
-      type: 'function | undefined',
-      description:
-        'Event that is called after the file has been uploaded, regardless of success or failure.',
+    control: {
+      type: 'object',
+      description: 'Control object returned by the useUploadFile hook.',
+      required: true,
     },
   }}
 />
