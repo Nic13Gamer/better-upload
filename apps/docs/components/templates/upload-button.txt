@@ -7,6 +7,9 @@ type UploadButtonProps = {
   control: UploadHookControl<false>;
   accept?: string;
   metadata?: Record<string, unknown>;
+  uploadOverride?: (
+    ...args: Parameters<UploadHookControl<false>['upload']>
+  ) => void;
 
   // Add any additional props you need.
 };
@@ -15,6 +18,7 @@ export function UploadButton({
   control: { upload, isPending },
   accept,
   metadata,
+  uploadOverride,
 }: UploadButtonProps) {
   const id = useId();
 
@@ -28,7 +32,11 @@ export function UploadButton({
           accept={accept}
           onChange={(e) => {
             if (e.target.files?.[0] && !isPending) {
-              upload(e.target.files[0], { metadata });
+              if (uploadOverride) {
+                uploadOverride(e.target.files[0], { metadata });
+              } else {
+                upload(e.target.files[0], { metadata });
+              }
             }
             e.target.value = '';
           }}

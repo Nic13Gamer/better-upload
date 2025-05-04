@@ -88,6 +88,11 @@ The button will open a file picker dialog when clicked, and upload the selected 
 
 <TypeTable
   type={{
+    uploadOverride: {
+      type: 'function | undefined',
+      description:
+        'Override the default upload function. For example, set files in an array, and upload them after form submission.',
+    },
     accept: {
       type: 'string | undefined',
       description: 'The file types that the input should accept.',

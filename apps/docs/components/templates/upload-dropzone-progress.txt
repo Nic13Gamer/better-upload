@@ -17,6 +17,9 @@ type UploadDropzoneProgressProps = {
         maxFiles?: number;
       }
     | string;
+  uploadOverride?: (
+    ...args: Parameters<UploadHookControl<true>['upload']>
+  ) => void;
 
   // Add any additional props you need.
 };
@@ -26,13 +29,18 @@ export function UploadDropzoneProgress({
   accept,
   metadata,
   description,
+  uploadOverride,
 }: UploadDropzoneProgressProps) {
   const id = useId();
 
   const { getRootProps, getInputProps, isDragActive, inputRef } = useDropzone({
     onDrop: (files) => {
       if (files.length > 0) {
-        upload(files, { metadata });
+        if (uploadOverride) {
+          uploadOverride(files, { metadata });
+        } else {
+          upload(files, { metadata });
+        }
       }
       inputRef.current.value = '';
     },
