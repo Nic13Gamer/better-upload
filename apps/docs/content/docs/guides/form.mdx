@@ -281,3 +281,119 @@ export function MyForm() {
 </Step>
 
 </Steps>
+
+## Advanced: Upload on form submit
+
+In this example, we only upload the files after the user clicks on the submit button. We use the `uploadOverride` prop to override the default behavior of the `<UploadDropzone />`.
+
+The full code example for the form is below.
+
+```tsx title="components/my-form.tsx"
+'use client';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useUploadFiles } from 'better-upload/client';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { UploadDropzone } from './ui/upload-dropzone';
+
+const formSchema = z.object({
+  folderName: z.string().min(1),
+  files: z.array(z.instanceof(File)).min(1), // for Zod v4: z.array(z.file()).min(1),
+});
+
+export function FormUploader() {
+  const {
+    upload,
+    control: uploadControl,
+    isPending: isUploading,
+  } = useUploadFiles({
+    route: 'form',
+    onError: (error) => {
+      form.setError('files', {
+        message: error.message || 'An error occurred',
+      });
+    },
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      folderName: '',
+      files: [],
+    },
+  });
+
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    const { files } = await upload(data.files);
+
+    // call your API here
+    console.log({
+      folderName: data.folderName,
+      objectKeys: files.map((file) => file.objectKey),
+    });
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="folderName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Folder name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {form.watch('files').length > 0 ? (
+          <div className="flex flex-col">
+            {form.watch('files').map((file, i) => (
+              <p key={i}>{file.name}</p>
+            ))}
+          </div>
+        ) : (
+          <FormField
+            control={form.control}
+            name="files"
+            render={() => (
+              <FormItem>
+                <FormLabel>Files</FormLabel>
+                <FormControl>
+                  <UploadDropzone
+                    control={uploadControl}
+                    uploadOverride={(files) => {
+                      form.setValue('files', Array.from(files));
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        <Button type="submit" disabled={isUploading}>
+          Submit
+        </Button>
+      </form>
+    </Form>
+  );
+}
+```
