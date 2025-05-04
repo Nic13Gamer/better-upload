@@ -7,8 +7,6 @@ import type {
 export type ObjectMetadata = Record<string, string>;
 export type ServerMetadata = Record<string, unknown>;
 
-export type UploadStatus = 'pending' | 'uploading' | 'complete' | 'failed';
-
 export type SignedUrlsSuccessResponse = {
   metadata: ServerMetadata;
 } & (

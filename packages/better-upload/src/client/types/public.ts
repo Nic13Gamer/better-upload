@@ -2,7 +2,6 @@ import type {
   DirectUploadResult,
   ObjectMetadata,
   ServerMetadata,
-  UploadStatus,
 } from './internal';
 
 export type ClientUploadError = {
@@ -17,6 +16,8 @@ export type ClientUploadError = {
     | 'too_many_files';
   message: string;
 };
+
+export type UploadStatus = 'pending' | 'uploading' | 'complete' | 'failed';
 
 export type FileUploadInfo<T extends UploadStatus> = {
   /**

@@ -4,9 +4,12 @@ import type {
   ServerMetadata,
   UploadHookProps,
   UploadHookReturn,
-  UploadStatus,
 } from '../types/internal';
-import type { ClientUploadError, FileUploadInfo } from '../types/public';
+import type {
+  ClientUploadError,
+  FileUploadInfo,
+  UploadStatus,
+} from '../types/public';
 import { uploadFiles } from '../utils/upload';
 
 export function useUploadFiles({

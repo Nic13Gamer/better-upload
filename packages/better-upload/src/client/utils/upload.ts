@@ -3,9 +3,8 @@ import type {
   DirectUploadResult,
   ServerMetadata,
   SignedUrlsSuccessResponse,
-  UploadStatus,
 } from '../types/internal';
-import type { FileUploadInfo } from '../types/public';
+import type { FileUploadInfo, UploadStatus } from '../types/public';
 import { uploadFileToS3, uploadMultipartFileToS3 } from './internal/s3-upload';
 
 /**
