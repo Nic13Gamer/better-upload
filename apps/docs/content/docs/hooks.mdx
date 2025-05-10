@@ -6,23 +6,23 @@ Better Upload provides React hooks that allow you to easily upload files using p
 
 ## Usage
 
-### Single file
-
-To upload single files, use the `useUploadFile` hook.
-
-```tsx
+```tsx tab="Single file"
 import { useUploadFile } from 'better-upload/client';
 
 export function MyComponent() {
   const {
     upload,
+    uploadAsync,
+    reset,
     uploadedFile,
     progress,
     isPending,
-    isSuccess,
+    isSettled,
     isError,
+    isSuccess,
     error,
-    reset,
+    metadata,
+    control, // for use in pre-built components
   } = useUploadFile({
     route: 'demo',
   });
@@ -40,29 +40,26 @@ export function MyComponent() {
 }
 ```
 
-<Callout title="API Endpoint">
-  If your upload route handler is not located at `/api/upload`, you need to
-  specify the correct path in the `api` option.
-</Callout>
-
-### Multiple files
-
-To upload multiple files at once, use the `useUploadFiles` hook.
-
-```tsx
+```tsx tab="Multiple files"
 import { useUploadFiles } from 'better-upload/client';
 
 export function MyComponent() {
   const {
     upload,
+    uploadAsync,
+    reset,
     uploadedFiles,
     failedFiles,
     progresses,
     isPending,
-    isSuccess,
+    isSettled,
     isError,
+    allSucceeded,
+    hasFailedFiles,
+    averageProgress,
     error,
-    reset,
+    metadata,
+    control, // for use in pre-built components
   } = useUploadFiles({
     route: 'demo',
   });
@@ -81,24 +78,24 @@ export function MyComponent() {
 }
 ```
 
-#### Sequential upload
+<Callout>
+  If your upload route handler is not located at `/api/upload`, you need to
+  specify the correct path in the `api` option.
+</Callout>
 
-With multiple files, you can also upload sequentially, rather than in parallel. This can be useful to reduce the load on the client and S3 server, however, it will take longer to upload all files.
-
-```tsx
-useUploadFiles({
-  route: 'demo',
-  sequential: true,
-});
-```
-
-## Options
+### Options
 
 Both hooks have the following options:
 
 - `api`: The API endpoint to use for uploading files. Default is `/api/upload`.
 - `route`: The route to use for uploading files. Needs to match the upload route in the server.
-- `multipartBatchSize`: The number of parts to upload at the same time when uploading a multipart file. By default, all parts are uploaded in parallel.
+- `multipartBatchSize`: The number of parts to upload at the same time when uploading a multipart file. By default, all parts are uploaded simultaneously.
+- `signal`: The `AbortSignal` to use for cancelling the upload.
+- `headers`: The headers to send with the pre-signed URL request to your server.
+
+For multiple files, you can also specify:
+
+- `uploadBatchSize`: The number of files to upload in parallel. By default, all files are uploaded simultaneously.
 
 ## Events
 
@@ -107,7 +104,6 @@ Both hooks have the following options:
 Callback that is called before requesting the pre-signed URLs. Use this to modify the files before uploading them, like resizing or compressing. You can also throw an error to reject the file upload.
 
 <Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
-
 <Tab value="Single file">
 ```tsx
 useUploadFile({
@@ -132,15 +128,13 @@ useUploadFiles({
 });
 ```
 </Tab>
-
 </Tabs>
 
 ### On upload begin
 
-Event that is called when the file starts being uploaded to the S3 bucket. Happens after your server responds with a pre-signed URL.
+Event that is called before the files start being uploaded to S3. This happens after the server responds with the pre-signed URL.
 
 <Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
-
 <Tab value="Single file">
 ```tsx
 useUploadFile({
@@ -161,21 +155,19 @@ useUploadFiles({
 });
 ```
 </Tab>
-
 </Tabs>
 
 ### On upload progress
 
-Event that is called when the file upload progress changes.
+Event that is called when a file upload progress changes.
 
 <Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
-
 <Tab value="Single file">
 ```tsx
 useUploadFile({
   route: 'demo',
-  onUploadProgress: ({ file, progress }) => {
-    console.log(`Upload progress: ${progress * 100}%`);
+  onUploadProgress: ({ file }) => {
+    console.log(`Upload progress: ${file.progress * 100}%`);
   },
 });
 ```
@@ -184,21 +176,19 @@ useUploadFile({
 ```tsx
 useUploadFiles({
   route: 'demo',
-  onUploadProgress: ({ file, progress }) => {
-    console.log(`${file.name} upload progress: ${progress * 100}%`);
+  onUploadProgress: ({ file }) => {
+    console.log(`${file.name} upload progress: ${file.progress * 100}%`);
   },
 });
 ```
 </Tab>
-
 </Tabs>
 
 ### On upload complete
 
-Event that is called after the file has been successfully uploaded. If some files failed to upload, they will be in the `failedFiles` array.
+Event that is called after files are successfully uploaded.
 
 <Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
-
 <Tab value="Single file">
 ```tsx
 useUploadFile({
@@ -211,6 +201,8 @@ useUploadFile({
 </Tab>
 <Tab value="Multiple files">
 ```tsx
+// This event is called even if some files fail to upload, but some succeed.
+// This event is not called if all files fail to upload.
 useUploadFiles({
   route: 'demo',
   onUploadComplete: ({ files, failedFiles, metadata }) => {
@@ -219,20 +211,47 @@ useUploadFiles({
 });
 ```
 </Tab>
-
 </Tabs>
 
-### On upload error
+### On upload fail
 
-Event that is called if the upload fails. This can be called more than once for multiple files.
+Event that is called after the entire upload if a file fails to upload.
 
 <Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
+<Tab value="Single file">
+```tsx
+// Use onError instead of this event for single file uploads
+```
+</Tab>
+<Tab value="Multiple files">
+```tsx
+// This event is called even if some files succeed to upload, but some fail.
+// This event is not called if all files succeed.
+useUploadFiles({
+  route: 'demo',
+  onUploadFail: ({ succeededFiles, failedFiles, metadata }) => {
+    console.log('Some or all files failed to upload');
+  },
+});
+```
+</Tab>
+</Tabs>
 
+### On error
+
+Event that is called if:
+
+- For multiple files: A critical error occurs before the upload to S3, and no files were able to be uploaded. For example, if your server is unreachable.
+- For single file: The upload fails.
+
+Also called if some input is invalid. For example, if no files were selected.
+
+<Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
 <Tab value="Single file">
 ```tsx
 useUploadFile({
   route: 'demo',
-  onUploadError: (error) => {
+  onError: (error) => {
     console.log(error.message);
   },
 });
@@ -242,26 +261,24 @@ useUploadFile({
 ```tsx
 useUploadFiles({
   route: 'demo',
-  onUploadError: (error) => {
+  onError: (error) => {
     console.log(error.message);
   },
 });
 ```
 </Tab>
-
 </Tabs>
 
-### On upload settled
+### On upload settle
 
-Event that is called when the file upload has settled, regardless of success or failure.
+Event that is called after the upload settles (either successfully completed or an error occurs).
 
 <Tabs groupId="multipleFiles" items={['Single file', 'Multiple files']}>
-
 <Tab value="Single file">
 ```tsx
 useUploadFile({
   route: 'demo',
-  onUploadSettled: () => {
+  onUploadSettle: ({ file, metadata }) => {
     console.log('Upload settled');
   },
 });
@@ -271,22 +288,10 @@ useUploadFile({
 ```tsx
 useUploadFiles({
   route: 'demo',
-  onUploadSettled: () => {
+  onUploadSettle: ({ files, failedFiles, metadata }) => {
     console.log('Upload settled');
   },
 });
 ```
 </Tab>
-
 </Tabs>
-
-## Error handling
-
-### Failed multiple files
-
-When uploading multiple files, although rare, some files may fail to upload. In this case, the `failedFiles` array will contain the files that failed to upload.
-
-<Callout type="warn">
-  If this happens, `isSuccess` and `isError` will be `true`, and the upload
-  complete event will be called.
-</Callout>

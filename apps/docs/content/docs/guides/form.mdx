@@ -10,7 +10,7 @@ It's common for file uploads to be part of a form. In this guide, we'll take a l
 
 This guide is for uploading multiple files, but the same principles apply for single file uploads.
 
-## Using pre-built components
+## Form with upload dropzone
 
 <Steps>
 
@@ -69,8 +69,8 @@ We'll now create the form. The form uses the [Upload Dropzone](/components/uploa
 
 Define the form schema using `zod`. The schema contains two fields:
 
-- `folderName`: For the arbitrary text input
-- `objectKeys`: For the uploaded files, stores the S3 object keys
+- `folderName`: For the arbitrary text input.
+- `objectKeys`: For the uploaded files, stores the S3 object keys.
 
 ```tsx title="components/my-form.tsx"
 'use client'; // for next.js
@@ -91,10 +91,13 @@ const formSchema = z.object({
 
 Use the `useForm` hook from `react-hook-form` to create the form.
 
+Also use the `useUploadFiles` hook to handle the file uploads.
+
 ```tsx
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useUploadFiles } from 'better-upload/client';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -109,6 +112,21 @@ export function MyForm() {
     defaultValues: {
       folderName: '',
       objectKeys: [],
+    },
+  });
+
+  const { control: uploadControl } = useUploadFiles({
+    route: 'form',
+    onUploadComplete: ({ files }) => {
+      form.setValue(
+        'objectKeys',
+        files.map((file) => file.objectKey)
+      );
+    },
+    onError: (error) => {
+      form.setError('objectKeys', {
+        message: error.message || 'An error occurred',
+      });
     },
   });
 
@@ -133,6 +151,7 @@ We can now use the `<Form />` component from `shadcn/ui` to build our form.
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useUploadFiles } from 'better-upload/client';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -180,17 +199,8 @@ export function MyForm() {
             <FormItem>
               <FormLabel>Files</FormLabel>
               <FormControl>
-                <UploadDropzone
-                  route="form"
-                  onUploadComplete={({ files }) => {
-                    field.onChange(files.map((file) => file.objectKey));
-                  }}
-                  onUploadError={(error) => {
-                    form.setError('objectKeys', {
-                      message: error.message || 'An error occurred',
-                    });
-                  }}
-                />
+                {/* [!code highlight] */}
+                <UploadDropzone control={uploadControl} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -210,16 +220,27 @@ export function MyForm() {
 
 ### Optional: Hide dropzone after upload
 
-Now let's hide the dropzone after the user has uploaded files. We can do this by using `useState` to track the uploaded files and list them in the UI.
+Now let's hide the dropzone after the user has uploaded files. We can do this by using the `uploadedFiles` array returned by the `useUploadFiles` hook.
 
 ```tsx
 'use client';
 
-import { useState } from 'react'; // [!code highlight]
-import { UploadedFile } from 'better-upload/client'; // [!code highlight]
-
 export function MyForm() {
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]); // [!code highlight]
+  // [!code highlight]
+  const { control: uploadControl, uploadedFiles } = useUploadFiles({
+    route: 'form',
+    onUploadComplete: ({ files }) => {
+      form.setValue(
+        'objectKeys',
+        files.map((file) => file.objectKey)
+      );
+    },
+    onError: (error) => {
+      form.setError('objectKeys', {
+        message: error.message || 'An error occurred',
+      });
+    },
+  });
 
   // ...
 
@@ -242,18 +263,7 @@ export function MyForm() {
               <FormItem>
                 <FormLabel>Files</FormLabel>
                 <FormControl>
-                  <UploadDropzone
-                    route="form"
-                    onUploadComplete={({ files }) => {
-                      field.onChange(files.map((file) => file.objectKey));
-                      setUploadedFiles(files); // [!code highlight]
-                    }}
-                    onUploadError={(error) => {
-                      form.setError('objectKeys', {
-                        message: error.message || 'An error occurred',
-                      });
-                    }}
-                  />
+                  <UploadDropzone control={uploadControl} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -268,11 +278,122 @@ export function MyForm() {
 }
 ```
 
-<Callout>
-  If you need more control over the upload process, we recommend using the
-  `useUploadFiles` hook directly.
-</Callout>
-
 </Step>
 
 </Steps>
+
+## Advanced: Upload on form submit
+
+In this example, we only upload the files after the user clicks on the submit button. We use the `uploadOverride` prop to override the default behavior of the `<UploadDropzone />`.
+
+The full code example for the form is below.
+
+```tsx title="components/my-form.tsx"
+'use client';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useUploadFiles } from 'better-upload/client';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { UploadDropzone } from './ui/upload-dropzone';
+
+const formSchema = z.object({
+  folderName: z.string().min(1),
+  files: z.array(z.instanceof(File)).min(1), // for Zod v4: z.array(z.file()).min(1),
+});
+
+export function FormUploader() {
+  const {
+    upload,
+    control: uploadControl,
+    isPending: isUploading,
+  } = useUploadFiles({
+    route: 'form',
+    onError: (error) => {
+      form.setError('files', {
+        message: error.message || 'An error occurred',
+      });
+    },
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      folderName: '',
+      files: [],
+    },
+  });
+
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    const { files } = await upload(data.files);
+
+    // call your API here
+    console.log({
+      folderName: data.folderName,
+      objectKeys: files.map((file) => file.objectKey),
+    });
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="folderName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Folder name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {form.watch('files').length > 0 ? (
+          <div className="flex flex-col">
+            {form.watch('files').map((file, i) => (
+              <p key={i}>{file.name}</p>
+            ))}
+          </div>
+        ) : (
+          <FormField
+            control={form.control}
+            name="files"
+            render={() => (
+              <FormItem>
+                <FormLabel>Files</FormLabel>
+                <FormControl>
+                  <UploadDropzone
+                    control={uploadControl}
+                    uploadOverride={(files) => {
+                      form.setValue('files', Array.from(files));
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        <Button type="submit" disabled={isUploading}>
+          Submit
+        </Button>
+      </form>
+    </Form>
+  );
+}
+```

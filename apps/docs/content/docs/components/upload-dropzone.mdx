@@ -65,46 +65,22 @@ Make sure to have [shadcn/ui](https://ui.shadcn.com/docs/installation) set up in
 
 ## Usage
 
-The `<UploadDropzone />` should be used inside a client component.
+The `<UploadDropzone />` should be used with the `useUploadFiles` hook.
 
 ```tsx
 'use client';
 
+import { useUploadFiles } from 'better-upload/client';
 import { UploadDropzone } from '@/components/ui/upload-dropzone';
-```
 
-```tsx
-<UploadDropzone
-  route="demo"
-  accept="image/*"
-  onBeforeUpload={({ files }) => {
-    // rename all files
-    return files.map(
-      (file) => new File([file], 'renamed-' + file.name, { type: file.type })
-    );
-  }}
-  onUploadBegin={({ files, metadata }) => {
-    console.log('Upload begin');
-  }}
-  onUploadProgress={({ file, progress }) => {
-    console.log(`Progress of ${file.name}: ${progress * 100}%`);
-  }}
-  onUploadComplete={({ files, metadata }) => {
-    console.log(`Uploaded ${files.length} files`);
-  }}
-  onUploadError={(error) => {
-    console.log(error.message);
-  }}
-  onUploadSettled={() => {
-    console.log('Upload settled');
-  }}
-/>
-```
+export function Uploader() {
+  const { control } = useUploadFiles({
+    route: 'demo',
+  });
 
-<Callout>
-  If your upload route handler is not located at `/api/upload`, modify the `api`
-  prop to match your path.
-</Callout>
+  return <UploadDropzone control={control} accept="image/*" />;
+}
+```
 
 When clicked, the dropzone will open a file picker dialog. When selected or dropped, the files will be uploaded to the desired route.
 
@@ -118,7 +94,7 @@ You can customize the description shown in the dropzone. You can pass a string, 
 
 ```tsx
 <UploadDropzone
-  route="demo"
+  control={control}
   accept="image/*"
   description={{
     maxFiles: 4,
@@ -134,20 +110,10 @@ Note that this is only cosmetic and does not enforce any restrictions client-sid
 
 <TypeTable
   type={{
-    api: {
-      type: 'string',
-      description: 'The API endpoint to use for uploading files.',
-      default: '/api/upload',
-    },
-    route: {
-      type: 'string',
-      description: 'The upload route to use.',
-    },
-    sequential: {
-      type: 'boolean',
+    uploadOverride: {
+      type: 'function | undefined',
       description:
-        'Whether files should be uploaded sequentially, rather than in parallel.',
-      default: 'false',
+        'Override the default upload function. For example, set files in an array, and upload them after form submission.',
     },
     accept: {
       type: 'string | undefined',
@@ -163,35 +129,10 @@ Note that this is only cosmetic and does not enforce any restrictions client-sid
       description:
         'The description to show in the dropzone. Object for max files, max file size, and file types. You can also return a raw string.',
     },
-    onBeforeUpload: {
-      type: 'function | undefined',
-      description:
-        'Callback that is called before requesting the pre-signed URLs. Use this to modify the files before uploading them, like resizing or compressing.',
-    },
-    onUploadBegin: {
-      type: 'function | undefined',
-      description:
-        'Event that is called when the files start being uploaded to S3. Has the files and metadata sent from the server.',
-    },
-    onUploadProgress: {
-      type: 'function | undefined',
-      description:
-        'Event that is called when the file upload progress changes.',
-    },
-    onUploadComplete: {
-      type: 'function | undefined',
-      description:
-        'Event that is called after the files have been uploaded. Has the files and metadata sent from the server.',
-    },
-    onUploadError: {
-      type: 'function | undefined',
-      description:
-        'Event that is called if the upload fails. Has error details.',
-    },
-    onUploadSettled: {
-      type: 'function | undefined',
-      description:
-        'Event that is called after all files have been uploaded, regardless of success or failure.',
+    control: {
+      type: 'object',
+      description: 'Control object returned by the useUploadFiles hook.',
+      required: true,
     },
   }}
 />

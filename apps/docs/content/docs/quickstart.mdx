@@ -55,46 +55,60 @@ export const { POST } = createUploadRouteHandler({
 });
 ```
 
-In the example above, we create the upload route `demo` for single images. You can create multiple routes for different purposes, like uploading more than one file. Learn more about routes [here](/routes).
+In the example above, we create the upload route `demo`. You can create routes for different purposes, like uploading multiple files at once. Learn more about upload routes [here](/routes).
 
 </Step>
 
 <Step>
 
-### Place the Upload Button
+### Create `<Uploader />` component
 
-The upload button component is used to upload single files. Put it in a component/page.
+We will now build our UI using pre-built components. We'll use `<UploadButton />` for single file uploads.
 
-You can install it via the [shadcn](https://ui.shadcn.com/) CLI:
+Install it via the [shadcn](https://ui.shadcn.com/) CLI:
 
-```bash
+```package-install
 npx shadcn@latest add "https://better-upload.js.org/r/upload-button.json"
 ```
 
-```tsx title="app/page.tsx"
+We'll also use the `useUploadFile` hook. The complete code looks like this:
+
+```tsx title="uploader.tsx"
 'use client';
 
+import { useUploadFile } from 'better-upload/client';
 import { UploadButton } from '@/components/ui/upload-button';
+
+export function Uploader() {
+  const { control } = useUploadFile({
+    route: 'demo',
+  });
+
+  return <UploadButton control={control} accept="image/*" />;
+}
+```
+
+There is also `useUploadFiles` for uploading multiple files. Learn more about the hooks [here](/hooks).
+
+</Step>
+
+<Step>
+
+### Place the component
+
+Now place the `<Uploader />` component in your app.
+
+```tsx title="app/page.tsx"
+import { Uploader } from '@/components/uploader';
 
 export default function Page() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center">
-      <UploadButton
-        route="demo"
-        accept="image/*"
-        onUploadComplete={({ file }) => {
-          alert(`Uploaded ${file.name}`);
-        }}
-      />
+      <Uploader />
     </main>
   );
 }
 ```
-
-<Callout type="warn">
-  Whether you put it in a component or a page, mark it with `'use client';`, as
-  the pre-built components need to be used in client components.
-</Callout>
 
 </Step>
 
@@ -102,7 +116,7 @@ export default function Page() {
 
 ### You're done! 🎉
 
-You can now run your app and upload an image directly to any S3-compatible service!
+You can now run your app and upload images directly to any S3-compatible service!
 
 If you plan on uploading files larger than 5GB, take a look at [multipart uploads](/routes#multipart-uploads).
 
@@ -136,7 +150,7 @@ Learn more about CORS [here](https://docs.aws.amazon.com/AmazonS3/latest/usergui
 
 ## Learn more
 
-### Guides
+### Concepts
 
 <Cards>
 
@@ -153,7 +167,24 @@ Learn more about CORS [here](https://docs.aws.amazon.com/AmazonS3/latest/usergui
 <Card
   href="/other-frameworks"
   title="Other Frameworks"
-  description="Use Better Upload in other frameworks."
+  description="Use Better Upload with other frameworks."
+/>
+
+</Cards>
+
+### Guides
+
+<Cards>
+
+<Card
+  href="/guides/form"
+  title="Form"
+  description="Integrate Better Upload with shadcn/ui forms and React Hook Form."
+/>
+<Card
+  href="/guides/tanstack-query"
+  title="TanStack Query"
+  description="Use TanStack Query to manage the upload process."
 />
 
 </Cards>

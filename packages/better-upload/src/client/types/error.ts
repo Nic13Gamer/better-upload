@@ -1,21 +1,17 @@
-import type { ClientUploadFileError } from './public';
+import type { ClientUploadError } from './public';
 
-export class UploadFileError extends Error {
-  type: ClientUploadFileError['type'];
-  objectKey?: string;
+export class ClientUploadErrorClass extends Error {
+  type: ClientUploadError['type'];
 
   constructor({
     type,
     message,
-    objectKey,
   }: {
-    type: ClientUploadFileError['type'];
+    type: ClientUploadError['type'];
     message: string;
-    objectKey?: string;
   }) {
     super(message);
     this.type = type;
     this.message = message;
-    this.objectKey = objectKey;
   }
 }
