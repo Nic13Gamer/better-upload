@@ -3,12 +3,12 @@
  *
  * @example
  * ```ts
- * readableBytes(1000) // "1 kB"
- * readableBytes(1000, { decimalPlaces: 2 }) // "1.00 kB"
- * readableBytes(1024, { si: false }) // "1 KiB"
+ * formatBytes(1000) // "1 kB"
+ * formatBytes(1000, { decimalPlaces: 2 }) // "1.00 kB"
+ * formatBytes(1024, { si: false }) // "1 KiB"
  * ```
  */
-export function readableBytes(
+export function formatBytes(
   bytes: number,
   options?: {
     /**
