@@ -1,10 +1,10 @@
+import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import type { UploadHookControl } from 'better-upload/client';
-import { readableBytes } from 'better-upload/client/helpers';
+import { formatBytes } from 'better-upload/client/helpers';
 import { Dot, File, Upload } from 'lucide-react';
 import { useId } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Progress } from './progress';
 
 type UploadDropzoneProgressProps = {
   control: UploadHookControl<true>;
@@ -131,7 +131,7 @@ export function UploadDropzoneProgress({
 
                 <div className="flex items-center gap-0.5 text-xs">
                   <p className="text-muted-foreground">
-                    {readableBytes(progress.size)}
+                    {formatBytes(progress.size)}
                   </p>
 
                   <Dot className="text-muted-foreground size-4" />

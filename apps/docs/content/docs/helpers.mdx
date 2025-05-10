@@ -84,16 +84,16 @@ await moveObject({
 
 There are also some helpers for your frontend.
 
-### Readable bytes
+### Format bytes
 
 Convert bytes to a human-readable format.
 
 ```ts
-import { readableBytes } from 'better-upload/client/helpers';
+import { formatBytes } from 'better-upload/client/helpers';
 
-readableBytes(1000); // "1 kB"
-readableBytes(1000, { decimalPlaces: 2 }); // "1.00 kB"
+formatBytes(1000); // "1 kB"
+formatBytes(1000, { decimalPlaces: 2 }); // "1.00 kB"
 
-readableBytes(1024, { si: false }); // "1 KiB"
-readableBytes(1024, { decimalPlaces: 2, si: false }); // "1.00 KiB"
+formatBytes(1024, { si: false }); // "1 KiB"
+formatBytes(1024, { decimalPlaces: 2, si: false }); // "1.00 KiB"
 ```
