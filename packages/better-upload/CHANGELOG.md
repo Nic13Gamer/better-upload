@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.3.1
+
+### Patch Changes
+
+- [#27](https://github.com/Nic13Gamer/better-upload/pull/27) [`8a5068d`](https://github.com/Nic13Gamer/better-upload/commit/8a5068d09724d62a2bffc2d408062418bf8f6d1e) Thanks [@stephanebachelier](https://github.com/stephanebachelier)! - Add DigitalOcean Spaces client helper
+
 ## 0.3.0
 
 ### Minor Changes
