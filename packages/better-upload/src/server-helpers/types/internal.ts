@@ -104,8 +104,7 @@ export type CreateDigitalOceanClientParams = {
   key: string;
 
   /**
-   * DigitalOcean Spaces secret key.
+   * DigitalOcean Spaces secret.
    */
-  secretKey: string;
-
+  secret: string;
 };

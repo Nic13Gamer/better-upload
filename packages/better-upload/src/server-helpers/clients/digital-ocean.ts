@@ -5,34 +5,28 @@ import type { CreateDigitalOceanClientParams } from '../types/internal';
  * Create a DigitalOcean Spaces client, compatible with the S3 API.
  *
  * Optionally, you can omit the parameters and use the following environment variables:
- * - `AWS_REGION`
- * - `AWS_ACCESS_KEY_ID`
- * - `AWS_SECRET_ACCESS_KEY`
+ * - `SPACES_REGION`
+ * - `SPACES_KEY`
+ * - `SPACES_SECRET`
  */
 export function digitalOcean(params?: CreateDigitalOceanClientParams) {
-  const { region, key, secretKey } = params ?? {
-    region: process.env.AWS_REGION || process.env.DIGITALOCEAN_REGION,
-    key:
-      process.env.AWS_ACCESS_KEY_ID ||
-      process.env.DIGITALOCEAN_ACCESS_KEY_ID ||
-      process.env.DIGITALOCEAN_ACCESS_KEY,
-    secretKey:
-      process.env.AWS_SECRET_ACCESS_KEY ||
-      process.env.DIGITALOCEAN_SECRET_ACCESS_KEY ||
-      process.env.DIGITALOCEAN_SECRET_KEY,
+  const { region, key, secret } = params ?? {
+    region: process.env.AWS_REGION || process.env.SPACES_REGION,
+    key: process.env.AWS_ACCESS_KEY_ID || process.env.SPACES_KEY,
+    secret: process.env.AWS_SECRET_ACCESS_KEY || process.env.SPACES_SECRET,
   };
 
-  if (!region || !key || !secretKey) {
+  if (!region || !key || !secret) {
     throw new Error('Missing required parameters for DigitalOcean client.');
   }
 
   return new S3Client({
     endpoint: `https://${region}.digitaloceanspaces.com`,
-    region,
+    region: 'us-east-1',
     credentials: {
       accessKeyId: key,
-      secretAccessKey: secretKey,
+      secretAccessKey: secret,
     },
-    forcePathStyle: true,
+    forcePathStyle: false,
   });
 }
