@@ -58,6 +58,16 @@ const client = wasabi({
 });
 ```
 
+```ts tab="DigitalOcean Spaces"
+import { digitalOcean } from 'better-upload/server/helpers';
+
+const client = digitalOcean({
+  region: 'your-spaces-region',
+  key: 'your-spaces-key',
+  secret: 'your-spaces-secret',
+});
+```
+
 ## Bucket Objects
 
 ### Move object (rename)
