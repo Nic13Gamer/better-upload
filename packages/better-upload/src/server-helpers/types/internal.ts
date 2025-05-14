@@ -91,3 +91,21 @@ export type CreateWasabiClientParams = {
    */
   secretAccessKey: string;
 };
+
+export type CreateDigitalOceanClientParams = {
+  /**
+   * DigitalOcean Spaces region.
+   */
+  region: string;
+
+  /**
+   * DigitalOcean Spaces key.
+   */
+  key: string;
+
+  /**
+   * DigitalOcean Spaces secret key.
+   */
+  secretKey: string;
+
+};
