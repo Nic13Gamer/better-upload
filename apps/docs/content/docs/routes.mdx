@@ -18,6 +18,7 @@ All routes have the following options:
 - `fileTypes`: An array of file types to accept. Use any valid MIME type. Like `application/pdf` to accept PDF files. You can also use wildcards like `image/*` to accept all image types. By default, all file types are accepted.
 - `maxFileSize`: The maximum file size in bytes. Default is 5MB.
 - `signedUrlExpiresIn`: The time in seconds the upload signed URL is valid. Default is 120 seconds (2 minutes).
+- `clientMetadataSchema`: Schema for validating metadata sent from the client. You can use any validation library compatible with `standard-schema`, like [Zod](https://zod.dev).
 
 ## Callbacks
 
