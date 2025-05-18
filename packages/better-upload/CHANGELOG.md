@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.3.2
+
+### Patch Changes
+
+- [`b30bc9e`](https://github.com/Nic13Gamer/better-upload/commit/b30bc9ea2c8f7d17c3e3b0ec15672dacb5cbeb4c) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Client metadata schema validation
+
 ## 0.3.1
 
 ### Patch Changes
