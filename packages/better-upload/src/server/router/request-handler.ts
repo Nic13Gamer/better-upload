@@ -1,4 +1,5 @@
 import type { Router } from '../types/public';
+import { standardValidate } from '../utils/internal/standard-schema';
 import { uploadFileSchema } from '../validations';
 import { handleFiles } from './handlers/files-handler';
 import { handleMultipartFiles } from './handlers/multipart-handler';
@@ -44,9 +45,7 @@ export async function handleRequest(req: Request, router: Router) {
     );
   }
 
-  const { data } = parsed;
-
-  if (!(data.route in router.routes)) {
+  if (!(parsed.data.route in router.routes)) {
     return Response.json(
       {
         error: {
@@ -58,9 +57,9 @@ export async function handleRequest(req: Request, router: Router) {
     );
   }
 
-  const route = router.routes[data.route]!();
+  const route = router.routes[parsed.data.route]!();
 
-  if (route.maxFiles === 1 && data.files.length > 1) {
+  if (route.maxFiles === 1 && parsed.data.files.length > 1) {
     return Response.json(
       {
         error: {
@@ -71,6 +70,31 @@ export async function handleRequest(req: Request, router: Router) {
       { status: 400 }
     );
   }
+
+  let clientMetadata = parsed.data.metadata;
+  if (route.clientMetadataSchema) {
+    const validation = await standardValidate(
+      route.clientMetadataSchema,
+      clientMetadata
+    );
+
+    if (validation.issues) {
+      return Response.json(
+        {
+          error: {
+            type: 'invalid_request',
+            message: 'Invalid metadata.',
+          },
+        },
+        { status: 400 }
+      );
+    }
+  }
+
+  const data = {
+    ...parsed.data,
+    metadata: clientMetadata,
+  };
 
   if (route.multipart) {
     return handleMultipartFiles({

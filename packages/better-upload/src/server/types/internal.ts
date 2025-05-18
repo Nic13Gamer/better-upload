@@ -1,5 +1,10 @@
-export type Metadata = Record<string, unknown>;
+import type { StandardSchemaV1 } from './standard-schema';
+
+export type UnknownMetadata = Record<string, unknown>;
 export type ObjectMetadata = Record<string, string>;
+
+type ClientMetadata<T extends StandardSchemaV1 | undefined = undefined> =
+  T extends StandardSchemaV1 ? StandardSchemaV1.InferOutput<T> : unknown;
 
 export type UploadedFileInfo = {
   /**
@@ -24,9 +29,10 @@ export type UploadedFileInfo = {
 };
 
 export type RouteConfig<
-  M extends Metadata,
-  U extends boolean,
-  T extends boolean,
+  Multiple extends boolean,
+  Multipart extends boolean,
+  InterMetadata extends UnknownMetadata,
+  ClientMetadataSchema extends StandardSchemaV1 | undefined,
 > = {
   /**
    * Maximum file size in bytes.
@@ -76,6 +82,19 @@ export type RouteConfig<
   signedUrlExpiresIn?: number;
 
   /**
+   * Schema for validating metadata sent from the client. You can use any validation library that is compatible with `standard-schema`.
+   *
+   * @example
+   *
+   * ```ts
+   * clientMetadataSchema: z.object({
+   *  title: z.string(),
+   * })
+   * ```
+   */
+  clientMetadataSchema?: ClientMetadataSchema;
+
+  /**
    * Use this callback to run custom logic before uploading a file, such as auth and rate-limiting. You can also return a custom object key (return `generateObjectKey` for multiple files). This runs only once regardless of the number of files uploaded.
    *
    * Metadata sent from the client is also available.
@@ -92,8 +111,8 @@ export type RouteConfig<
       /**
        * Metadata sent from the client.
        */
-      clientMetadata: Metadata;
-    } & (U extends false
+      clientMetadata: ClientMetadata<ClientMetadataSchema>;
+    } & (Multiple extends false
       ? {
           /**
            * Information about the file to be uploaded.
@@ -107,9 +126,9 @@ export type RouteConfig<
           files: Omit<UploadedFileInfo, 'objectKey'>[];
         })
   ) =>
-    | BeforeUploadCallbackResult<U, M>
+    | BeforeUploadCallbackResult<Multiple, InterMetadata>
     | void
-    | Promise<BeforeUploadCallbackResult<U, M> | void>;
+    | Promise<BeforeUploadCallbackResult<Multiple, InterMetadata> | void>;
 
   /**
    * Use this callback to run custom logic after creating the signed URL, such as saving data to a database. This runs only once regardless of the number of files uploaded.
@@ -128,13 +147,13 @@ export type RouteConfig<
       /**
        * Metadata returned by `onBeforeUpload`.
        */
-      metadata: M;
+      metadata: InterMetadata;
 
       /**
        * Metadata sent from the client.
        */
-      clientMetadata: Metadata;
-    } & (U extends false
+      clientMetadata: ClientMetadata<ClientMetadataSchema>;
+    } & (Multiple extends false
       ? {
           /**
            * Information about the uploaded file, including the object key.
@@ -151,14 +170,14 @@ export type RouteConfig<
     | AfterSignedUrlCallbackResult
     | void
     | Promise<AfterSignedUrlCallbackResult | void>;
-} & (U extends true
+} & (Multiple extends true
   ? {
       /**
        * Allow more than one file to be uploaded.
        *
        * @default false
        */
-      multipleFiles: U;
+      multipleFiles: Multiple;
 
       /**
        * The maximum number of files that can be uploaded.
@@ -173,9 +192,9 @@ export type RouteConfig<
        *
        * @default false
        */
-      multipleFiles?: U;
+      multipleFiles?: Multiple;
     }) &
-  (T extends true
+  (Multipart extends true
     ? {
         /**
          * Use multipart upload for large files.
@@ -184,7 +203,7 @@ export type RouteConfig<
          *
          * @default false
          */
-        multipart?: T;
+        multipart?: Multipart;
 
         /**
          * The size of each part in bytes.
@@ -215,14 +234,17 @@ export type RouteConfig<
          *
          * @default false
          */
-        multipart?: T;
+        multipart?: Multipart;
       });
 
-type BeforeUploadCallbackResult<U extends boolean, M extends Metadata> = {
+type BeforeUploadCallbackResult<
+  Multiple extends boolean,
+  InterMetadata extends UnknownMetadata,
+> = {
   /**
    * Metadata sent to `onAfterSignedUrl`.
    */
-  metadata?: M;
+  metadata?: InterMetadata;
 
   /**
    * The bucket name to upload to.
@@ -230,7 +252,7 @@ type BeforeUploadCallbackResult<U extends boolean, M extends Metadata> = {
    * If you wish to upload to a different bucket than the one specified in the router.
    */
   bucketName?: string;
-} & (U extends false
+} & (Multiple extends false
   ? {
       /**
        * The object key to upload to.
@@ -275,13 +297,14 @@ type AfterSignedUrlCallbackResult = {
    *
    * Needs to be JSON serializable.
    */
-  metadata?: Metadata;
+  metadata?: UnknownMetadata;
 };
 
 export type Route = {
   maxFileSize?: number;
   fileTypes?: string[];
   signedUrlExpiresIn?: number;
+  clientMetadataSchema?: StandardSchemaV1;
 
   maxFiles?: number;
 
@@ -293,10 +316,10 @@ export type Route = {
 
   onBeforeUpload?: (data: {
     req: Request;
-    clientMetadata: Metadata;
+    clientMetadata: unknown;
     files: Omit<UploadedFileInfo, 'objectKey'>[];
   }) => Promise<{
-    metadata?: Metadata;
+    metadata?: UnknownMetadata;
     bucketName?: string;
     generateObjectKey?: (data: {
       file: Omit<UploadedFileInfo, 'objectKey'>;
@@ -308,10 +331,10 @@ export type Route = {
 
   onAfterSignedUrl?: (data: {
     req: Request;
-    metadata: Metadata;
-    clientMetadata: Metadata;
+    metadata: UnknownMetadata;
+    clientMetadata: unknown;
     files: UploadedFileInfo[];
-  }) => Promise<{ metadata?: Metadata } | void>;
+  }) => Promise<{ metadata?: UnknownMetadata } | void>;
 };
 
 export type ExecRoute = () => Route;

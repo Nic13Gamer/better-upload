@@ -86,7 +86,7 @@ export async function handleFiles({
     const onBeforeUpload = await route.onBeforeUpload?.({
       req,
       files,
-      clientMetadata: data.metadata || {},
+      clientMetadata: data.metadata,
     });
 
     beforeUploadMetadata = onBeforeUpload?.metadata || {};
@@ -152,7 +152,7 @@ export async function handleFiles({
       req,
       files: signedUrls.map(({ file }) => file),
       metadata: beforeUploadMetadata,
-      clientMetadata: data.metadata || {},
+      clientMetadata: data.metadata,
     });
 
     responseMetadata = onAfterSignedUrl?.metadata || {};

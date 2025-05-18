@@ -1,20 +1,25 @@
 import type {
   ExecRoute,
-  Metadata,
   ObjectMetadata,
   Route,
   RouteConfig,
+  UnknownMetadata,
 } from '../types/internal';
+import type { StandardSchemaV1 } from '../types/standard-schema';
 
 export function route<
-  M extends Metadata = {},
-  U extends boolean = false,
-  T extends boolean = false,
->(config: RouteConfig<M, U, T>): ExecRoute {
+  Multiple extends boolean = false,
+  Multipart extends boolean = false,
+  InterMetadata extends UnknownMetadata = {},
+  ClientMetadataSchema extends StandardSchemaV1 | undefined = undefined,
+>(
+  config: RouteConfig<Multiple, Multipart, InterMetadata, ClientMetadataSchema>
+): ExecRoute {
   const route: Route = {
     maxFileSize: config.maxFileSize,
     fileTypes: config.fileTypes,
     signedUrlExpiresIn: config.signedUrlExpiresIn,
+    clientMetadataSchema: config.clientMetadataSchema,
 
     maxFiles: config.multipleFiles ? config.maxFiles : 1,
 

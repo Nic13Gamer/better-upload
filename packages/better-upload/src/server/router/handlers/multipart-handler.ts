@@ -84,7 +84,7 @@ export async function handleMultipartFiles({
     const onBeforeUpload = await route.onBeforeUpload?.({
       req,
       files,
-      clientMetadata: data.metadata || {},
+      clientMetadata: data.metadata,
     });
 
     beforeUploadMetadata = onBeforeUpload?.metadata || {};
@@ -201,7 +201,7 @@ export async function handleMultipartFiles({
       req,
       files: signedUrls.map(({ file }) => file),
       metadata: beforeUploadMetadata,
-      clientMetadata: data.metadata || {},
+      clientMetadata: data.metadata,
     });
 
     responseMetadata = onAfterSignedUrl?.metadata || {};
