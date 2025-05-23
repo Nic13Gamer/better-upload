@@ -1,5 +1,11 @@
 # better-upload
 
+## 0.3.3
+
+### Patch Changes
+
+- [`1ad927b`](https://github.com/Nic13Gamer/better-upload/commit/1ad927b2ea2af3d3b525d37a21886b29451f7051) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Use Zod v4-mini
+
 ## 0.3.2
 
 ### Patch Changes
