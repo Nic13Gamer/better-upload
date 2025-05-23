@@ -10,8 +10,7 @@
     "verbatimModuleSyntax": true,
     "lib": ["es2022", "dom"],
     "noEmit": true,
-
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
 
     "strict": true,
     "noUncheckedIndexedAccess": true,
