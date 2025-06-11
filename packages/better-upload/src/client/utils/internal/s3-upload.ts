@@ -22,6 +22,8 @@ export async function uploadFileToS3(params: {
       params.signal?.removeEventListener('abort', abortHandler);
 
       if (xhr.readyState === 4 && xhr.status === 200) {
+        params.onProgress?.(1);
+
         resolve();
       } else {
         reject(new Error('Failed to upload file to S3.'));
@@ -30,7 +32,7 @@ export async function uploadFileToS3(params: {
 
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {
-        params.onProgress?.(event.loaded / event.total);
+        params.onProgress?.(Math.min(event.loaded / event.total, 0.99));
       }
     };
 
