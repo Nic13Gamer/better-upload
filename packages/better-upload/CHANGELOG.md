@@ -1,5 +1,13 @@
 # better-upload
 
+## 0.3.3
+
+### Patch Changes
+
+- [`1ad927b`](https://github.com/Nic13Gamer/better-upload/commit/1ad927b2ea2af3d3b525d37a21886b29451f7051) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Use Zod v4-mini
+
+- [`2f329e7`](https://github.com/Nic13Gamer/better-upload/commit/2f329e791e4e071cb275aedf0938c0563a26cd2c) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Only set `uploadedFiles` after XHR has completed.
+
 ## 0.3.2
 
 ### Patch Changes
