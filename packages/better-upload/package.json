@@ -3,8 +3,8 @@
   "description": "Simple file uploads for React",
   "version": "0.3.3",
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "lint": "tsc"
   },
   "files": [
@@ -46,7 +46,7 @@
     "@types/node": "^22.7.0",
     "@types/react": "^18",
     "react": "^18",
-    "tsup": "^8.4.0",
+    "tsdown": "^0.12.9",
     "typescript": "^5.6.3"
   },
   "keywords": [
