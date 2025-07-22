@@ -36,6 +36,7 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+next-env.d.ts
 
 # generated content
 .contentlayer
