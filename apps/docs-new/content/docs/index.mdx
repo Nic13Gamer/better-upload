@@ -1,23 +1,21 @@
 ---
 title: Introduction
+description: Simple and easy file uploads for React
 icon: House
 ---
 
-Better Upload is a file upload library for React that makes it very simple and easy to upload files directly to any S3-compatible service. It handles both the client and your server.
+## Why?
+
+After needing to implement file uploads from scratch in multiple projects, I realized that there was a need for a better and simpler way to set up file uploads in React while still owning my S3 bucket. I wanted a library that was easy to use, fast to set up, and not bloated with features I didn't need. So I made Better Upload.
 
 ## Universal
 
-While Better Upload is designed to work with Next.js, it can also work with any framework / backend server that uses standard Request and Response objects. Like [Remix](https://remix.run/) and [Hono](https://hono.dev/)!
+Better Upload is framework-agnostic, meaning you can use it with any React framework, like [Next.js](https://nextjs.org), [Remix](https://remix.run), [TanStack Start](https://tanstack.com/start), or any other. It also works with any separate backend server that uses standard Request and Response objects, like [Hono](https://hono.dev).
 
-## Why Better Upload?
+## Developer Experience
 
-- **Simple**: It's very simple to use, just a few lines of code and you're ready to go.
-- **Fast to setup**: It takes a few to minutes to setup and start uploading files directly to your S3 bucket.
-- **Beautiful**: Better Upload has copy-and-paste [shadcn/ui](https://ui.shadcn.com) components that you can use to rapidly build UI.
+When creating Better Upload, my main focus was on making the developer experience as smooth as possible.
 
-## Features
-
-- **Upload to S3**: Upload files directly to your S3 bucket, without additional fees.
-- **Customizable Server**: Run code on your server on upload events. Adding auth and rate-limiting is easy.
-- **React Hooks**: Use React hooks to easily upload files.
-- **Helpers**: Helpers to make working with S3 easier.
+- **Fast to set up:** It takes only a few minutes to get started and upload files directly to your S3 bucket.
+- **Beautiful:** There are copy-and-paste [shadcn/ui](https://ui.shadcn.com) components that you can use to rapidly build your UI.
+- **Own your data:** Upload files directly to your S3 bucket, so you have full control over files.

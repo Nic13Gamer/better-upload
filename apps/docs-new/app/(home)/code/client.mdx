@@ -1,0 +1,19 @@
+```tsx
+export function Uploader() {
+  const { control } = useUploadFiles({
+    route: 'demo',
+  });
+
+  return (
+    <UploadDropzone
+      control={control}
+      accept="image/*"
+      description={{
+        maxFiles: 4,
+        maxFileSize: '2MB',
+        fileTypes: 'JPEG, PNG, GIF',
+      }}
+    />
+  );
+}
+```

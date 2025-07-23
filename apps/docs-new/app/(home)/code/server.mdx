@@ -1,0 +1,18 @@
+```ts
+const s3 = new S3Client();
+
+const router: Router = {
+  client: s3,
+  bucketName: 'my-bucket',
+  routes: {
+    demo: route({
+      multipleFiles: true,
+      maxFiles: 4,
+      fileTypes: ['image/*'],
+      maxFileSize: 1024 * 1024 * 2,
+    }),
+  },
+};
+
+export const { POST } = createUploadRouteHandler(router);
+```
