@@ -1,0 +1,109 @@
+---
+title: Helpers
+description: A collection of helper functions and utilities for your project.
+icon: Wrench
+---
+
+<PageSelect
+  pages={[
+    {
+      href: '/docs/helpers-server',
+      title: 'Server-side',
+      description: 'Helpers for your server.',
+    },
+    {
+      href: '/docs/helpers-client',
+      title: 'Client-side',
+      description: 'Helpers for your frontend.',
+    },
+  ]}
+/>
+
+## S3 Clients
+
+Better Upload has some built-in clients for popular S3-compatible storage services, like Cloudflare R2. Suggest a new client by [opening an issue](https://github.com/Nic13Gamer/better-upload/issues).
+
+```ts tab="Cloudflare R2"
+import { r2 } from 'better-upload/server/helpers';
+
+const client = r2({
+  accountId: 'your-account-id',
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+});
+
+const jurisdictionClient = r2({
+  accountId: 'your-account-id',
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+  jurisdiction: 'eu', // If you created your R2 bucket using a jurisdiction.
+});
+```
+
+```ts tab="Minio"
+import { minio } from 'better-upload/server/helpers';
+
+const client = minio({
+  region: 'your-minio-region',
+  endpoint: 'https://minio.example.com'
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+});
+```
+
+```ts tab="Backblaze B2"
+import { backblaze } from 'better-upload/server/helpers';
+
+const client = backblaze({
+  region: 'your-backblaze-region',
+  applicationKeyId: 'your-application-key-id',
+  applicationKey: 'your-application-key',
+});
+```
+
+```ts tab="Wasabi"
+import { wasabi } from 'better-upload/server/helpers';
+
+const client = wasabi({
+  region: 'your-wasabi-region',
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+});
+```
+
+```ts tab="DigitalOcean Spaces"
+import { digitalOcean } from 'better-upload/server/helpers';
+
+const client = digitalOcean({
+  region: 'your-spaces-region',
+  key: 'your-spaces-key',
+  secret: 'your-spaces-secret',
+});
+```
+
+<Callout>
+  All clients return an instance of an S3 client from the AWS SDK, just like
+  `new S3Client()`, but already configured for the specific service.
+</Callout>
+
+## Bucket Objects
+
+### Move object (rename)
+
+Moves an object from one location to another, within the same bucket. Also known as renaming.
+
+```ts
+import { moveObject } from 'better-upload/server/helpers';
+
+await moveObject({
+  client: r2(),
+  bucketName: 'my-bucket',
+  objectKey: 'example.jpg',
+  destinationKey: 'images/example.jpg',
+});
+```
+
+<Callout type="warn">
+  This copies the object to the new location and then deletes the original
+  object. It can be slow.
+</Callout>

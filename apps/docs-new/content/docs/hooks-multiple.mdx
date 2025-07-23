@@ -1,0 +1,217 @@
+---
+title: Client Hooks
+---
+
+Better Upload provides React hooks that allow you to easily upload files using pre-signed URLs. Multipart uploads are managed automatically, in case you enable them in the server.
+
+<PageSelect
+  pages={[
+    {
+      href: '/docs/hooks-multiple',
+      title: 'Multiple files',
+      description: 'Upload more than one file at once.',
+    },
+    {
+      href: '/docs/hooks-single',
+      title: 'Single files',
+      description: 'Upload only a single file at once.',
+    },
+  ]}
+/>
+
+## Usage
+
+```tsx title="my-component.tsx"
+import { useUploadFiles } from 'better-upload/client';
+
+export function MyComponent() {
+  const {
+    upload,
+    uploadAsync,
+    reset,
+    uploadedFiles,
+    failedFiles,
+    progresses,
+    isPending,
+    isSettled,
+    isError,
+    allSucceeded,
+    hasFailedFiles,
+    averageProgress,
+    error,
+    metadata,
+    control, // for use in pre-built components
+  } = useUploadFiles({
+    route: 'demo',
+  });
+
+  return (
+    <input
+      type="file"
+      multiple
+      onChange={(e) => {
+        if (e.target.files) {
+          upload(e.target.files);
+        }
+      }}
+    />
+  );
+}
+```
+
+<Callout>
+  If your upload route handler is not located at `/api/upload`, you need to
+  specify the correct path in the `api` option.
+</Callout>
+
+### Options
+
+The `useUploadFiles` hook accepts the following options:
+
+<TypeTable
+  type={{
+    route: {
+      description:
+        'The route to use for uploading files. Needs to match the upload route in the server.',
+      type: 'string',
+      required: true,
+    },
+    api: {
+      description: 'The API endpoint to use for uploading files.',
+      type: 'string',
+      default: '/api/upload',
+      required: false,
+    },
+    uploadBatchSize: {
+      description:
+        'The number of files to upload in parallel.',
+      type: 'number',
+      default: 'All files at once',
+      required: false,
+    },
+    multipartBatchSize: {
+      description:
+        'The number of parts that will be uploaded in parallel when uploading a file.',
+      type: 'number',
+      default: 'All parts at once',
+      required: false,
+    },
+    signal: {
+      description: 'Abort signal to cancel the upload.',
+      type: 'AbortSignal',
+      required: false,
+    },
+    headers: {
+      description:
+        'Headers to send to your server when requesting the pre-signed URLs.',
+      type: 'HeadersInit',
+      typeDescription: 'Can be an object with string keys and values.',
+      required: false,
+    },
+  }}
+/>
+
+## Events
+
+### On before upload
+
+Callback that is called before requesting the pre-signed URLs. Use this to modify the files before uploading them, like resizing or compressing. You can also throw an error to reject the file upload.
+
+```tsx
+useUploadFiles({
+  route: 'demo',
+  onBeforeUpload: ({ files }) => {
+    // rename all files
+    return files.map(
+      (file) => new File([file], 'renamed-' + file.name, { type: file.type })
+    );
+  },
+});
+```
+
+### On upload begin
+
+Event that is called before the files start being uploaded to S3. This happens after the server responds with the pre-signed URLs.
+
+```tsx
+useUploadFiles({
+  route: 'demo',
+  onUploadBegin: ({ files, metadata }) => {
+    console.log('Upload begin');
+  },
+});
+```
+
+### On upload progress
+
+Event that is called when a file upload progress changes.
+
+```tsx
+useUploadFiles({
+  route: 'demo',
+  onUploadProgress: ({ file }) => {
+    console.log(`${file.name} upload progress: ${file.progress * 100}%`);
+  },
+});
+```
+
+### On upload complete
+
+Event that is called after files are successfully uploaded.
+
+```tsx
+// This event is called even if some files fail to upload, but some succeed.
+// This event is not called if all files fail to upload.
+useUploadFiles({
+  route: 'demo',
+  onUploadComplete: ({ files, failedFiles, metadata }) => {
+    console.log(`${files.length} files uploaded`);
+  },
+});
+```
+
+### On upload fail
+
+Event that is called after the entire upload if a file fails to upload.
+
+```tsx
+// This event is called even if some files succeed to upload, but some fail.
+// This event is not called if all files succeed.
+useUploadFiles({
+  route: 'demo',
+  onUploadFail: ({ succeededFiles, failedFiles, metadata }) => {
+    console.log('Some or all files failed to upload');
+  },
+});
+```
+
+### On error
+
+Event that is called if a critical error occurs before the upload to S3, and no files were able to be uploaded. For example, if your server is unreachable.
+
+```tsx
+useUploadFiles({
+  route: 'demo',
+  onError: (error) => {
+    console.log(error.message);
+  },
+});
+```
+
+<Callout>
+  This event is also called if some input is invalid. For example, if no files
+  were selected.
+</Callout>
+
+### On upload settle
+
+Event that is called after the upload settles (either successfully completed or an error occurs).
+
+```tsx
+useUploadFiles({
+  route: 'demo',
+  onUploadSettle: ({ files, failedFiles, metadata }) => {
+    console.log('Upload settled');
+  },
+});
+```

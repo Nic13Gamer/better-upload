@@ -1,0 +1,338 @@
+---
+title: Quickstart
+icon: Rocket
+---
+
+You can have file uploads in your React app in a few minutes with Better Upload. This guide will walk you through the steps to set it up with any React framework.
+
+Before you start, make sure you have an S3-compatible bucket ready. You can use AWS S3, Cloudflare R2, or any other S3-compatible service.
+
+<PageSelect
+  pages={[
+    {
+      href: '/docs/quickstart',
+      title: 'Multiple files',
+      description: 'Upload more than one file at once.',
+    },
+    {
+      href: '/docs/quickstart-single',
+      title: 'Single files',
+      description: 'Upload only a single file at once.',
+    },
+  ]}
+/>
+
+## Uploading your first image
+
+<Steps>
+
+<Step>
+
+### Install
+
+Install the `better-upload` package, as well as the AWS S3 Client.
+
+```npm
+better-upload @aws-sdk/client-s3
+```
+
+</Step>
+
+<Step>
+
+### Set up server
+
+Your server will create pre-signed URLs, which the client uses to upload files directly to the S3 bucket.
+
+Change `my-bucket` to your bucket name, and configure the S3 client as needed.
+
+```ts tab="Next.js" title="app/api/upload/route.ts"
+import { S3Client } from '@aws-sdk/client-s3';
+import {
+  createUploadRouteHandler,
+  route,
+  type Router,
+} from 'better-upload/server';
+
+const s3 = new S3Client(); // [!code highlight]
+
+const router: Router = {
+  client: s3,
+  bucketName: 'my-bucket', // [!code highlight]
+  routes: {
+    demo: route({
+      fileTypes: ['image/*'],
+    }),
+  },
+};
+
+export const { POST } = createUploadRouteHandler(router);
+```
+
+```ts tab="TanStack Start" title="routes/api/upload.ts"
+import { handleRequest, route, type Router } from 'better-upload/server';
+
+const s3 = new S3Client(); // [!code highlight]
+
+const router: Router = {
+  client: s3,
+  bucketName: 'my-bucket', // [!code highlight]
+  routes: {
+    demo: route({
+      fileTypes: ['image/*'],
+    }),
+  },
+};
+
+export const ServerRoute = createServerFileRoute().methods({
+  POST: async ({ request }) => {
+    return handleRequest(request, router);
+  },
+});
+```
+
+```ts tab="Remix" title="app/routes/api.upload.ts"
+import { ActionFunctionArgs } from '@remix-run/node';
+import { handleRequest, route, type Router } from 'better-upload/server';
+
+const s3 = new S3Client(); // [!code highlight]
+
+const router: Router = {
+  client: s3,
+  bucketName: 'my-bucket', // [!code highlight]
+  routes: {
+    demo: route({
+      fileTypes: ['image/*'],
+    }),
+  },
+};
+
+export async function action({ request }: ActionFunctionArgs) {
+  return handleRequest(request, router);
+}
+```
+
+```ts tab="Hono" title="server.ts"
+// When using a separate backend server, make sure to update the `api` option on the client hooks.
+
+import { Hono } from 'hono';
+import { handleRequest } from 'better-upload/server';
+
+const app = new Hono();
+
+const s3 = new S3Client(); // [!code highlight]
+
+const router: Router = {
+  client: s3,
+  bucketName: 'my-bucket', // [!code highlight]
+  routes: {
+    demo: route({
+      fileTypes: ['image/*'],
+    }),
+  },
+};
+
+app.post('/upload', (c) => {
+  return handleRequest(c.req.raw, router);
+});
+```
+
+In the example above, we create the upload route `demo`. Learn more about upload routes [here](/docs/routes-single).
+
+<Accordions>
+<Accordion title="Adding authentication">
+
+You can run code before uploads in the server. Use the `onBeforeUpload` callback:
+
+```ts
+import { UploadFileError, route, type Router } from 'better-upload/server';
+
+const auth = (req: Request) => ({ id: 'fake-user-id' }); // [!code highlight]
+
+const router: Router = {
+  client: s3,
+  bucketName: 'my-bucket',
+  routes: {
+    demo: route({
+      fileTypes: ['image/*'],
+      // [!code ++:7]
+      onBeforeUpload: async ({ req, file, clientMetadata }) => {
+        const user = await auth(req);
+
+        if (!user) {
+          throw new UploadFileError('Not logged in!');
+        }
+      },
+    }),
+  },
+};
+```
+
+</Accordion>
+<Accordion title="Changing S3 object key">
+
+You can change the S3 object key to any value you want. Use the `onBeforeUpload` callback:
+
+```ts
+const router: Router = {
+  client: s3,
+  bucketName: 'my-bucket',
+  routes: {
+    demo: route({
+      fileTypes: ['image/*'],
+      // [!code ++:5]
+      onBeforeUpload: async ({ req, file, clientMetadata }) => {
+        return {
+          objectKey: `files/${file.name}`,
+        };
+      },
+    }),
+  },
+};
+```
+
+</Accordion>
+</Accordions>
+
+</Step>
+
+<Step>
+
+### Create `<Uploader />` component
+
+We will now build our UI using pre-built components. We'll use `<UploadButton />` for single file uploads.
+
+Install it via the [shadcn](https://ui.shadcn.com/) CLI:
+
+```package-install
+npx shadcn@latest add "https://better-upload.com/r/upload-button.json"
+```
+
+We'll also use the `useUploadFile` hook. The complete code looks like this:
+
+```tsx title="uploader.tsx"
+'use client'; // For Next.js
+
+import { useUploadFile } from 'better-upload/client';
+import { UploadButton } from '@/components/ui/upload-button';
+
+export function Uploader() {
+  const { control } = useUploadFile({
+    route: 'demo',
+  });
+
+  return <UploadButton control={control} accept="image/*" />;
+}
+```
+
+Learn more about the hooks [here](/docs/hooks-single).
+
+</Step>
+
+<Step>
+
+### Place the component
+
+Now place the `<Uploader />` component in your app.
+
+```tsx title="page.tsx"
+import { Uploader } from '@/components/uploader';
+
+export default function Page() {
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center">
+      <Uploader />
+    </main>
+  );
+}
+```
+
+</Step>
+
+<Step>
+
+### You're done! 🎉
+
+You can now run your app and upload images directly to any S3-compatible service!
+
+If you plan on uploading files larger than **5GB**, take a look at [multipart uploads](/docs/routes-single#multipart-uploads).
+
+<Accordions>
+<Accordion title="CORS Configuration">
+
+Make sure to also correctly configure CORS on your bucket. Here is an example:
+
+```json
+[
+  {
+    "AllowedOrigins": [
+      "http://localhost:3000",
+      "https://example.com" // Add your domain here
+    ],
+    "AllowedMethods": ["GET", "PUT", "POST", "DELETE"],
+    "AllowedHeaders": ["*"],
+    "ExposeHeaders": ["ETag"]
+  }
+]
+```
+
+Learn more about CORS [here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManageCorsUsing.html).
+
+</Accordion>
+</Accordions>
+
+</Step>
+
+</Steps>
+
+## Learn more
+
+### Concepts
+
+<Cards>
+  <Card
+    href="/docs/routes-single"
+    title="Upload routes"
+    description="Configure upload routes for different behaviors."
+  />
+  <Card
+    href="/docs/hooks-single"
+    title="Client hooks"
+    description="Use client-side hooks to easily upload files."
+  />
+</Cards>
+
+### Guides
+
+<Cards>
+  <Card
+    href="/docs/guides/form"
+    title="Upload in forms"
+    description="Integrate with shadcn/ui forms and React Hook Form."
+  />
+  <Card
+    href="/docs/guides/tanstack-query"
+    title="With TanStack Query"
+    description="Use TanStack Query to manage the upload process."
+  />
+</Cards>
+
+### Components
+
+<Cards>
+  <Card
+    href="/docs/components/upload-button"
+    title="Upload button"
+    description="A button that uploads a single file."
+  />
+  <Card
+    href="/docs/components/upload-dropzone"
+    title="Upload dropzone"
+    description="A dropzone that uploads multiple files."
+  />
+  <Card
+    href="/docs/components/upload-dropzone-progress"
+    title="Upload dropzone with progress"
+    description="A dropzone that uploads multiple files, showing the progress of each upload."
+  />
+</Cards>

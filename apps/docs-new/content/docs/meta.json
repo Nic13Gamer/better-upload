@@ -1,0 +1,16 @@
+{
+  "title": "docs",
+  "pages": [
+    "--- Getting Started ---",
+    "index",
+    "quickstart",
+    "helpers-server",
+    "--- Learn ---",
+    "routes-multiple",
+    "hooks-multiple",
+    "--- Guides ---",
+    "...guides",
+    "--- Components ---",
+    "...components"
+  ]
+}

@@ -1,0 +1,187 @@
+---
+title: Client Hooks
+---
+
+Better Upload provides React hooks that allow you to easily upload files using pre-signed URLs. Multipart uploads are managed automatically, in case you enable them in the server.
+
+<PageSelect
+  pages={[
+    {
+      href: '/docs/hooks-multiple',
+      title: 'Multiple files',
+      description: 'Upload more than one file at once.',
+    },
+    {
+      href: '/docs/hooks-single',
+      title: 'Single files',
+      description: 'Upload only a single file at once.',
+    },
+  ]}
+/>
+
+## Usage
+
+```tsx title="my-component.tsx"
+import { useUploadFile } from 'better-upload/client';
+
+export function MyComponent() {
+  const {
+    upload,
+    uploadAsync,
+    reset,
+    uploadedFile,
+    progress,
+    isPending,
+    isSettled,
+    isError,
+    isSuccess,
+    error,
+    metadata,
+    control, // for use in pre-built components
+  } = useUploadFile({
+    route: 'demo',
+  });
+
+  return (
+    <input
+      type="file"
+      onChange={(e) => {
+        if (e.target.files?.[0]) {
+          upload(e.target.files[0]);
+        }
+      }}
+    />
+  );
+}
+```
+
+<Callout>
+  If your upload route handler is not located at `/api/upload`, you need to
+  specify the correct path in the `api` option.
+</Callout>
+
+### Options
+
+The `useUploadFile` hook accepts the following options:
+
+<TypeTable
+  type={{
+    route: {
+      description:
+        'The route to use for uploading files. Needs to match the upload route in the server.',
+      type: 'string',
+      required: true,
+    },
+    api: {
+      description: 'The API endpoint to use for uploading files.',
+      type: 'string',
+      default: '/api/upload',
+      required: false,
+    },
+    multipartBatchSize: {
+      description:
+        'The number of parts that will be uploaded in parallel when uploading a file.',
+      type: 'number',
+      default: 'All parts at once',
+      required: false,
+    },
+    signal: {
+      description: 'Abort signal to cancel the upload.',
+      type: 'AbortSignal',
+      required: false,
+    },
+    headers: {
+      description:
+        'Headers to send to your server when requesting the pre-signed URLs.',
+      type: 'HeadersInit',
+      typeDescription: 'Can be an object with string keys and values.',
+      required: false,
+    },
+  }}
+/>
+
+## Events
+
+### On before upload
+
+Callback that is called before requesting the pre-signed URL. Use this to modify the file before uploading it, like resizing or compressing. You can also throw an error to reject the file upload.
+
+```tsx
+useUploadFile({
+  route: 'demo',
+  onBeforeUpload: ({ file }) => {
+    // rename the file
+    return new File([file], 'renamed-' + file.name, { type: file.type });
+  },
+});
+```
+
+### On upload begin
+
+Event that is called before the file starts being uploaded to S3. This happens after the server responds with the pre-signed URL.
+
+```tsx
+useUploadFile({
+  route: 'demo',
+  onUploadBegin: ({ file, metadata }) => {
+    console.log('Upload begin');
+  },
+});
+```
+
+### On upload progress
+
+Event that is called when the file upload progress changes.
+
+```tsx
+useUploadFile({
+  route: 'demo',
+  onUploadProgress: ({ file }) => {
+    console.log(`Upload progress: ${file.progress * 100}%`);
+  },
+});
+```
+
+### On upload complete
+
+Event that is called after the file is successfully uploaded.
+
+```tsx
+useUploadFile({
+  route: 'demo',
+  onUploadComplete: ({ file, metadata }) => {
+    console.log('File uploaded');
+  },
+});
+```
+
+### On error
+
+Event that is called if the upload fails.
+
+```tsx
+useUploadFile({
+  route: 'demo',
+  onError: (error) => {
+    console.log(error.message);
+  },
+});
+```
+
+<Callout>
+  This event is also called if some input is invalid. For example, if no files
+  were selected.
+</Callout>
+
+### On upload settle
+
+Event that is called after the upload settles (either successfully completed or an error occurs).
+
+```tsx
+useUploadFile({
+  route: 'demo',
+  onUploadSettle: ({ file, metadata }) => {
+    console.log('Upload settled');
+  },
+});
+```

@@ -1,0 +1,218 @@
+---
+title: Upload Routes
+---
+
+Upload routes are where you define how files are uploaded. To define a route, use the `route` function.
+
+You can create multiple routes for different purposes (e.g. images, videos).
+
+<PageSelect
+  pages={[
+    {
+      href: '/docs/routes-multiple',
+      title: 'Multiple files',
+      description: 'Upload more than one file at once.',
+    },
+    {
+      href: '/docs/routes-single',
+      title: 'Single files',
+      description: 'Upload only a single file at once.',
+    },
+  ]}
+/>
+
+Here is a basic example of a single file upload route:
+
+```ts
+import { route } from 'better-upload/server';
+
+route({
+  fileTypes: ['image/*'], // Accepts all image types
+  maxFileSize: 1024 * 1024 * 4, // 4MB
+});
+```
+
+Single file routes have the following options:
+
+<TypeTable
+  type={{
+    fileTypes: {
+      description:
+        'An array of file types to accept. Use any valid MIME type. You can use wildcards (image/*).',
+      type: 'string[]',
+      default: 'All file types allowed',
+      required: false,
+    },
+    maxFileSize: {
+      description: 'The maximum file size in bytes.',
+      type: 'number',
+      default: '5242880 (5MB)',
+      required: false,
+    },
+    signedUrlExpiresIn: {
+      description: 'The time in seconds the upload pre-signed URL is valid.',
+      type: 'number',
+      default: '120 (2 minutes)',
+      required: false,
+    },
+    clientMetadataSchema: {
+      description:
+        'Schema for validating metadata sent from the client. Use any validation library compatible with Standard Schema, like Zod.',
+      type: 'object',
+      required: false,
+    },
+  }}
+/>
+
+## Callbacks
+
+When defining a route, you may want to run code before or after the upload. You can do this by using the callbacks.
+
+### Before upload
+
+The `onBeforeUpload` callback is called before the pre-signed URL is generated. Use this to run custom logic before uploading a file, such as auth and rate-limiting.
+
+The request, file, and metadata sent from the client are available.
+
+```ts
+route({
+  onBeforeUpload: async ({ req, file, clientMetadata }) => {
+    const user = await auth();
+
+    if (!user) {
+      throw new UploadFileError('Not logged in!');
+    }
+
+    return {
+      objectKey: user.id,
+      bucketName: 'another-bucket',
+    };
+  },
+});
+```
+
+<Callout title="Rejecting uploads">
+  Throw `UploadFileError` to reject the file upload. This will also send the
+  error message to the client.
+</Callout>
+
+You can return an object with the following properties:
+
+<TypeTable
+  type={{
+    objectKey: {
+      description:
+        'The S3 object key. If not provided, a random key will be generated.',
+      type: 'string',
+      required: false,
+    },
+    objectMetadata: {
+      description:
+        'Metadata to be added to the S3 object. This data will be exposed to the client.',
+      type: 'Record<string, string>',
+      required: false,
+    },
+    metadata: {
+      description: 'Metadata to be passed to the "onAfterSignedUrl" callback.',
+      type: 'object',
+      required: false,
+    },
+    bucketName: {
+      description:
+        'If you wish to upload to a bucket different from the one defined in the router, you can specify its name here.',
+      type: 'string',
+      required: false,
+    },
+  }}
+/>
+
+### After generating pre-signed URL
+
+The `onAfterSignedUrl` callback is called after the pre-signed URL is generated. Use this to run custom logic after the URL is generated, such as logging and saving data.
+
+In addition to all previous data, metadata from the `onBeforeUpload` callback is also available.
+
+```ts
+route({
+  onAfterSignedUrl: async ({ req, file, metadata, clientMetadata }) => {
+    // the file now has the objectKey property
+
+    return {
+      metadata: {
+        example: '123',
+      },
+    };
+  },
+});
+```
+
+You can return an object with the following properties:
+
+<TypeTable
+  type={{
+    metadata: {
+      description:
+        'Metadata to be sent back to the client. Needs to be JSON serializable.',
+      type: 'object',
+      required: false,
+    },
+  }}
+/>
+
+## Multipart uploads
+
+If you want to upload files larger than **5GB**, you need to use multipart uploads. To enable it, set `multipart` to `true`. It works both for single and multiple files. No change is needed in the client.
+
+```ts
+route({
+  multipleFiles: true,
+  multipart: true, // [!code highlight]
+  partSize: 1024 * 1024 * 20, // 20MB, default is 50MB [!code highlight]
+});
+```
+
+You can now also modify the following options:
+
+<TypeTable
+  type={{
+    partSize: {
+      description: 'The size of each part in bytes.',
+      type: 'number',
+      default: '52428800 (50MB)',
+      required: false,
+    },
+    partSignedUrlExpiresIn: {
+      description: 'The time in seconds the part pre-signed URL is valid.',
+      type: 'number',
+      default: '1500 (25 minutes)',
+      required: false,
+    },
+    completeSignedUrlExpiresIn: {
+      description: 'The time in seconds the complete pre-signed URL is valid.',
+      type: 'number',
+      default: '1800 (30 minutes)',
+      required: false,
+    },
+  }}
+/>
+
+<Callout>
+  Even for files under 5GB, using multipart uploads can speed up the upload
+  process.
+</Callout>
+
+## Router
+
+The router is where all upload routes are defined. To define a router, create an object with the `Router` type.
+
+```ts
+import { type Router } from 'better-upload/server';
+
+export const router: Router = {
+  client: s3,
+  bucketName: 'my-bucket',
+  routes: {
+    // your routes...
+  },
+};
+```

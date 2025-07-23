@@ -1,0 +1,34 @@
+---
+title: Helpers
+description: A collection of helper functions and utilities for your project.
+icon: Wrench
+---
+
+<PageSelect
+  pages={[
+    {
+      href: '/docs/helpers-server',
+      title: 'Server-side',
+      description: 'Helpers for your server.',
+    },
+    {
+      href: '/docs/helpers-client',
+      title: 'Client-side',
+      description: 'Helpers for your frontend.',
+    },
+  ]}
+/>
+
+## Format bytes
+
+Format a number of bytes into a human-readable string.
+
+```ts
+import { formatBytes } from 'better-upload/client/helpers';
+
+formatBytes(1000); // "1 kB"
+formatBytes(1000, { decimalPlaces: 2 }); // "1.00 kB"
+
+formatBytes(1024, { si: false }); // "1 KiB"
+formatBytes(1024, { decimalPlaces: 2, si: false }); // "1.00 KiB"
+```
