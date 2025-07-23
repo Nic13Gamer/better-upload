@@ -20,7 +20,7 @@ This guide is for uploading multiple files, but the same principles apply for si
 
 To follow along with this guide, install the following shadcn/ui components:
 
-```package-install
+```npm
 npx shadcn@latest add form input button
 ```
 
@@ -36,28 +36,32 @@ Set up your upload route. Use your preferred framework, but for this example, we
 
 ```ts title="app/api/upload/route.ts"
 import { S3Client } from '@aws-sdk/client-s3';
-import { createUploadRouteHandler, route } from 'better-upload/server';
+import {
+  createUploadRouteHandler,
+  route,
+  type Router,
+} from 'better-upload/server';
 
 const s3 = new S3Client();
 
-export const { POST } = createUploadRouteHandler({
+const router: Router = {
   client: s3,
-  bucketName: 'your-bucket-name',
+  bucketName: 'my-bucket',
   routes: {
     form: route({
       multipleFiles: true,
       maxFiles: 5,
       onBeforeUpload() {
         return {
-          generateObjectKey: () => `form/${crypto.randomUUID()}`,
+          generateObjectKey: ({ file }) => `form/${file.name}`,
         };
       },
     }),
   },
-});
-```
+};
 
-We create the upload route `form` for multiple files. All files will have the same prefix `form/` in the S3 bucket.
+export const { POST } = createUploadRouteHandler(router);
+```
 
 </Step>
 
@@ -65,15 +69,15 @@ We create the upload route `form` for multiple files. All files will have the sa
 
 ### Define the form schema
 
-We'll now create the form. The form uses the [Upload Dropzone](/components/upload-dropzone) component to allow users to upload files. The form also has an input field for arbitrary text.
+We'll now create the form. The form uses the [Upload Dropzone](/docs/components/upload-dropzone) component to allow users to upload files.
 
 Define the form schema using `zod`. The schema contains two fields:
 
-- `folderName`: For the arbitrary text input.
+- `folderName`: For an arbitrary text input.
 - `objectKeys`: For the uploaded files, stores the S3 object keys.
 
-```tsx title="components/my-form.tsx"
-'use client'; // for next.js
+```tsx
+'use client'; // For Next.js
 
 import { z } from 'zod';
 
@@ -91,7 +95,7 @@ const formSchema = z.object({
 
 Use the `useForm` hook from `react-hook-form` to create the form.
 
-Also use the `useUploadFiles` hook to handle the file uploads.
+Also use the `useUploadFiles` hook to handle the uploads.
 
 ```tsx
 'use client';
@@ -137,15 +141,13 @@ export function MyForm() {
 }
 ```
 
-Feel free to make changes to the code to suit your needs, such as calling your API on `onSubmit`.
-
 </Step>
 
 <Step>
 
 ### Build the form UI
 
-We can now use the `<Form />` component from `shadcn/ui` to build our form.
+We can now use the `<Form />` component from `shadcn/ui` to build our form UI.
 
 ```tsx
 'use client';

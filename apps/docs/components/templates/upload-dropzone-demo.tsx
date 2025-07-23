@@ -2,7 +2,7 @@ import { Upload } from 'lucide-react';
 
 export function UploadDropzoneDemo() {
   return (
-    <div className="not-prose bg-fd-muted/5 hover:dark:bg-fd-muted/15 hover:bg-fd-muted/30 dark:bg-fd-background flex min-w-64 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed px-2 py-6 transition-colors">
+    <div className="not-prose hover:bg-accent dark:hover:bg-accent/30 dark:bg-input/10 dark:border-input flex min-w-72 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed bg-transparent px-2 py-6 transition-colors">
       <div className="my-2">
         <Upload className="size-6" />
       </div>

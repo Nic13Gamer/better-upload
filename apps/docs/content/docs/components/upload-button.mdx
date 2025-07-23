@@ -16,11 +16,11 @@ import { UploadButtonDemo } from '@/components/templates/upload-button-demo';
 <Tabs items={['CLI', 'Manual']}>
 
 <Tab value="CLI">
-{/* <!-- prettier-ignore-start --> */}
+
 ```bash
-npx shadcn@latest add "https://better-upload.js.org/r/upload-button.json"
+npx shadcn@latest add "https://better-upload.com/r/upload-button.json"
 ```
-{/* <!-- prettier-ignore-end --> */}
+
 </Tab>
 
 <Tab value="Manual">
@@ -29,7 +29,7 @@ npx shadcn@latest add "https://better-upload.js.org/r/upload-button.json"
 
 **Install the following dependencies:**
 
-```package-install
+```npm
 lucide-react
 ```
 
@@ -41,14 +41,9 @@ Also add the [shadcn/ui button](https://ui.shadcn.com/docs/components/button) co
 
 **Copy and paste the following code into your project.**
 
-```json doc-gen:file
-{
-  "file": "./components/templates/upload-button.txt",
-  "codeblock": {
-    "lang": "tsx"
-  }
-}
-```
+<include cwd lang="tsx" meta="title='components/ui/upload-button.tsx'">
+  ./components/templates/upload-button.txt
+</include>
 
 </Step>
 
@@ -88,10 +83,10 @@ The button will open a file picker dialog when clicked, and upload the selected 
 
 <TypeTable
   type={{
-    uploadOverride: {
-      type: 'function | undefined',
-      description:
-        'Override the default upload function. For example, set files in an array, and upload them after form submission.',
+    control: {
+      type: 'object',
+      description: 'Control object returned by the useUploadFile hook.',
+      required: true,
     },
     accept: {
       type: 'string | undefined',
@@ -102,10 +97,10 @@ The button will open a file picker dialog when clicked, and upload the selected 
       description:
         'Metadata to send to your server on upload. Needs to be JSON serializable.',
     },
-    control: {
-      type: 'object',
-      description: 'Control object returned by the useUploadFile hook.',
-      required: true,
+    uploadOverride: {
+      type: 'function | undefined',
+      description:
+        'Override the default upload function. For example, set files in an array, and upload them after form submission.',
     },
   }}
 />
