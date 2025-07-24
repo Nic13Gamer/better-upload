@@ -22,9 +22,7 @@ export default function Home() {
         </CardHeader>
         <CardFooter>
           <Button className="w-full" asChild>
-            <Link href="https://better-upload.com" target="_blank">
-              Visit the new docs
-            </Link>
+            <Link href="https://better-upload.com">Visit the new docs</Link>
           </Button>
         </CardFooter>
       </Card>

@@ -50,18 +50,17 @@
     "typescript": "^5.6.3"
   },
   "keywords": [
-    "next",
     "react",
     "nextjs",
-    "remix",
     "upload",
     "easy uploads",
     "simple",
     "files",
-    "file upload"
+    "file upload",
+    "multipart upload"
   ],
   "license": "MIT",
-  "homepage": "https://better-upload.js.org",
+  "homepage": "https://better-upload.com",
   "bugs": {
     "url": "https://github.com/Nic13Gamer/better-upload/issues"
   },
