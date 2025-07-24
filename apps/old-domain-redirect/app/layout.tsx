@@ -9,6 +9,9 @@ const geistSans = Geist({
 
 export const metadata: Metadata = {
   title: 'Better Upload',
+  alternates: {
+    canonical: 'https://better-upload.com',
+  },
 };
 
 export default function RootLayout({
