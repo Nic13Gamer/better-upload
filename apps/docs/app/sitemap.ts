@@ -4,10 +4,9 @@ import { MetadataRoute } from 'next';
 export const revalidate = false;
 
 const baseUrl =
-  process.env.NODE_ENV === 'development' ||
-  !process.env.VERCEL_PROJECT_PRODUCTION_URL
+  process.env.NODE_ENV === 'development'
     ? new URL('http://localhost:3000')
-    : new URL(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
+    : new URL('https://better-upload.com');
 
 const url = (path: string): string => new URL(path, baseUrl).toString();
 
