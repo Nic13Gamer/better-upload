@@ -1,22 +1,13 @@
-import { Dot, File, Upload } from 'lucide-react';
+'use client';
+
+import { Dot, File } from 'lucide-react';
 import { Progress } from '../ui/progress';
+import { UploadDropzoneDemo } from './upload-dropzone-demo';
 
 export function UploadDropzoneProgressDemo() {
   return (
     <div className="not-prose flex flex-col gap-3">
-      <div className="hover:bg-accent dark:hover:bg-accent/30 dark:bg-input/10 dark:border-input flex min-w-72 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed bg-transparent px-2 py-6 transition-colors">
-        <div className="my-2">
-          <Upload className="size-6" />
-        </div>
-
-        <div className="mt-3 space-y-1 text-center">
-          <p className="text-sm font-semibold">Drag and drop files here</p>
-
-          <p className="text-fd-muted-foreground max-w-64 text-xs">
-            You can upload 4 files. Each up to 20MB. Accepted JPEG, PDF.
-          </p>
-        </div>
-      </div>
+      <UploadDropzoneDemo />
 
       <div className="flex flex-col gap-2">
         <div className="dark:bg-input/10 flex flex-col gap-2.5 rounded-lg border bg-transparent p-3">

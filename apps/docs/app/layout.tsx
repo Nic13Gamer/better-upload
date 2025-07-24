@@ -1,4 +1,5 @@
 import '@/app/global.css';
+import { Toaster } from '@/components/ui/sonner';
 import { RootProvider } from 'fumadocs-ui/provider';
 import { Metadata } from 'next';
 import { Geist } from 'next/font/google';
@@ -32,6 +33,8 @@ export default function Layout({ children }: { children: ReactNode }) {
     <html lang="en" className={fontSans.className} suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
         <RootProvider>{children}</RootProvider>
+
+        <Toaster />
       </body>
     </html>
   );
