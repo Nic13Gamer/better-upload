@@ -1,5 +1,11 @@
 # better-upload
 
+## 1.0.0
+
+### Major Changes
+
+- [`9b1bec9`](https://github.com/Nic13Gamer/better-upload/commit/9b1bec9ec0714cba4328bae20315b65eeb7f9750) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - 1.0.0 release
+
 ## 0.3.3
 
 ### Patch Changes
@@ -37,12 +43,10 @@
   #### `useUploadFiles` changes
 
   The hook now returns different values:
-
   - `isSuccess` has been removed. Use `allSucceeded`, `hasFailedFiles`, and `isSettled` instead.
   - `isError` now only returns `true` if a critical error occurs and no files were uploaded. The `error` value follows this same logic.
 
   Changes to options:
-
   - `sequential` has been removed. Use `uploadBatchSize` instead.
   - `onUploadSettled` has been renamed to `onUploadSettle`.
   - `onUploadError` has been removed. Use `onUploadFail`, which is called only once after the entire upload if some files failed, and `onError` for critical errors where no files were uploaded.
@@ -50,7 +54,6 @@
   #### `useUploadFile` changes
 
   Changes to options:
-
   - `onUploadSettled` has been renamed to `onUploadSettle`.
   - `onUploadError` has been removed. Use `onError` instead.
 
