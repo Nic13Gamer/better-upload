@@ -1,4 +1,4 @@
-import { z } from 'zod/v4-mini';
+import { z } from 'zod/mini';
 
 export const uploadFileSchema = z.object({
   route: z.string().check(z.minLength(1)),
@@ -6,7 +6,7 @@ export const uploadFileSchema = z.object({
     .array(
       z.object({
         name: z.string().check(z.minLength(1)),
-        size: z.int().check(z.positive()),
+        size: z.union([z.int().check(z.positive()), z.literal(0)]),
         type: z.string().check(z.minLength(1)),
       })
     )
