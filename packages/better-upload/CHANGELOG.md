@@ -1,5 +1,11 @@
 # better-upload
 
+## 1.0.1
+
+### Patch Changes
+
+- [`e54050d`](https://github.com/Nic13Gamer/better-upload/commit/e54050dab788c94ea77d4b5943484495be7e99ea) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Fix empty files failing to request signed URL
+
 ## 1.0.0
 
 ### Major Changes
