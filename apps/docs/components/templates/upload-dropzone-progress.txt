@@ -114,47 +114,41 @@ export function UploadDropzoneProgress({
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="grid gap-2">
         {progresses.map((progress) => (
           <div
             key={progress.objectKey}
             className={cn(
-              'dark:bg-input/10 flex flex-col gap-2.5 rounded-lg border bg-transparent p-3',
+              'dark:bg-input/10 flex items-center gap-2 rounded-lg border bg-transparent p-3',
               {
-                'bg-red-500/[0.04]! border-red-500/70':
+                'bg-red-500/[0.04]! border-red-500/60':
                   progress.status === 'failed',
               }
             )}
           >
-            <div className="flex items-center gap-2">
-              <FileIcon type={progress.type} />
+            <FileIcon type={progress.type} />
 
-              <div className="space-y-1">
-                <p className="text-sm font-medium">{progress.name}</p>
+            <div className="grid grow gap-1">
+              <div className="flex items-center gap-0.5">
+                <p className="max-w-40 truncate text-sm font-medium">
+                  {progress.name}
+                </p>
+                <Dot className="text-muted-foreground size-4" />
+                <p className="text-muted-foreground text-xs">
+                  {formatBytes(progress.size)}
+                </p>
+              </div>
 
-                <div className="flex items-center gap-0.5 text-xs">
-                  <p className="text-muted-foreground">
-                    {formatBytes(progress.size)}
-                  </p>
-
-                  <Dot className="text-muted-foreground size-4" />
-
-                  <p>
-                    {progress.status === 'failed' ? (
-                      <span className="text-red-500">Failed</span>
-                    ) : progress.progress < 1 ? (
-                      `${(progress.progress * 100).toFixed(0)}%`
-                    ) : (
-                      'Completed'
-                    )}
-                  </p>
-                </div>
+              <div className="flex h-4 items-center">
+                {progress.progress < 1 && progress.status !== 'failed' ? (
+                  <Progress className="h-1.5" value={progress.progress * 100} />
+                ) : progress.status === 'failed' ? (
+                  <p className="text-xs text-red-500">Failed</p>
+                ) : (
+                  <p className="text-muted-foreground text-xs">Completed</p>
+                )}
               </div>
             </div>
-
-            {progress.progress < 1 && progress.status !== 'failed' && (
-              <Progress className="h-1.5" value={progress.progress * 100} />
-            )}
           </div>
         ))}
       </div>

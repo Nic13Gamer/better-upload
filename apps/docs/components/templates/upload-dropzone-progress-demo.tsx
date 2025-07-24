@@ -9,43 +9,41 @@ export function UploadDropzoneProgressDemo() {
     <div className="not-prose flex flex-col gap-3">
       <UploadDropzoneDemo />
 
-      <div className="flex flex-col gap-2">
-        <div className="dark:bg-input/10 flex flex-col gap-2.5 rounded-lg border bg-transparent p-3">
-          <div className="flex items-center gap-2">
-            <FileIcon caption="PDF" />
+      <div className="grid gap-2">
+        <div className="dark:bg-input/10 flex items-center gap-2 rounded-lg border bg-transparent p-3">
+          <FileIcon caption="PDF" />
 
-            <div className="space-y-1">
-              <p className="text-sm font-medium">invoice_123.pdf</p>
+          <div className="grid grow gap-1">
+            <div className="flex items-center gap-0.5">
+              <p className="max-w-40 truncate text-sm font-medium">
+                invoice_123.pdf
+              </p>
+              <Dot className="text-muted-foreground size-4" />
+              <p className="text-muted-foreground text-xs">2 MB</p>
+            </div>
 
-              <div className="flex items-center gap-0.5 text-xs">
-                <p className="text-muted-foreground">2 MB</p>
-
-                <Dot className="text-muted-foreground size-4" />
-
-                <p>Completed</p>
-              </div>
+            <div className="flex h-4 items-center">
+              <p className="text-muted-foreground text-xs">Completed</p>
             </div>
           </div>
         </div>
 
-        <div className="dark:bg-input/10 flex flex-col gap-2.5 rounded-lg border bg-transparent p-3">
-          <div className="flex items-center gap-2">
-            <FileIcon caption="IMG" />
+        <div className="dark:bg-input/10 flex items-center gap-2 rounded-lg border bg-transparent p-3">
+          <FileIcon caption="IMG" />
 
-            <div className="space-y-1">
-              <p className="text-sm font-medium">photo.jpeg</p>
+          <div className="grid grow gap-1">
+            <div className="flex items-center gap-0.5">
+              <p className="max-w-40 truncate text-sm font-medium">
+                photo.jpeg
+              </p>
+              <Dot className="text-muted-foreground size-4" />
+              <p className="text-muted-foreground text-xs">12 MB</p>
+            </div>
 
-              <div className="flex items-center gap-0.5 text-xs">
-                <p className="text-muted-foreground">12 MB</p>
-
-                <Dot className="text-muted-foreground size-4" />
-
-                <p>70%</p>
-              </div>
+            <div className="flex h-4 items-center">
+              <Progress className="h-1.5" value={70} />
             </div>
           </div>
-
-          <Progress className="h-1.5" value={70} />
         </div>
       </div>
     </div>
