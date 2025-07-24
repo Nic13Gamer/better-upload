@@ -9,6 +9,8 @@ import {
 } from 'fumadocs-ui/page';
 import { notFound } from 'next/navigation';
 
+export const dynamicParams = false;
+
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
 }) {

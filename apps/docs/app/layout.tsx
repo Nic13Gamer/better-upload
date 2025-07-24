@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     template: '%s | Better Upload',
     default: 'Better Upload',
   },
-  description: 'The simplest and bloat-free way to upload files in React',
+  description: 'The simple and bloat-free way to upload files in React',
   keywords: [
     'nextjs',
     'next',
@@ -24,6 +24,7 @@ export const metadata: Metadata = {
     'react',
     'react upload',
   ],
+  metadataBase: new URL('https://better-upload.com'),
 };
 
 export default function Layout({ children }: { children: ReactNode }) {
