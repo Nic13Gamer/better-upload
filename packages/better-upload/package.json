@@ -1,6 +1,6 @@
 {
   "name": "better-upload",
-  "description": "Simple file uploads for React",
+  "description": "Simple and easy file uploads for React",
   "version": "1.0.1",
   "scripts": {
     "build": "tsdown",
