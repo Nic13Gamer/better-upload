@@ -36,6 +36,7 @@ export function useUploadFiles({
   const [error, setError] = useState<ClientUploadError | null>(null);
 
   const uploadsArray = useMemo(() => Array.from(uploads.values()), [uploads]);
+
   const uploadedFiles = useMemo(
     () =>
       uploadsArray.filter(
@@ -51,30 +52,33 @@ export function useUploadFiles({
     [uploadsArray]
   );
   const allSucceeded = useMemo(
-    () => uploadsArray.every((file) => file.status === 'complete'),
+    () =>
+      uploadsArray.length > 0 &&
+      uploadsArray.every((file) => file.status === 'complete'),
     [uploadsArray]
   );
   const hasFailedFiles = useMemo(
-    () => uploadsArray.some((file) => file.status === 'failed'),
+    () =>
+      uploadsArray.length > 0 &&
+      uploadsArray.some((file) => file.status === 'failed'),
     [uploadsArray]
   );
   const isSettled = useMemo(
     () =>
+      uploadsArray.length > 0 &&
       uploadsArray.every(
         (file) => file.status === 'complete' || file.status === 'failed'
       ),
     [uploadsArray]
   );
-  const averageProgress = useMemo(() => {
-    if (uploadsArray.length === 0) {
-      return 0;
-    }
-
-    return (
-      uploadsArray.reduce((acc, file) => acc + file.progress, 0) /
-      uploadsArray.length
-    );
-  }, [uploadsArray]);
+  const averageProgress = useMemo(
+    () =>
+      uploadsArray.length === 0
+        ? 0
+        : uploadsArray.reduce((acc, file) => acc + file.progress, 0) /
+          uploadsArray.length,
+    [uploadsArray]
+  );
 
   const uploadAsync = useCallback(
     async (
@@ -87,18 +91,14 @@ export function useUploadFiles({
 
       const fileArray = Array.from(files);
 
-      if (fileArray.length === 0) {
-        const error = {
-          type: 'no_files',
-          message: 'No files to upload.',
-        } as const;
-
-        onError?.(error);
-        setError(error);
-        throw new ClientUploadErrorClass(error);
-      }
-
       try {
+        if (fileArray.length === 0) {
+          throw new ClientUploadErrorClass({
+            type: 'no_files',
+            message: 'No files to upload.',
+          });
+        }
+
         let filesToUpload = fileArray;
 
         if (onBeforeUpload) {
@@ -106,14 +106,10 @@ export function useUploadFiles({
 
           if (Array.isArray(callbackResult)) {
             if (callbackResult.length === 0) {
-              const error = {
+              throw new ClientUploadErrorClass({
                 type: 'no_files',
                 message: 'No files to upload.',
-              } as const;
-
-              onError?.(error);
-              setError(error);
-              throw new ClientUploadErrorClass(error);
+              });
             }
 
             filesToUpload = callbackResult;
@@ -158,11 +154,12 @@ export function useUploadFiles({
         return result;
       } catch (error) {
         setIsPending(false);
-        await onUploadSettle?.({ files: [], failedFiles: [], metadata: {} });
 
         if (error instanceof ClientUploadErrorClass) {
           onError?.(error);
           setError(error);
+          await onUploadSettle?.({ files: [], failedFiles: [], metadata: {} });
+
           throw error;
         } else if (error instanceof Error) {
           const _error = new ClientUploadErrorClass({
@@ -172,6 +169,8 @@ export function useUploadFiles({
 
           onError?.(_error);
           setError(_error);
+          await onUploadSettle?.({ files: [], failedFiles: [], metadata: {} });
+
           throw _error;
         } else {
           const _error = new ClientUploadErrorClass({
@@ -181,6 +180,8 @@ export function useUploadFiles({
 
           onError?.(_error);
           setError(_error);
+          await onUploadSettle?.({ files: [], failedFiles: [], metadata: {} });
+
           throw _error;
         }
       }
