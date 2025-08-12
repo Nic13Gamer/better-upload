@@ -128,6 +128,10 @@ export async function uploadFiles(params: {
             partsBatchSize: params.multipartBatchSize,
             signal: params.signal,
             onProgress: (progress) => {
+              if (uploads.get(url.file.objectKey)!.status === 'failed') {
+                return;
+              }
+
               uploads.set(url.file.objectKey, {
                 ...uploads.get(url.file.objectKey)!,
                 status: progress === 1 ? 'complete' : 'uploading',
