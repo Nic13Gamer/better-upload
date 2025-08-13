@@ -173,8 +173,10 @@ export async function uploadFiles(params: {
           ...uploads.get(url.file.objectKey)!,
           status: 'failed',
           error: {
-            type: 's3_upload',
-            message: 'Failed to upload file to S3.',
+            type: params.signal?.aborted ? 'aborted' : 's3_upload',
+            message: params.signal?.aborted
+              ? 'Upload aborted.'
+              : 'Failed to upload file to S3.',
           },
         });
 
@@ -212,6 +214,13 @@ export async function uploadFiles(params: {
       metadata: serverMetadata,
     };
   } catch (error) {
+    if (params.signal?.aborted) {
+      throw new ClientUploadErrorClass({
+        type: 'aborted',
+        message: 'Upload aborted.',
+      });
+    }
+
     if (error instanceof ClientUploadErrorClass) {
       throw error;
     } else if (error instanceof Error) {

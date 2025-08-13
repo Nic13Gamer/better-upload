@@ -2,6 +2,7 @@ import type {
   ClientUploadError,
   FileUploadInfo,
   UploadHookControl,
+  UploadStatus,
 } from './public';
 
 export type ObjectMetadata = Record<string, string>;
@@ -98,7 +99,7 @@ export type UploadHookProps<T extends boolean> = {
   /**
    * Event that is called when a file upload progress changes.
    */
-  onUploadProgress?: (data: { file: FileUploadInfo<'uploading'> }) => void;
+  onUploadProgress?: (data: { file: FileUploadInfo<UploadStatus> }) => void;
 
   /**
    * Event that is called after files are successfully uploaded.

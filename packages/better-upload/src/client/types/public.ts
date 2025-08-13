@@ -13,7 +13,8 @@ export type ClientUploadError = {
     | 'file_too_large'
     | 'invalid_file_type'
     | 'rejected'
-    | 'too_many_files';
+    | 'too_many_files'
+    | 'aborted';
   message: string;
 };
 
@@ -101,6 +102,11 @@ export type UploadHookControl<T extends boolean> = {
    * If the upload progress is complete. Regardless of if all files succeeded or failed to upload.
    */
   isSettled: boolean;
+
+  /**
+   * If the upload was aborted.
+   */
+  isAborted: boolean;
 
   /**
    * Reset the state of the upload.

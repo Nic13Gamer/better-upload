@@ -128,10 +128,7 @@ export function useUploadFiles({
           onUploadBegin,
           onFileStateChange: ({ file }) => {
             setUploads((prev) => new Map(prev).set(file.objectKey, file));
-
-            if (file.status === 'uploading') {
-              onUploadProgress?.({ file: file as FileUploadInfo<'uploading'> });
-            }
+            onUploadProgress?.({ file });
           },
         });
 
@@ -244,6 +241,7 @@ export function useUploadFiles({
       averageProgress,
       isPending,
       isError: !!error,
+      isAborted: signal?.aborted ?? false,
       error,
       metadata: serverMetadata,
     }),
@@ -259,6 +257,7 @@ export function useUploadFiles({
       isSettled,
       averageProgress,
       isPending,
+      signal?.aborted,
       error,
       serverMetadata,
     ]

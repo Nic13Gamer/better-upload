@@ -15,6 +15,7 @@ export function useUploadFile(
     isError,
     isPending,
     isSettled,
+    isAborted,
     allSucceeded,
     metadata,
     uploadedFiles,
@@ -78,6 +79,7 @@ export function useUploadFile(
       isPending,
       isSettled,
       isSuccess: allSucceeded,
+      isAborted,
       metadata,
       uploadedFile,
     }),
@@ -91,6 +93,7 @@ export function useUploadFile(
       isPending,
       isSettled,
       allSucceeded,
+      isAborted,
       metadata,
       uploadedFile,
     ]
