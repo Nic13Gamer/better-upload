@@ -1,5 +1,17 @@
 # better-upload
 
+## 1.1.0
+
+### Minor Changes
+
+- [`39bb3c8`](https://github.com/Nic13Gamer/better-upload/commit/39bb3c8374b4f7eff5718e031c5862b7dd180ffa) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Better DX for upload aborts
+
+### Patch Changes
+
+- [`16d6ec9`](https://github.com/Nic13Gamer/better-upload/commit/16d6ec9a75e63e51c9b107c8ce84955f3892e220) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Fix multipart upload not getting set as failed
+
+- [`1961c8c`](https://github.com/Nic13Gamer/better-upload/commit/1961c8c259b3747b58be68b5846e2f2f857ff366) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Add Tigris client helper
+
 ## 1.0.2
 
 ### Patch Changes
