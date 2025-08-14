@@ -215,3 +215,37 @@ useUploadFiles({
   },
 });
 ```
+
+## Metadata
+
+It is possible to send metadata from the client to your server on the upload request.
+
+```tsx
+export function MyComponent() {
+  const { upload } = useUploadFiles({
+    route: 'demo',
+  });
+
+  return (
+    <input
+      type="file"
+      multiple
+      onChange={(e) => {
+        if (e.target.files) {
+          upload(e.target.files, {
+            // [!code highlight:3]
+            metadata: {
+              folder: 'my-folder',
+            },
+          });
+        }
+      }}
+    />
+  );
+}
+```
+
+<Callout>
+  You can validate the client metadata on the server by setting the
+  `clientMetadataSchema` option in the upload route.
+</Callout>
