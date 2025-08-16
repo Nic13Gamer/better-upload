@@ -51,6 +51,16 @@ const client = minio({
 });
 ```
 
+```ts tab="Tigris"
+import { tigris } from 'better-upload/server/helpers';
+
+const client = tigris({
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+  endpoint: '...', // Optional
+});
+```
+
 ```ts tab="Backblaze B2"
 import { backblaze } from 'better-upload/server/helpers';
 
@@ -82,8 +92,8 @@ const client = digitalOcean({
 ```
 
 <Callout>
-  All clients return an instance of an S3 client from the AWS SDK, just like
-  `new S3Client()`, but already configured for the specific service.
+  All clients return an S3 client from the AWS SDK, just like `new S3Client()`,
+  but already configured for that service.
 </Callout>
 
 ## Bucket Objects
