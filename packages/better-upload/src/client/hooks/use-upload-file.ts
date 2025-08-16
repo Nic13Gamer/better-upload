@@ -26,6 +26,8 @@ export function useUploadFile(
     multipartBatchSize: props.multipartBatchSize,
     headers: props.headers,
     signal: props.signal,
+    retry: props.retry,
+    retryDelay: props.retryDelay,
     onError: props.onError,
     onUploadProgress: props.onUploadProgress,
     onBeforeUpload: props.onBeforeUpload

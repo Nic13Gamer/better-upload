@@ -1,16 +1,47 @@
 export async function withRetries<T>(
   fn: () => Promise<T> | T,
   {
-    maxTries = 1,
+    retry = 0,
     delay = 0,
+    signal,
+    abortHandler,
   }: {
-    maxTries?: number;
+    retry?: number;
     delay?: number;
+    signal?: AbortSignal;
+    abortHandler?: () => void;
   } = {}
 ): Promise<T> {
+  const maxTries = retry + 1;
+
   for (let attempt = 0; attempt < maxTries; attempt++) {
-    if (attempt > 0 && delay) {
-      await new Promise((resolve) => setTimeout(resolve, delay));
+    if (attempt > 0) {
+      if (signal?.aborted) {
+        abortHandler?.();
+        throw new Error('Retries aborted.');
+      }
+
+      if (delay) {
+        await new Promise((resolve) => {
+          const timeout = setTimeout(() => {
+            signal?.removeEventListener('abort', abort);
+            resolve(void 0);
+          }, delay);
+
+          const abort = () => {
+            clearTimeout(timeout);
+            signal?.removeEventListener('abort', abort);
+            resolve(void 0);
+          };
+
+          signal?.addEventListener('abort', abort);
+        });
+
+        if (signal?.aborted) {
+          abortHandler?.();
+          throw new Error('Retries aborted.');
+        }
+      }
     }
 
     try {

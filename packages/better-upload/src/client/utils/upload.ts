@@ -5,6 +5,7 @@ import type {
   SignedUrlsSuccessResponse,
 } from '../types/internal';
 import type { FileUploadInfo, UploadStatus } from '../types/public';
+import { withRetries } from './internal/retry';
 import { uploadFileToS3, uploadMultipartFileToS3 } from './internal/s3-upload';
 
 /**
@@ -21,6 +22,8 @@ export async function uploadFiles(params: {
   uploadBatchSize?: number;
   signal?: AbortSignal;
   headers?: HeadersInit;
+  retry?: number;
+  retryDelay?: number;
 
   onUploadBegin?: (data: {
     files: FileUploadInfo<'pending'>[];
@@ -41,20 +44,24 @@ export async function uploadFiles(params: {
     const headers = new Headers(params.headers);
     headers.set('Content-Type', 'application/json');
 
-    const signedUrlRes = await fetch(params.api || '/api/upload', {
-      method: 'POST',
-      body: JSON.stringify({
-        route: params.route,
-        metadata: params.metadata,
-        files: files.map((file) => ({
-          name: file.name,
-          size: file.size,
-          type: file.type,
-        })),
-      }),
-      headers,
-      signal: params.signal,
-    });
+    const signedUrlRes = await withRetries(
+      () =>
+        fetch(params.api || '/api/upload', {
+          method: 'POST',
+          body: JSON.stringify({
+            route: params.route,
+            metadata: params.metadata,
+            files: files.map((file) => ({
+              name: file.name,
+              size: file.size,
+              type: file.type,
+            })),
+          }),
+          headers,
+          signal: params.signal,
+        }),
+      { retry: params.retry, delay: params.retryDelay, signal: params.signal }
+    );
 
     if (!signedUrlRes.ok) {
       const { error } = (await signedUrlRes.json()) as any;
@@ -127,6 +134,8 @@ export async function uploadFiles(params: {
             completeSignedUrl: url.completeSignedUrl,
             partsBatchSize: params.multipartBatchSize,
             signal: params.signal,
+            retry: params.retry,
+            retryDelay: params.retryDelay,
             onProgress: (progress) => {
               if (uploads.get(url.file.objectKey)!.status === 'failed') {
                 return;
@@ -149,6 +158,8 @@ export async function uploadFiles(params: {
             signedUrl: url.signedUrl,
             objectMetadata: url.file.objectMetadata,
             signal: params.signal,
+            retry: params.retry,
+            retryDelay: params.retryDelay,
             onProgress: (progress) => {
               uploads.set(url.file.objectKey, {
                 ...uploads.get(url.file.objectKey)!,
@@ -250,6 +261,8 @@ export async function uploadFile(params: {
   multipartBatchSize?: number;
   signal?: AbortSignal;
   headers?: HeadersInit;
+  retry?: number;
+  retryDelay?: number;
 
   onUploadBegin?: (data: {
     file: FileUploadInfo<'pending'>;
@@ -265,6 +278,8 @@ export async function uploadFile(params: {
     multipartBatchSize: params.multipartBatchSize,
     signal: params.signal,
     headers: params.headers,
+    retry: params.retry,
+    retryDelay: params.retryDelay,
     onUploadBegin: (data) => {
       params.onUploadBegin?.({
         file: data.files[0]!,
