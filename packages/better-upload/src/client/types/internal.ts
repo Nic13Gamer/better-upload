@@ -146,6 +146,20 @@ export type UploadHookProps<T extends boolean> = {
    * Headers to send to your server when requesting the pre-signed URLs.
    */
   headers?: HeadersInit;
+
+  /**
+   * Number of times to retry network requests that fail.
+   *
+   * @default 0
+   */
+  retry?: number;
+
+  /**
+   * Delay between retries in milliseconds.
+   *
+   * @default 0
+   */
+  retryDelay?: number;
 } & (T extends true
   ? {
       /**

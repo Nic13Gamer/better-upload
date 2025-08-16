@@ -19,6 +19,8 @@ export function useUploadFiles({
   multipartBatchSize,
   headers,
   signal,
+  retry,
+  retryDelay,
   onError,
   onBeforeUpload,
   onUploadBegin,
@@ -125,6 +127,8 @@ export function useUploadFiles({
           multipartBatchSize,
           headers,
           signal,
+          retry,
+          retryDelay,
           onUploadBegin,
           onFileStateChange: ({ file }) => {
             setUploads((prev) => new Map(prev).set(file.objectKey, file));
