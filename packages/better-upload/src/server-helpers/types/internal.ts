@@ -108,3 +108,22 @@ export type CreateDigitalOceanClientParams = {
    */
   secret: string;
 };
+
+export type CreateTigrisClientParams = {
+  /**
+   * Tigris access key ID.
+   */
+  accessKeyId: string;
+
+  /**
+   * Tigris secret access key.
+   */
+  secretAccessKey: string;
+
+  /**
+   * Tigris endpoint.
+   *
+   * @default `https://t3.storage.dev`
+   */
+  endpoint?: string;
+};

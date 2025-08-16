@@ -33,6 +33,7 @@ export function MyComponent() {
     failedFiles,
     progresses,
     isPending,
+    isAborted,
     isSettled,
     isError,
     allSucceeded,
@@ -83,8 +84,7 @@ The `useUploadFiles` hook accepts the following options:
       required: false,
     },
     uploadBatchSize: {
-      description:
-        'The number of files to upload in parallel.',
+      description: 'The number of files to upload in parallel.',
       type: 'number',
       default: 'All files at once',
       required: false,
@@ -215,3 +215,37 @@ useUploadFiles({
   },
 });
 ```
+
+## Metadata
+
+It is possible to send metadata from the client to your server on the upload request.
+
+```tsx
+export function MyComponent() {
+  const { upload } = useUploadFiles({
+    route: 'demo',
+  });
+
+  return (
+    <input
+      type="file"
+      multiple
+      onChange={(e) => {
+        if (e.target.files) {
+          upload(e.target.files, {
+            // [!code highlight:3]
+            metadata: {
+              folder: 'my-folder',
+            },
+          });
+        }
+      }}
+    />
+  );
+}
+```
+
+<Callout>
+  You can validate the client metadata on the server by setting the
+  `clientMetadataSchema` option in the upload route.
+</Callout>

@@ -26,7 +26,7 @@ export function PageSelect({ pages }: PageSelectProps) {
             href={page.href}
             data-card
             className={cn(
-              'bg-fd-card/80 text-fd-card-foreground hover:bg-fd-accent/70 @max-lg:col-span-full block rounded-lg border p-4 shadow-md transition-colors',
+              'bg-fd-card/80 text-fd-card-foreground hover:bg-fd-accent/70 @max-lg:col-span-full block rounded-xl border p-4 shadow-md transition-colors',
               active &&
                 'bg-fd-primary/10 border-fd-primary/70 hover:bg-fd-primary/10'
             )}

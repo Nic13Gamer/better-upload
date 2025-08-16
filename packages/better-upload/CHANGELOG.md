@@ -1,5 +1,11 @@
 # better-upload
 
+## 1.0.2
+
+### Patch Changes
+
+- [`3ea3f8b`](https://github.com/Nic13Gamer/better-upload/commit/3ea3f8baeb24aea597be4612471a8795425cc9fe) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Fix hooks success and `isSettled` true on initial state.
+
 ## 1.0.1
 
 ### Patch Changes
