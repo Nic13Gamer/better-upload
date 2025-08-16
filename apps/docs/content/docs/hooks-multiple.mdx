@@ -108,6 +108,18 @@ The `useUploadFiles` hook accepts the following options:
       typeDescription: 'Can be an object with string keys and values.',
       required: false,
     },
+    retry: {
+      description: 'Number of times to retry network requests that fail.',
+      type: 'number',
+      default: '0',
+      required: false,
+    },
+    retryDelay: {
+      description: 'Delay in milliseconds between retries.',
+      type: 'number',
+      default: '0',
+      required: false,
+    },
   }}
 />
 
