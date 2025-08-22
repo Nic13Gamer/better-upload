@@ -31,6 +31,16 @@
       "import": "./dist/client-helpers/index.mjs",
       "types": "./dist/client-helpers/index.d.ts",
       "default": "./dist/client-helpers/index.js"
+    },
+    "./server/internal": {
+      "import": "./dist/server/types/internal.mjs",
+      "types": "./dist/server/types/internal.d.ts",
+      "default": "./dist/server/types/internal.js"
+    },
+    "./client/internal": {
+      "import": "./dist/client/types/internal.mjs",
+      "types": "./dist/client/types/internal.d.ts",
+      "default": "./dist/client/types/internal.js"
     }
   },
   "dependencies": {

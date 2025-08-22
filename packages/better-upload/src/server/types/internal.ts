@@ -6,7 +6,7 @@ export type ObjectMetadata = Record<string, string>;
 type ClientMetadata<T extends StandardSchemaV1 | undefined = undefined> =
   T extends StandardSchemaV1 ? StandardSchemaV1.InferOutput<T> : unknown;
 
-export type UploadedFileInfo = {
+export type FileInfo = {
   /**
    * The name of the file.
    */
@@ -117,13 +117,13 @@ export type RouteConfig<
           /**
            * Information about the file to be uploaded.
            */
-          file: Omit<UploadedFileInfo, 'objectKey'>;
+          file: Omit<FileInfo, 'objectKey'>;
         }
       : {
           /**
            * Information about the files to be uploaded.
            */
-          files: Omit<UploadedFileInfo, 'objectKey'>[];
+          files: Omit<FileInfo, 'objectKey'>[];
         })
   ) =>
     | BeforeUploadCallbackResult<Multiple, InterMetadata>
@@ -158,13 +158,13 @@ export type RouteConfig<
           /**
            * Information about the uploaded file, including the object key.
            */
-          file: UploadedFileInfo;
+          file: FileInfo;
         }
       : {
           /**
            * Information about the uploaded files, including the object keys.
            */
-          files: UploadedFileInfo[];
+          files: FileInfo[];
         })
   ) =>
     | AfterSignedUrlCallbackResult
@@ -276,7 +276,7 @@ type BeforeUploadCallbackResult<
         /**
          * Information about the file to be uploaded.
          */
-        file: Omit<UploadedFileInfo, 'objectKey'>;
+        file: Omit<FileInfo, 'objectKey'>;
       }) => string | Promise<string>;
 
       /**
@@ -287,7 +287,7 @@ type BeforeUploadCallbackResult<
        * **WARNING:** All values here will be exposed to the client. Do not use this for sensitive data.
        */
       generateObjectMetadata?: (data: {
-        file: UploadedFileInfo;
+        file: FileInfo;
       }) => ObjectMetadata | Promise<ObjectMetadata>;
     });
 
@@ -317,15 +317,15 @@ export type Route = {
   onBeforeUpload?: (data: {
     req: Request;
     clientMetadata: unknown;
-    files: Omit<UploadedFileInfo, 'objectKey'>[];
+    files: Omit<FileInfo, 'objectKey'>[];
   }) => Promise<{
     metadata?: UnknownMetadata;
     bucketName?: string;
     generateObjectKey?: (data: {
-      file: Omit<UploadedFileInfo, 'objectKey'>;
+      file: Omit<FileInfo, 'objectKey'>;
     }) => string | Promise<string>;
     generateObjectMetadata?: (data: {
-      file: UploadedFileInfo;
+      file: FileInfo;
     }) => ObjectMetadata | Promise<ObjectMetadata>;
   } | void>;
 
@@ -333,7 +333,7 @@ export type Route = {
     req: Request;
     metadata: UnknownMetadata;
     clientMetadata: unknown;
-    files: UploadedFileInfo[];
+    files: FileInfo[];
   }) => Promise<{ metadata?: UnknownMetadata } | void>;
 };
 
