@@ -1,5 +1,11 @@
 # better-upload
 
+## 1.1.1
+
+### Patch Changes
+
+- [`cb0677d`](https://github.com/Nic13Gamer/better-upload/commit/cb0677d07ddd872fd71d2f62e8a3e9b07d1ccda8) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Make internal types available under `/server/internal` and `/client/internal`
+
 ## 1.1.0
 
 ### Minor Changes
