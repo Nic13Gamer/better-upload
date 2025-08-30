@@ -12,7 +12,7 @@ export type HelperBaseParams = {
   bucketName: string;
 };
 
-export type CreateR2ClientParams = {
+export type CreateCloudflareClientParams = {
   /**
    * Cloudflare account ID.
    */

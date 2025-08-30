@@ -17,7 +17,9 @@ export function digitalOcean(params?: CreateDigitalOceanClientParams) {
   };
 
   if (!region || !key || !secret) {
-    throw new Error('Missing required parameters for DigitalOcean client.');
+    throw new Error(
+      'Missing required parameters for DigitalOcean Spaces client.'
+    );
   }
 
   return new S3Client({

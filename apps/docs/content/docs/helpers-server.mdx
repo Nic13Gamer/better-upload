@@ -24,15 +24,15 @@ icon: Wrench
 Better Upload has some built-in clients for popular S3-compatible storage services, like Cloudflare R2. Suggest a new client by [opening an issue](https://github.com/Nic13Gamer/better-upload/issues).
 
 ```ts tab="Cloudflare R2"
-import { r2 } from 'better-upload/server/helpers';
+import { cloudflare } from 'better-upload/server/helpers';
 
-const client = r2({
+const client = cloudflare({
   accountId: 'your-account-id',
   accessKeyId: 'your-access-key-id',
   secretAccessKey: 'your-secret-access-key',
 });
 
-const jurisdictionClient = r2({
+const jurisdictionClient = cloudflare({
   accountId: 'your-account-id',
   accessKeyId: 'your-access-key-id',
   secretAccessKey: 'your-secret-access-key',
@@ -106,7 +106,7 @@ Moves an object from one location to another, within the same bucket. Also known
 import { moveObject } from 'better-upload/server/helpers';
 
 await moveObject({
-  client: r2(),
+  client: s3,
   bucketName: 'my-bucket',
   objectKey: 'example.jpg',
   destinationKey: 'images/example.jpg',

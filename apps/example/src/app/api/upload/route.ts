@@ -1,8 +1,8 @@
 import { createUploadRouteHandler, route } from 'better-upload/server';
-import { r2 } from 'better-upload/server/helpers';
+import { cloudflare } from 'better-upload/server/helpers';
 
 export const { POST } = createUploadRouteHandler({
-  client: r2(),
+  client: cloudflare(),
   bucketName: process.env.AWS_BUCKET_NAME!,
   routes: {
     image: route({
