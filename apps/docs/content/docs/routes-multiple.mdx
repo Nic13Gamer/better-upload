@@ -91,7 +91,7 @@ route({
     }
 
     return {
-      objectKey: user.id,
+      generateObjectKey: ({ file }) => `${user.id}/${file.name}`,
       bucketName: 'another-bucket',
     };
   },
@@ -110,13 +110,13 @@ You can return an object with the following properties:
     generateObjectKey: {
       description:
         'The S3 object key. If not provided, a random key will be generated.',
-      type: 'string',
+      type: '() => string',
       required: false,
     },
     generateObjectMetadata: {
       description:
         'Metadata to be added to the S3 object. This data will be exposed to the client.',
-      type: 'Record<string, string>',
+      type: '() => Record<string, string>',
       required: false,
     },
     metadata: {
