@@ -237,6 +237,22 @@ export type RouteConfig<
         multipart?: Multipart;
       });
 
+export type BeforeUploadCallbackObjectInfo = {
+  /**
+   * The S3 object key to upload to.
+   */
+  key?: string;
+
+  /**
+   * Custom S3 object metadata.
+   *
+   * **All keys will be lower cased.**
+   *
+   * **WARNING:** All values here will be exposed to the client. Do not use this for sensitive data.
+   */
+  metadata?: ObjectMetadata;
+};
+
 type BeforeUploadCallbackResult<
   Multiple extends boolean,
   InterMetadata extends UnknownMetadata,
@@ -255,40 +271,30 @@ type BeforeUploadCallbackResult<
 } & (Multiple extends false
   ? {
       /**
-       * The object key to upload to.
-       */
-      objectKey?: string;
-
-      /**
-       * Custom object metadata for S3.
+       * Use this to specify properties for the S3 object that will be uploaded.
        *
-       * **All keys will be lower cased.**
-       *
-       * **WARNING:** All values here will be exposed to the client. Do not use this for sensitive data.
+       * Options:
+       * - `key`: The S3 object key to upload to.
+       * - `metadata`: Custom S3 object metadata.
        */
-      objectMetadata?: ObjectMetadata;
+      objectInfo?: BeforeUploadCallbackObjectInfo;
     }
   : {
       /**
-       * Use this callback to generate a custom object key for a file. Will be called for each file, in parallel.
+       * Use this to specify properties for the S3 objects that will be uploaded. Will be called for each file, in parallel.
+       *
+       * Options:
+       * - `key`: The S3 object key to upload to.
+       * - `metadata`: Custom S3 object metadata.
        */
-      generateObjectKey?: (data: {
+      generateObjectInfo?: (data: {
         /**
          * Information about the file to be uploaded.
          */
         file: Omit<FileInfo, 'objectKey'>;
-      }) => string | Promise<string>;
-
-      /**
-       * Use this callback to generate custom object metadata for S3. Will be called for each file, in parallel.
-       *
-       * **All keys will be lower cased.**
-       *
-       * **WARNING:** All values here will be exposed to the client. Do not use this for sensitive data.
-       */
-      generateObjectMetadata?: (data: {
-        file: FileInfo;
-      }) => ObjectMetadata | Promise<ObjectMetadata>;
+      }) =>
+        | BeforeUploadCallbackObjectInfo
+        | Promise<BeforeUploadCallbackObjectInfo>;
     });
 
 type AfterSignedUrlCallbackResult = {
@@ -321,12 +327,11 @@ export type Route = {
   }) => Promise<{
     metadata?: UnknownMetadata;
     bucketName?: string;
-    generateObjectKey?: (data: {
+    generateObjectInfo?: (data: {
       file: Omit<FileInfo, 'objectKey'>;
-    }) => string | Promise<string>;
-    generateObjectMetadata?: (data: {
-      file: FileInfo;
-    }) => ObjectMetadata | Promise<ObjectMetadata>;
+    }) =>
+      | BeforeUploadCallbackObjectInfo
+      | Promise<BeforeUploadCallbackObjectInfo>;
   } | void>;
 
   onAfterSignedUrl?: (data: {

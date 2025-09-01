@@ -76,10 +76,7 @@ export async function handleMultipartFiles({
     }
   }
 
-  let beforeUploadMetadata,
-    bucketName,
-    generateObjectKeyCallback,
-    generateObjectMetadataCallback;
+  let interMetadata, bucketName, generateObjectInfoCallback;
   try {
     const onBeforeUpload = await route.onBeforeUpload?.({
       req,
@@ -87,11 +84,9 @@ export async function handleMultipartFiles({
       clientMetadata: data.metadata,
     });
 
-    beforeUploadMetadata = onBeforeUpload?.metadata || {};
+    interMetadata = onBeforeUpload?.metadata || {};
     bucketName = onBeforeUpload?.bucketName || defaultBucketName;
-    generateObjectKeyCallback = onBeforeUpload?.generateObjectKey || null;
-    generateObjectMetadataCallback =
-      onBeforeUpload?.generateObjectMetadata || null;
+    generateObjectInfoCallback = onBeforeUpload?.generateObjectInfo || null;
   } catch (error) {
     if (error instanceof UploadFileError) {
       return Response.json(
@@ -106,21 +101,22 @@ export async function handleMultipartFiles({
   const signedUrls = await Promise.all(
     files.map(async (file) => {
       let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
-      if (generateObjectKeyCallback) {
-        objectKey = await generateObjectKeyCallback({
-          file,
-        });
-      }
-
       let objectMetadata = {} as ObjectMetadata;
-      if (generateObjectMetadataCallback) {
-        objectMetadata = Object.fromEntries(
-          Object.entries(
-            await generateObjectMetadataCallback({
-              file: { ...file, objectKey },
-            })
-          ).map(([key, value]) => [key.toLowerCase(), value])
-        );
+
+      if (generateObjectInfoCallback) {
+        const objectInfo = await generateObjectInfoCallback({ file });
+
+        if (objectInfo.key) {
+          objectKey = objectInfo.key;
+        }
+        if (objectInfo.metadata) {
+          objectMetadata = Object.fromEntries(
+            Object.entries(objectInfo.metadata).map(([key, value]) => [
+              key.toLowerCase(),
+              value,
+            ])
+          );
+        }
       }
 
       const { UploadId: s3UploadId } = await client.send(
@@ -200,7 +196,7 @@ export async function handleMultipartFiles({
     const onAfterSignedUrl = await route.onAfterSignedUrl?.({
       req,
       files: signedUrls.map(({ file }) => file),
-      metadata: beforeUploadMetadata,
+      metadata: interMetadata,
       clientMetadata: data.metadata,
     });
 
