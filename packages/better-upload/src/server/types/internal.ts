@@ -1,3 +1,4 @@
+import type { ObjectCannedACL } from '@aws-sdk/client-s3';
 import type { StandardSchemaV1 } from './standard-schema';
 
 export type UnknownMetadata = Record<string, unknown>;
@@ -251,6 +252,11 @@ export type BeforeUploadCallbackObjectInfo = {
    * **WARNING:** All values here will be exposed to the client. Do not use this for sensitive data.
    */
   metadata?: ObjectMetadata;
+
+  /**
+   * ACL (access control list) to apply to the S3 object.
+   */
+  acl?: ObjectCannedACL;
 };
 
 type BeforeUploadCallbackResult<
@@ -276,6 +282,7 @@ type BeforeUploadCallbackResult<
        * Options:
        * - `key`: The S3 object key to upload to.
        * - `metadata`: Custom S3 object metadata.
+       * - `acl`: ACL to apply to the S3 object.
        */
       objectInfo?: BeforeUploadCallbackObjectInfo;
     }
@@ -286,6 +293,7 @@ type BeforeUploadCallbackResult<
        * Options:
        * - `key`: The S3 object key to upload to.
        * - `metadata`: Custom S3 object metadata.
+       * - `acl`: ACL to apply to the S3 object.
        */
       generateObjectInfo?: (data: {
         /**

@@ -102,6 +102,7 @@ export async function handleMultipartFiles({
     files.map(async (file) => {
       let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
       let objectMetadata = {} as ObjectMetadata;
+      let objectAcl = undefined;
 
       if (generateObjectInfoCallback) {
         const objectInfo = await generateObjectInfoCallback({ file });
@@ -117,6 +118,8 @@ export async function handleMultipartFiles({
             ])
           );
         }
+
+        objectAcl = objectInfo.acl;
       }
 
       const { UploadId: s3UploadId } = await client.send(
@@ -125,6 +128,7 @@ export async function handleMultipartFiles({
           Key: objectKey,
           ContentType: file.type,
           Metadata: objectMetadata,
+          ACL: objectAcl,
         })
       );
 
