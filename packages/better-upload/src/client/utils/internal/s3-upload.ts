@@ -44,6 +44,10 @@ export async function uploadFileToS3(params: {
         xhr.open('PUT', params.signedUrl, true);
         xhr.setRequestHeader('Content-Type', params.file.type);
 
+        const signedUrl = new URL(params.signedUrl);
+        const xAmzAcl = signedUrl.searchParams.get('x-amz-acl');
+        if (xAmzAcl) xhr.setRequestHeader('x-amz-acl', xAmzAcl);
+
         Object.entries(params.objectMetadata).forEach(([key, value]) => {
           xhr.setRequestHeader(`x-amz-meta-${key}`, value);
         });

@@ -133,6 +133,7 @@ export async function handleFiles({
           ContentType: file.type,
           ContentLength: file.size,
           Metadata: objectMetadata,
+          ACL: route.defaultACL,
         }),
         {
           expiresIn: signedUrlExpiresIn,

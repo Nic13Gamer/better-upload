@@ -1,10 +1,13 @@
 import type { StandardSchemaV1 } from './standard-schema';
+import type { ObjectCannedACL } from '@aws-sdk/client-s3';
 
 export type UnknownMetadata = Record<string, unknown>;
 export type ObjectMetadata = Record<string, string>;
 
 type ClientMetadata<T extends StandardSchemaV1 | undefined = undefined> =
   T extends StandardSchemaV1 ? StandardSchemaV1.InferOutput<T> : unknown;
+
+type DefaultACL = ObjectCannedACL | undefined;
 
 export type FileInfo = {
   /**
@@ -33,6 +36,7 @@ export type RouteConfig<
   Multipart extends boolean,
   InterMetadata extends UnknownMetadata,
   ClientMetadataSchema extends StandardSchemaV1 | undefined,
+  DefaultACL extends ObjectCannedACL | undefined,
 > = {
   /**
    * Maximum file size in bytes.
@@ -170,6 +174,11 @@ export type RouteConfig<
     | AfterSignedUrlCallbackResult
     | void
     | Promise<AfterSignedUrlCallbackResult | void>;
+
+  /**
+   * The default ACL to use for the uploaded files.
+   */
+  defaultACL?: DefaultACL;
 } & (Multiple extends true
   ? {
       /**
@@ -313,6 +322,8 @@ export type Route = {
     partSignedUrlExpiresIn?: number;
     completeSignedUrlExpiresIn?: number;
   };
+
+  defaultACL?: DefaultACL;
 
   onBeforeUpload?: (data: {
     req: Request;

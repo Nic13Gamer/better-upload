@@ -129,6 +129,7 @@ export async function handleMultipartFiles({
           Key: objectKey,
           ContentType: file.type,
           Metadata: objectMetadata,
+          ACL: route.defaultACL,
         })
       );
 

@@ -1,3 +1,4 @@
+import type { ObjectCannedACL } from '@aws-sdk/client-s3';
 import type {
   ExecRoute,
   ObjectMetadata,
@@ -12,14 +13,22 @@ export function route<
   Multipart extends boolean = false,
   InterMetadata extends UnknownMetadata = {},
   ClientMetadataSchema extends StandardSchemaV1 | undefined = undefined,
+  DefaultACL extends ObjectCannedACL | undefined = undefined,
 >(
-  config: RouteConfig<Multiple, Multipart, InterMetadata, ClientMetadataSchema>
+  config: RouteConfig<
+    Multiple,
+    Multipart,
+    InterMetadata,
+    ClientMetadataSchema,
+    DefaultACL
+  >
 ): ExecRoute {
   const route: Route = {
     maxFileSize: config.maxFileSize,
     fileTypes: config.fileTypes,
     signedUrlExpiresIn: config.signedUrlExpiresIn,
     clientMetadataSchema: config.clientMetadataSchema,
+    defaultACL: config.defaultACL,
 
     maxFiles: config.multipleFiles ? config.maxFiles : 1,
 
