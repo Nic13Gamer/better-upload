@@ -100,7 +100,7 @@ export type RouteConfig<
    *
    * Metadata sent from the client is also available.
    *
-   * Throw an `UploadFileError` to reject the file upload. This will also send the error message to the client.
+   * Throw `RejectUpload` to reject the file upload. This will also send the error message to the client.
    */
   onBeforeUpload?: (
     data: {

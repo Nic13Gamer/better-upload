@@ -1,5 +1,5 @@
 import { config } from '@/server/config';
-import { UploadFileError } from '@/server/error';
+import { RejectUpload } from '@/server/error';
 import type { ObjectMetadata, Route } from '@/server/types/internal';
 import { isFileTypeAllowed } from '@/server/utils/internal/file-type';
 import { createSlug } from '@/server/utils/internal/slug';
@@ -88,7 +88,7 @@ export async function handleMultipartFiles({
     bucketName = onBeforeUpload?.bucketName || defaultBucketName;
     generateObjectInfoCallback = onBeforeUpload?.generateObjectInfo || null;
   } catch (error) {
-    if (error instanceof UploadFileError) {
+    if (error instanceof RejectUpload) {
       return Response.json(
         { error: { type: 'rejected', message: error.message } },
         { status: 400 }

@@ -145,7 +145,7 @@ In the example above, we create the upload route `demo`. Learn more about upload
 You can run code before uploads in the server. Use the `onBeforeUpload` callback:
 
 ```ts
-import { UploadFileError, route, type Router } from 'better-upload/server';
+import { RejectUpload, route, type Router } from 'better-upload/server';
 
 const auth = (req: Request) => ({ id: 'fake-user-id' }); // [!code highlight]
 
@@ -160,7 +160,7 @@ const router: Router = {
         const user = await auth(req);
 
         if (!user) {
-          throw new UploadFileError('Not logged in!');
+          throw new RejectUpload('Not logged in!');
         }
       },
     }),

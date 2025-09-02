@@ -80,7 +80,7 @@ route({
     const user = await auth();
 
     if (!user) {
-      throw new UploadFileError('Not logged in!');
+      throw new RejectUpload('Not logged in!');
     }
 
     return {
@@ -94,8 +94,8 @@ route({
 ```
 
 <Callout title="Rejecting uploads">
-  Throw `UploadFileError` to reject the file upload. This will also send the
-  error message to the client.
+  Throw `RejectUpload` to reject the file upload. This will also send the error
+  message to the client.
 </Callout>
 
 You can return an object with the following properties:
