@@ -18,10 +18,12 @@ export const { POST } = createUploadRouteHandler({
         console.log('Before upload:', uploadId);
 
         return {
-          generateObjectKey({ file }) {
-            console.log('Generate object key:', file.name);
+          generateObjectInfo({ file }) {
+            console.log('Generate object info:', file.name);
 
-            return `multiple/${uploadId}/${file.name}`;
+            return {
+              key: `multiple/${uploadId}/${file.name}`,
+            };
           },
         };
       },
@@ -38,7 +40,7 @@ export const { POST } = createUploadRouteHandler({
       maxFiles: 5,
       onBeforeUpload() {
         return {
-          generateObjectKey: () => `form/${crypto.randomUUID()}`,
+          generateObjectInfo: () => ({ key: `form/${crypto.randomUUID()}` }),
         };
       },
     }),
