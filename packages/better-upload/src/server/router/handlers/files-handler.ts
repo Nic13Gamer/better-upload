@@ -105,6 +105,7 @@ export async function handleFiles({
       let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
       let objectMetadata = {} as ObjectMetadata;
       let objectAcl = undefined;
+      let objectStorageClass = undefined;
 
       if (generateObjectInfoCallback) {
         const objectInfo = await generateObjectInfoCallback({ file });
@@ -122,6 +123,7 @@ export async function handleFiles({
         }
 
         objectAcl = objectInfo.acl;
+        objectStorageClass = objectInfo.storageClass;
       }
 
       const signedUrl = await getSignedUrl(
@@ -133,6 +135,7 @@ export async function handleFiles({
           ContentLength: file.size,
           Metadata: objectMetadata,
           ACL: objectAcl,
+          StorageClass: objectStorageClass,
         }),
         {
           expiresIn: signedUrlExpiresIn,
