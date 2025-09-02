@@ -1,5 +1,5 @@
 import { config } from '@/server/config';
-import { UploadFileError } from '@/server/error';
+import { RejectUpload } from '@/server/error';
 import type { ObjectMetadata, Route } from '@/server/types/internal';
 import { isFileTypeAllowed } from '@/server/utils/internal/file-type';
 import { createSlug } from '@/server/utils/internal/slug';
@@ -78,10 +78,7 @@ export async function handleFiles({
     }
   }
 
-  let beforeUploadMetadata,
-    bucketName,
-    generateObjectKeyCallback,
-    generateObjectMetadataCallback;
+  let interMetadata, bucketName, generateObjectInfoCallback;
   try {
     const onBeforeUpload = await route.onBeforeUpload?.({
       req,
@@ -89,13 +86,11 @@ export async function handleFiles({
       clientMetadata: data.metadata,
     });
 
-    beforeUploadMetadata = onBeforeUpload?.metadata || {};
+    interMetadata = onBeforeUpload?.metadata || {};
     bucketName = onBeforeUpload?.bucketName || defaultBucketName;
-    generateObjectKeyCallback = onBeforeUpload?.generateObjectKey || null;
-    generateObjectMetadataCallback =
-      onBeforeUpload?.generateObjectMetadata || null;
+    generateObjectInfoCallback = onBeforeUpload?.generateObjectInfo || null;
   } catch (error) {
-    if (error instanceof UploadFileError) {
+    if (error instanceof RejectUpload) {
       return Response.json(
         { error: { type: 'rejected', message: error.message } },
         { status: 400 }
@@ -108,21 +103,27 @@ export async function handleFiles({
   const signedUrls = await Promise.all(
     files.map(async (file) => {
       let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
-      if (generateObjectKeyCallback) {
-        objectKey = await generateObjectKeyCallback({
-          file,
-        });
-      }
-
       let objectMetadata = {} as ObjectMetadata;
-      if (generateObjectMetadataCallback) {
-        objectMetadata = Object.fromEntries(
-          Object.entries(
-            await generateObjectMetadataCallback({
-              file: { ...file, objectKey },
-            })
-          ).map(([key, value]) => [key.toLowerCase(), value])
-        );
+      let objectAcl = undefined;
+      let objectStorageClass = undefined;
+
+      if (generateObjectInfoCallback) {
+        const objectInfo = await generateObjectInfoCallback({ file });
+
+        if (objectInfo.key) {
+          objectKey = objectInfo.key;
+        }
+        if (objectInfo.metadata) {
+          objectMetadata = Object.fromEntries(
+            Object.entries(objectInfo.metadata).map(([key, value]) => [
+              key.toLowerCase(),
+              value,
+            ])
+          );
+        }
+
+        objectAcl = objectInfo.acl;
+        objectStorageClass = objectInfo.storageClass;
       }
 
       const signedUrl = await getSignedUrl(
@@ -133,6 +134,8 @@ export async function handleFiles({
           ContentType: file.type,
           ContentLength: file.size,
           Metadata: objectMetadata,
+          ACL: objectAcl,
+          StorageClass: objectStorageClass,
         }),
         {
           expiresIn: signedUrlExpiresIn,
@@ -151,7 +154,7 @@ export async function handleFiles({
     const onAfterSignedUrl = await route.onAfterSignedUrl?.({
       req,
       files: signedUrls.map(({ file }) => file),
-      metadata: beforeUploadMetadata,
+      metadata: interMetadata,
       clientMetadata: data.metadata,
     });
 

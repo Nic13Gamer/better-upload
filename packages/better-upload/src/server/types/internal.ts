@@ -1,3 +1,4 @@
+import type { ObjectCannedACL, StorageClass } from '@aws-sdk/client-s3';
 import type { StandardSchemaV1 } from './standard-schema';
 
 export type UnknownMetadata = Record<string, unknown>;
@@ -95,11 +96,11 @@ export type RouteConfig<
   clientMetadataSchema?: ClientMetadataSchema;
 
   /**
-   * Use this callback to run custom logic before uploading a file, such as auth and rate-limiting. You can also return a custom object key (return `generateObjectKey` for multiple files). This runs only once regardless of the number of files uploaded.
+   * Use this callback to run custom logic before uploading a file, such as auth and rate-limiting. You can also return `objectInfo` to customize the S3 object (`generateObjectInfo` for multiple files). This runs only once regardless of the number of files uploaded.
    *
    * Metadata sent from the client is also available.
    *
-   * Throw an `UploadFileError` to reject the file upload. This will also send the error message to the client.
+   * Throw `RejectUpload` to reject the file upload. This will also send the error message to the client.
    */
   onBeforeUpload?: (
     data: {
@@ -237,6 +238,32 @@ export type RouteConfig<
         multipart?: Multipart;
       });
 
+export type BeforeUploadCallbackObjectInfo = {
+  /**
+   * The S3 object key to upload to.
+   */
+  key?: string;
+
+  /**
+   * Custom S3 object metadata.
+   *
+   * **All keys will be lower cased.**
+   *
+   * **WARNING:** All values here will be exposed to the client. Do not use this for sensitive data.
+   */
+  metadata?: ObjectMetadata;
+
+  /**
+   * ACL (access control list) to apply to the S3 object.
+   */
+  acl?: ObjectCannedACL;
+
+  /**
+   * Storage class to apply to the S3 object.
+   */
+  storageClass?: StorageClass;
+};
+
 type BeforeUploadCallbackResult<
   Multiple extends boolean,
   InterMetadata extends UnknownMetadata,
@@ -255,40 +282,34 @@ type BeforeUploadCallbackResult<
 } & (Multiple extends false
   ? {
       /**
-       * The object key to upload to.
-       */
-      objectKey?: string;
-
-      /**
-       * Custom object metadata for S3.
+       * Use this to specify properties for the S3 object that will be uploaded.
        *
-       * **All keys will be lower cased.**
-       *
-       * **WARNING:** All values here will be exposed to the client. Do not use this for sensitive data.
+       * Options:
+       * - `key`: The S3 object key to upload to.
+       * - `metadata`: Custom S3 object metadata.
+       * - `acl`: ACL to apply to the S3 object.
+       * - `storageClass`: Storage class to apply to the S3 object.
        */
-      objectMetadata?: ObjectMetadata;
+      objectInfo?: BeforeUploadCallbackObjectInfo;
     }
   : {
       /**
-       * Use this callback to generate a custom object key for a file. Will be called for each file, in parallel.
+       * Use this to specify properties for the S3 objects that will be uploaded. Will be called for each file, in parallel.
+       *
+       * Options:
+       * - `key`: The S3 object key to upload to.
+       * - `metadata`: Custom S3 object metadata.
+       * - `acl`: ACL to apply to the S3 object.
+       * - `storageClass`: Storage class to apply to the S3 object.
        */
-      generateObjectKey?: (data: {
+      generateObjectInfo?: (data: {
         /**
          * Information about the file to be uploaded.
          */
         file: Omit<FileInfo, 'objectKey'>;
-      }) => string | Promise<string>;
-
-      /**
-       * Use this callback to generate custom object metadata for S3. Will be called for each file, in parallel.
-       *
-       * **All keys will be lower cased.**
-       *
-       * **WARNING:** All values here will be exposed to the client. Do not use this for sensitive data.
-       */
-      generateObjectMetadata?: (data: {
-        file: FileInfo;
-      }) => ObjectMetadata | Promise<ObjectMetadata>;
+      }) =>
+        | BeforeUploadCallbackObjectInfo
+        | Promise<BeforeUploadCallbackObjectInfo>;
     });
 
 type AfterSignedUrlCallbackResult = {
@@ -321,12 +342,11 @@ export type Route = {
   }) => Promise<{
     metadata?: UnknownMetadata;
     bucketName?: string;
-    generateObjectKey?: (data: {
+    generateObjectInfo?: (data: {
       file: Omit<FileInfo, 'objectKey'>;
-    }) => string | Promise<string>;
-    generateObjectMetadata?: (data: {
-      file: FileInfo;
-    }) => ObjectMetadata | Promise<ObjectMetadata>;
+    }) =>
+      | BeforeUploadCallbackObjectInfo
+      | Promise<BeforeUploadCallbackObjectInfo>;
   } | void>;
 
   onAfterSignedUrl?: (data: {

@@ -1,6 +1,6 @@
-export class UploadFileError extends Error {
+export class RejectUpload extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'UploadFileError';
+    this.name = 'RejectUpload';
   }
 }

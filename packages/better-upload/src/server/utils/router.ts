@@ -1,6 +1,6 @@
 import type {
+  BeforeUploadCallbackObjectInfo,
   ExecRoute,
-  ObjectMetadata,
   Route,
   RouteConfig,
   UnknownMetadata,
@@ -43,25 +43,23 @@ export function route<
             } as any);
 
             if (res) {
-              const generateObjectKey =
-                'generateObjectKey' in res
-                  ? res.generateObjectKey
-                  : 'objectKey' in res
-                    ? () => res.objectKey as string
-                    : undefined;
-
-              const generateObjectMetadata =
-                'generateObjectMetadata' in res
-                  ? res.generateObjectMetadata
-                  : 'objectMetadata' in res
-                    ? () => res.objectMetadata as ObjectMetadata
+              const generateObjectInfo =
+                'generateObjectInfo' in res
+                  ? res.generateObjectInfo
+                  : 'objectInfo' in res
+                    ? () =>
+                        ({
+                          key: res.objectInfo!.key,
+                          metadata: res.objectInfo!.metadata,
+                          acl: res.objectInfo!.acl,
+                          storageClass: res.objectInfo!.storageClass,
+                        }) as BeforeUploadCallbackObjectInfo
                     : undefined;
 
               return {
                 metadata: res.metadata,
                 bucketName: res.bucketName,
-                generateObjectKey,
-                generateObjectMetadata,
+                generateObjectInfo,
               };
             } else {
               return res;

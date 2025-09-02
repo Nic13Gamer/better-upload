@@ -1,5 +1,5 @@
 import { S3Client } from '@aws-sdk/client-s3';
-import type { CreateR2ClientParams } from '../types/internal';
+import type { CreateCloudflareClientParams } from '../types/internal';
 
 /**
  * Create a Cloudflare R2 client, compatible with the S3 API.
@@ -10,7 +10,7 @@ import type { CreateR2ClientParams } from '../types/internal';
  * - `AWS_SECRET_ACCESS_KEY`
  * - `CLOUDFLARE_JURISDICTION`
  */
-export function r2(params?: CreateR2ClientParams) {
+export function cloudflare(params?: CreateCloudflareClientParams) {
   const { accountId, accessKeyId, secretAccessKey, jurisdiction } = params ?? {
     accountId: process.env.CLOUDFLARE_ACCOUNT_ID,
     accessKeyId:
@@ -27,7 +27,7 @@ export function r2(params?: CreateR2ClientParams) {
   };
 
   if (!accountId || !accessKeyId || !secretAccessKey) {
-    throw new Error('Missing required parameters for R2 client.');
+    throw new Error('Missing required parameters for Cloudflare R2 client.');
   }
 
   return new S3Client({

@@ -1,8 +1,8 @@
 import { createUploadRouteHandler, route } from 'better-upload/server';
-import { r2 } from 'better-upload/server/helpers';
+import { cloudflare } from 'better-upload/server/helpers';
 
 export const { POST } = createUploadRouteHandler({
-  client: r2(),
+  client: cloudflare(),
   bucketName: process.env.AWS_BUCKET_NAME!,
   routes: {
     image: route({
@@ -18,10 +18,12 @@ export const { POST } = createUploadRouteHandler({
         console.log('Before upload:', uploadId);
 
         return {
-          generateObjectKey({ file }) {
-            console.log('Generate object key:', file.name);
+          generateObjectInfo({ file }) {
+            console.log('Generate object info:', file.name);
 
-            return `multiple/${uploadId}/${file.name}`;
+            return {
+              key: `multiple/${uploadId}/${file.name}`,
+            };
           },
         };
       },
@@ -38,7 +40,7 @@ export const { POST } = createUploadRouteHandler({
       maxFiles: 5,
       onBeforeUpload() {
         return {
-          generateObjectKey: () => `form/${crypto.randomUUID()}`,
+          generateObjectInfo: () => ({ key: `form/${crypto.randomUUID()}` }),
         };
       },
     }),

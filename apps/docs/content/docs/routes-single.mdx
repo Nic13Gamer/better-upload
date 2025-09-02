@@ -80,11 +80,13 @@ route({
     const user = await auth();
 
     if (!user) {
-      throw new UploadFileError('Not logged in!');
+      throw new RejectUpload('Not logged in!');
     }
 
     return {
-      objectKey: user.id,
+      objectInfo: {
+        key: user.id,
+      },
       bucketName: 'another-bucket',
     };
   },
@@ -92,24 +94,24 @@ route({
 ```
 
 <Callout title="Rejecting uploads">
-  Throw `UploadFileError` to reject the file upload. This will also send the
-  error message to the client.
+  Throw `RejectUpload` to reject the file upload. This will also send the error
+  message to the client.
 </Callout>
 
 You can return an object with the following properties:
 
 <TypeTable
   type={{
-    objectKey: {
+    objectInfo: {
       description:
-        'The S3 object key. If not provided, a random key will be generated.',
-      type: 'string',
-      required: false,
-    },
-    objectMetadata: {
-      description:
-        'Metadata to be added to the S3 object. This data will be exposed to the client.',
-      type: 'Record<string, string>',
+        'Information about the S3 object. Includes the object key, metadata, ACL, and other properties.',
+      type: 'object',
+      typeDescription: (
+        <>
+          Includes: <code>key</code>, <code>metadata</code>, <code>acl</code>,{' '}
+          <code>storageClass</code>.
+        </>
+      ),
       required: false,
     },
     metadata: {

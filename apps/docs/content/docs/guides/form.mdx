@@ -53,7 +53,7 @@ const router: Router = {
       maxFiles: 5,
       onBeforeUpload() {
         return {
-          generateObjectKey: ({ file }) => `form/${file.name}`,
+          generateObjectInfo: ({ file }) => ({ key: `form/${file.name}` }),
         };
       },
     }),
