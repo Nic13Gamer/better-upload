@@ -192,10 +192,12 @@ const router: Router = {
       fileTypes: ['image/*'],
       multipleFiles: true,
       maxFiles: 4,
-      // [!code ++:5]
+      // [!code ++:7]
       onBeforeUpload: async ({ req, files, clientMetadata }) => {
         return {
-          generateObjectKey: ({ file }) => `files/${file.name}`,
+          generateObjectInfo: ({ file }) => ({
+            key: `files/${file.name}`,
+          }),
         };
       },
     }),

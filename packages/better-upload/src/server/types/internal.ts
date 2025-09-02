@@ -96,7 +96,7 @@ export type RouteConfig<
   clientMetadataSchema?: ClientMetadataSchema;
 
   /**
-   * Use this callback to run custom logic before uploading a file, such as auth and rate-limiting. You can also return a custom object key (return `generateObjectKey` for multiple files). This runs only once regardless of the number of files uploaded.
+   * Use this callback to run custom logic before uploading a file, such as auth and rate-limiting. You can also return `objectInfo` to customize the S3 object (`generateObjectInfo` for multiple files). This runs only once regardless of the number of files uploaded.
    *
    * Metadata sent from the client is also available.
    *

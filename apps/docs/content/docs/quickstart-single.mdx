@@ -180,10 +180,12 @@ const router: Router = {
   routes: {
     demo: route({
       fileTypes: ['image/*'],
-      // [!code ++:5]
+      // [!code ++:7]
       onBeforeUpload: async ({ req, file, clientMetadata }) => {
         return {
-          objectKey: `files/${file.name}`,
+          objectInfo: {
+            key: `files/${file.name}`,
+          },
         };
       },
     }),
