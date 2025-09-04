@@ -297,6 +297,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useUploadFiles } from 'better-upload/client';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Plus, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -308,14 +309,16 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { UploadDropzone } from './ui/upload-dropzone';
+import { UploadDropzone } from '@/components/ui/upload-dropzone';
 
 const formSchema = z.object({
   folderName: z.string().min(1),
   files: z.array(z.instanceof(File)).min(1), // for Zod v4: z.array(z.file()).min(1),
 });
 
-export function FormUploader() {
+const MAX_FILES = 10;
+
+export default function FormUploader() {
   const {
     upload,
     control: uploadControl,
@@ -365,10 +368,79 @@ export function FormUploader() {
         />
 
         {form.watch('files').length > 0 ? (
-          <div className="flex flex-col">
-            {form.watch('files').map((file, i) => (
-              <p key={i}>{file.name}</p>
-            ))}
+          <div className="space-y-4">
+            <div className="flex flex-col space-y-2">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
+                {form.watch('files').map((file, i) => {
+                  return (
+                    <div className="group relative" key={i}>
+                      <Button
+                        variant={'outline'}
+                        type="button"
+                        className="w-full truncate pr-8"
+                      >
+                        {file.name}
+                      </Button>
+                      <Button
+                        className="absolute -right-2 -top-2 z-10 size-6 rounded-full"
+                        onClick={() => {
+                          const currentFiles = form.getValues('files');
+                          const newFiles = currentFiles.filter(
+                            (_, index) => index !== i
+                          );
+                          form.setValue('files', newFiles);
+                        }}
+                        size="icon"
+                        type="button"
+                        variant="destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  );
+                })}
+
+                {form.watch('files').length < MAX_FILES && (
+                  <div
+                    className="flex h-full w-full cursor-pointer items-center justify-center"
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.multiple = true;
+                      input.onchange = (e) => {
+                        const target = e.target as HTMLInputElement;
+                        const files = Array.from(target.files || []);
+                        const currentFiles = form.getValues('files');
+                        const remaining = MAX_FILES - currentFiles.length;
+                        const newFiles = [
+                          ...currentFiles,
+                          ...files.slice(0, remaining),
+                        ] as File[];
+                        form.setValue('files', newFiles);
+                      };
+                      input.click();
+                    }}
+                  >
+                    <Button
+                      variant={'secondary'}
+                      className="flex items-center justify-center"
+                      type="button"
+                    >
+                      <Plus className="mx-auto h-4" />
+                      <span className="text-xs font-medium">Add More</span>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <Button
+              onClick={() => form.setValue('files', [])}
+              variant="destructive"
+              type="button"
+            >
+              Remove all files
+            </Button>
           </div>
         ) : (
           <FormField
@@ -376,12 +448,18 @@ export function FormUploader() {
             name="files"
             render={() => (
               <FormItem>
-                <FormLabel>Files</FormLabel>
+                <FormLabel>Files (Max {MAX_FILES})</FormLabel>{' '}
                 <FormControl>
                   <UploadDropzone
                     control={uploadControl}
+                    description={{
+                      fileTypes: 'JPEG, PNG, GIF, JPG, PDF, DOC, XLS, PPT',
+                      maxFileSize: '2MB',
+                      maxFiles: 10,
+                    }}
                     uploadOverride={(files) => {
-                      form.setValue('files', Array.from(files));
+                      const filesToAdd = Array.from(files).slice(0, MAX_FILES);
+                      form.setValue('files', filesToAdd);
                     }}
                   />
                 </FormControl>
