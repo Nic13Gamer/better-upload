@@ -148,6 +148,13 @@ export type UploadHookProps<T extends boolean> = {
   headers?: HeadersInit;
 
   /**
+   * Credentials to include with the request when requesting the pre-signed URLs.
+   *
+   * @default undefined
+   */
+  credentials?: RequestCredentials;
+
+  /**
    * Number of times to retry network requests that fail.
    *
    * @default 0

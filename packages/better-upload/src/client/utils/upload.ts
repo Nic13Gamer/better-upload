@@ -22,6 +22,7 @@ export async function uploadFiles(params: {
   uploadBatchSize?: number;
   signal?: AbortSignal;
   headers?: HeadersInit;
+  credentials?: RequestCredentials;
   retry?: number;
   retryDelay?: number;
 
@@ -58,6 +59,7 @@ export async function uploadFiles(params: {
             })),
           }),
           headers,
+          credentials: params.credentials,
           signal: params.signal,
         }),
       { retry: params.retry, delay: params.retryDelay, signal: params.signal }
@@ -261,6 +263,7 @@ export async function uploadFile(params: {
   multipartBatchSize?: number;
   signal?: AbortSignal;
   headers?: HeadersInit;
+  credentials?: RequestCredentials;
   retry?: number;
   retryDelay?: number;
 
@@ -278,6 +281,7 @@ export async function uploadFile(params: {
     multipartBatchSize: params.multipartBatchSize,
     signal: params.signal,
     headers: params.headers,
+    credentials: params.credentials,
     retry: params.retry,
     retryDelay: params.retryDelay,
     onUploadBegin: (data) => {

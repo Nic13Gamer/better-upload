@@ -108,6 +108,13 @@ The `useUploadFiles` hook accepts the following options:
       typeDescription: 'Can be an object with string keys and values.',
       required: false,
     },
+    credentials: {
+      description:
+        'Credentials mode for the fetch request to your server when requesting pre-signed URLs. Use "include" to send cookies with cross-origin requests.',
+      type: 'RequestCredentials',
+      typeDescription: 'Can be "include", "same-origin", or "omit".',
+      required: false,
+    },
     retry: {
       description: 'Number of times to retry network requests that fail.',
       type: 'number',
