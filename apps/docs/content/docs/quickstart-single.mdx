@@ -168,16 +168,6 @@ const router: Router = {
 };
 ```
 
-**Client-side:** When your server uses cookies or `Authorization` header for authentication and upload request is not [same-origin](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#including_credentials), include credentials with the upload request:
-
-```tsx title="uploader.tsx"
-const { control } = useUploadFile({
-  route: 'demo',
-  credentials: 'include', // [!code highlight]
-  // ... other options
-});
-```
-
 </Accordion>
 <Accordion title="Changing S3 object key">
 

@@ -148,9 +148,9 @@ export type UploadHookProps<T extends boolean> = {
   headers?: HeadersInit;
 
   /**
-   * Credentials to include with the request when requesting the pre-signed URLs.
+   * Credentials mode when requesting pre-signed URLs from your server.
    *
-   * @default undefined
+   * Use `include` to send cookies if your server is on a different origin.
    */
   credentials?: RequestCredentials;
 
