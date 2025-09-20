@@ -1,5 +1,11 @@
 # better-upload
 
+## 2.0.1
+
+### Patch Changes
+
+- [#60](https://github.com/Nic13Gamer/better-upload/pull/60) [`d312623`](https://github.com/Nic13Gamer/better-upload/commit/d312623ee06f55878f48f8d2c98e2713b5986e87) Thanks [@olhapi](https://github.com/olhapi)! - Add `credentials` option to hooks
+
 ## 2.0.0
 
 ### Major Changes
