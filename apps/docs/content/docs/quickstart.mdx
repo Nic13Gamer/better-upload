@@ -72,6 +72,7 @@ export const { POST } = createUploadRouteHandler(router);
 ```
 
 ```ts tab="TanStack Start" title="routes/api/upload.ts"
+import { createFileRoute } from '@tanstack/react-router';
 import { handleRequest, route, type Router } from 'better-upload/server';
 
 const s3 = new S3Client(); // [!code highlight]
@@ -88,9 +89,13 @@ const router: Router = {
   },
 };
 
-export const ServerRoute = createServerFileRoute().methods({
-  POST: async ({ request }) => {
-    return handleRequest(request, router);
+export const Route = createFileRoute('/api/upload')({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        return handleRequest(request, router);
+      },
+    },
   },
 });
 ```
