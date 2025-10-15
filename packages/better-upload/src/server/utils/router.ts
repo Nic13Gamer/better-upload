@@ -53,6 +53,7 @@ export function route<
                           metadata: res.objectInfo!.metadata,
                           acl: res.objectInfo!.acl,
                           storageClass: res.objectInfo!.storageClass,
+                          cacheControl: res.objectInfo!.cacheControl,
                         }) as BeforeUploadCallbackObjectInfo
                     : undefined;
 

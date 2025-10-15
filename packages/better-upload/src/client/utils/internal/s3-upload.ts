@@ -5,6 +5,7 @@ export async function uploadFileToS3(params: {
   signedUrl: string;
   file: File;
   objectMetadata: ObjectMetadata;
+  objectCacheControl?: string;
   onProgress?: (progress: number) => void;
   signal?: AbortSignal;
   retry?: number;
@@ -43,6 +44,10 @@ export async function uploadFileToS3(params: {
 
         xhr.open('PUT', params.signedUrl, true);
         xhr.setRequestHeader('Content-Type', params.file.type);
+
+        if (params.objectCacheControl) {
+          xhr.setRequestHeader('Cache-Control', params.objectCacheControl);
+        }
 
         Object.entries(params.objectMetadata).forEach(([key, value]) => {
           xhr.setRequestHeader(`x-amz-meta-${key}`, value);

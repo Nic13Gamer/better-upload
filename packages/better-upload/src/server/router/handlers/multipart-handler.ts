@@ -104,6 +104,7 @@ export async function handleMultipartFiles({
       let objectMetadata = {} as ObjectMetadata;
       let objectAcl = undefined;
       let objectStorageClass = undefined;
+      let objectCacheControl = undefined;
 
       if (generateObjectInfoCallback) {
         const objectInfo = await generateObjectInfoCallback({ file });
@@ -122,6 +123,7 @@ export async function handleMultipartFiles({
 
         objectAcl = objectInfo.acl;
         objectStorageClass = objectInfo.storageClass;
+        objectCacheControl = objectInfo.cacheControl;
       }
 
       const { UploadId: s3UploadId } = await client.send(
@@ -132,6 +134,7 @@ export async function handleMultipartFiles({
           Metadata: objectMetadata,
           ACL: objectAcl,
           StorageClass: objectStorageClass,
+          CacheControl: objectCacheControl,
         })
       );
 

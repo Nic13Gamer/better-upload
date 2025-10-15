@@ -159,6 +159,7 @@ export async function uploadFiles(params: {
             file,
             signedUrl: url.signedUrl,
             objectMetadata: url.file.objectMetadata,
+            objectCacheControl: url.file.objectCacheControl,
             signal: params.signal,
             retry: params.retry,
             retryDelay: params.retryDelay,

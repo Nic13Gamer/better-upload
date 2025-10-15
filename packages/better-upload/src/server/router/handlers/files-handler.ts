@@ -106,6 +106,7 @@ export async function handleFiles({
       let objectMetadata = {} as ObjectMetadata;
       let objectAcl = undefined;
       let objectStorageClass = undefined;
+      let objectCacheControl = undefined;
 
       if (generateObjectInfoCallback) {
         const objectInfo = await generateObjectInfoCallback({ file });
@@ -124,6 +125,7 @@ export async function handleFiles({
 
         objectAcl = objectInfo.acl;
         objectStorageClass = objectInfo.storageClass;
+        objectCacheControl = objectInfo.cacheControl;
       }
 
       const signedUrl = await getSignedUrl(
@@ -136,16 +138,21 @@ export async function handleFiles({
           Metadata: objectMetadata,
           ACL: objectAcl,
           StorageClass: objectStorageClass,
+          CacheControl: objectCacheControl,
         }),
         {
           expiresIn: signedUrlExpiresIn,
           unhoistableHeaders: new Set(
             Object.keys(objectMetadata).map((key) => `x-amz-meta-${key}`)
           ),
+          signableHeaders: new Set(objectCacheControl ? ['cache-control'] : []),
         }
       );
 
-      return { signedUrl, file: { ...file, objectKey, objectMetadata } };
+      return {
+        signedUrl,
+        file: { ...file, objectKey, objectMetadata, objectCacheControl },
+      };
     })
   );
 

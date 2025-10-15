@@ -39,6 +39,7 @@ export type SignedUrlsSuccessResponse = {
         file: {
           objectKey: string;
           objectMetadata: ObjectMetadata;
+          objectCacheControl?: string;
           name: string;
           size: number;
           type: string;

@@ -262,6 +262,13 @@ export type BeforeUploadCallbackObjectInfo = {
    * Storage class to apply to the S3 object.
    */
   storageClass?: StorageClass;
+
+  /**
+   * Cache-Control header to apply to the S3 object.
+   *
+   * **WARNING:** If not set, the client is able to set it to any value (does not apply to multipart uploads).
+   */
+  cacheControl?: string;
 };
 
 type BeforeUploadCallbackResult<
