@@ -1,5 +1,11 @@
 # better-upload
 
+## 2.0.2
+
+### Patch Changes
+
+- [`e3f825a`](https://github.com/Nic13Gamer/better-upload/commit/e3f825a31508408443f5864f482a7faf5df33e97) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Add `cacheControl` option to object info in `onBeforeUpload` return.
+
 ## 2.0.1
 
 ### Patch Changes
