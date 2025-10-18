@@ -21,7 +21,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9.15.5
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24.x
           cache: 'pnpm'
@@ -36,10 +36,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: '' # See https://github.com/changesets/changesets/issues/1152#issuecomment-3190884868
-
-      - name: Archive npm failure logs
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: npm-logs
-          path: ~/.npm/_logs
