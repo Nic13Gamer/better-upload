@@ -1,5 +1,11 @@
 # better-upload
 
+## 2.0.3
+
+### Patch Changes
+
+- [`526a022`](https://github.com/Nic13Gamer/better-upload/commit/526a022543c7314ac519df3187d8161c590f998a) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Make peer dependencies optional
+
 ## 2.0.2
 
 ### Patch Changes
