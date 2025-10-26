@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint --filter "./packages/*" && pnpm run build --filter "./packages/*"
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm run build --filter "./packages/*"
+      - run: pnpm run test
