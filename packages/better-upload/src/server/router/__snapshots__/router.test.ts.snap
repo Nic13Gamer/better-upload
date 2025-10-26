@@ -1,0 +1,65 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`router > non multipart handler > should accept valid multiple files upload request 1`] = `
+{
+  "files": [
+    {
+      "file": {
+        "name": "file1.jpg",
+        "objectKey": "multiple/file1.jpg",
+        "objectMetadata": {},
+        "size": 500000,
+        "type": "image/jpeg",
+      },
+      "signedUrl": "signed-url-placeholder",
+    },
+    {
+      "file": {
+        "name": "file2.png",
+        "objectKey": "multiple/file2.png",
+        "objectMetadata": {},
+        "size": 400000,
+        "type": "image/png",
+      },
+      "signedUrl": "signed-url-placeholder",
+    },
+  ],
+  "metadata": {},
+}
+`;
+
+exports[`router > non multipart handler > should accept valid single file upload request 1`] = `
+{
+  "files": [
+    {
+      "file": {
+        "name": "file1.jpg",
+        "objectKey": "single/file1.jpg",
+        "objectMetadata": {},
+        "size": 500000,
+        "type": "image/jpeg",
+      },
+      "signedUrl": "signed-url-placeholder",
+    },
+  ],
+  "metadata": {},
+}
+`;
+
+exports[`router > non multipart handler > should accept valid upload with custom bucket 1`] = `
+{
+  "files": [
+    {
+      "file": {
+        "name": "file1.jpg",
+        "objectKey": "custom/file1.jpg",
+        "objectMetadata": {},
+        "size": 500000,
+        "type": "image/jpeg",
+      },
+      "signedUrl": "signed-url-placeholder",
+    },
+  ],
+  "metadata": {},
+}
+`;
