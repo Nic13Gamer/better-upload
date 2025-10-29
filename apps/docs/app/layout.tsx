@@ -34,9 +34,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={fontSans.className} suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
-        <RootProvider search={{ options: { type: 'static' } }}>
-          {children}
-        </RootProvider>
+        <RootProvider>{children}</RootProvider>
 
         <Toaster />
       </body>

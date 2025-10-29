@@ -1,0 +1,10 @@
+{
+  "main": ".open-next/worker.js",
+  "name": "better-upload-docs-workers",
+  "compatibility_date": "2025-10-24",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  }
+}

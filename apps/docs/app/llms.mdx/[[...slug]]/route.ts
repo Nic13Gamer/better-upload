@@ -20,5 +20,5 @@ export async function GET(
 }
 
 export function generateStaticParams() {
-  return source.generateParams().filter((p) => p.slug.length !== 0); // '/docs' should be excluded because it causes static build to fail
+  return source.generateParams();
 }
