@@ -10,7 +10,6 @@
     "postinstall": "fumadocs-mdx"
   },
   "dependencies": {
-    "@opennextjs/cloudflare": "^1.11.0",
     "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-progress": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.2",
@@ -39,7 +38,6 @@
     "tailwindcss": "^4.1.11",
     "tsx": "^4.19.1",
     "tw-animate-css": "^1.2.4",
-    "typescript": "^5.8.3",
-    "wrangler": "^4.45.2"
+    "typescript": "^5.8.3"
   }
 }
