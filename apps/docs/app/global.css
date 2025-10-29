@@ -1,12 +1,13 @@
 @import 'tailwindcss';
-@import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+@import 'fumadocs-ui/css/neutral.css';
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
   --color-fd-primary: hsl(220, 91%, 54%);
+  --fd-layout-width: 100vw;
 }
 
 .dark {

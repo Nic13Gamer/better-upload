@@ -102,7 +102,12 @@ The `useUploadFile` hook accepts the following options:
       description:
         'Credentials mode when requesting pre-signed URLs from your server.',
       type: 'RequestCredentials',
-      typeDescription: 'Can be "include", "same-origin", or "omit".',
+      typeDescription: (
+        <>
+          Can be <code>include</code>, <code>same-origin</code>, or{' '}
+          <code>omit</code>.
+        </>
+      ),
       required: false,
     },
     retry: {

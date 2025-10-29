@@ -23,7 +23,7 @@ export default function HomePage() {
             Better Upload
           </h1>
           <h2 className="text-fd-muted-foreground max-w-md text-balance sm:text-lg md:max-w-xl md:text-xl">
-            Simple and easy file uploads for React. Upload files directly to any
+            Simple and easy file uploads for React. Upload directly to any
             S3-compatible service with minimal setup.
           </h2>
 
@@ -84,9 +84,9 @@ export default function HomePage() {
           },
           {
             icon: Files,
-            title: 'Own your files',
+            title: 'Own your data',
             description:
-              'Upload files directly to your S3 bucket, so you have full control over files.',
+              'Upload directly to your S3 bucket, so you have full control over files.',
           },
         ].map((item, idx) => (
           <div

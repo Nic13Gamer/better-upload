@@ -11,7 +11,7 @@ export const baseOptions: BaseLayoutProps = {
       text: 'X',
       type: 'icon',
       icon: (
-        <div className="scale-95">
+        <div className="scale-85">
           <XIcon />
         </div>
       ),

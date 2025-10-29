@@ -44,8 +44,12 @@ Multiple file routes have the following options:
       required: false,
     },
     fileTypes: {
-      description:
-        'An array of file types to accept. Use any valid MIME type. You can use wildcards (image/*).',
+      description: (
+        <>
+          An array of file types to accept. Use any valid MIME type. You can use
+          wildcards like <code>image/*</code>.
+        </>
+      ),
       type: 'string[]',
       default: 'All file types allowed',
       required: false,
@@ -115,14 +119,18 @@ You can return an object with the following properties:
       type: '() => object',
       typeDescription: (
         <>
-          Includes: <code>key</code>, <code>metadata</code>, <code>acl</code>,{' '}
+          Can return: <code>key</code>, <code>metadata</code>, <code>acl</code>,{' '}
           <code>storageClass</code>, <code>cacheControl</code>.
         </>
       ),
       required: false,
     },
     metadata: {
-      description: 'Metadata to be passed to the "onAfterSignedUrl" callback.',
+      description: (
+        <>
+          Metadata to be passed to the <code>onAfterSignedUrl</code> callback.
+        </>
+      ),
       type: 'object',
       required: false,
     },

@@ -30,7 +30,7 @@ npx shadcn@latest add @better-upload/upload-dropzone
 **Install the following dependencies:**
 
 ```npm
-lucide-react react-dropzone
+npm i lucide-react react-dropzone
 ```
 
 Make sure to have [shadcn/ui](https://ui.shadcn.com/docs/installation) set up in your project.
@@ -114,21 +114,21 @@ You can customize the description shown in the dropzone. You can pass a string, 
       required: true,
     },
     accept: {
-      type: 'string | undefined',
+      type: 'string',
       description: 'The file types that the input should accept.',
     },
     description: {
-      type: 'string | object | undefined',
+      type: 'string | object',
       description:
         'The description to show in the dropzone. Object for max files, max file size, and file types. You can also return a raw string.',
     },
     metadata: {
-      type: 'Record<string, unknown> | undefined',
+      type: 'Record<string, unknown>',
       description:
         'Metadata to send to your server on upload. Needs to be JSON serializable.',
     },
     uploadOverride: {
-      type: 'function | undefined',
+      type: 'function',
       description:
         'Override the default upload function. For example, set files in an array, and upload them after form submission.',
     },
