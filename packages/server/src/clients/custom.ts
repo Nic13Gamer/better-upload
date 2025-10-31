@@ -1,4 +1,5 @@
 import type { ClientConfig, CustomClientParams } from '@/types/clients';
+import { AwsClient } from 'aws4fetch';
 
 export function custom(params?: CustomClientParams): ClientConfig {
   const {
@@ -15,14 +16,18 @@ export function custom(params?: CustomClientParams): ClientConfig {
   }
 
   return {
-    buildBucketUrl: ({ bucketName }) =>
+    buildBucketUrl: (bucketName) =>
       `http${secure ? 's' : ''}://${
         forcePathStyle
           ? `${hostname}/${bucketName}`
           : `${bucketName}.${hostname}`
       }`,
-    region: region || 'us-east-1',
-    accessKeyId,
-    secretAccessKey,
+    awsClient: new AwsClient({
+      accessKeyId,
+      secretAccessKey,
+      region,
+      service: 's3',
+      retries: 0,
+    }),
   };
 }

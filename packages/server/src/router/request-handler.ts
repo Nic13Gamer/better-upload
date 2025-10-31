@@ -2,7 +2,6 @@ import type { Router } from '@/types/router/public';
 import { standardValidate } from '@/utils/internal/standard-schema';
 import { uploadFileSchema } from '@/validations';
 import { handleFiles } from './handlers/files-handler';
-import { handleMultipartFiles } from './handlers/multipart-handler';
 
 export async function handleRequest(req: Request, router: Router) {
   if (req.method !== 'POST') {
@@ -97,13 +96,13 @@ export async function handleRequest(req: Request, router: Router) {
   };
 
   if (route.multipart) {
-    return handleMultipartFiles({
-      req,
-      client: router.client,
-      defaultBucketName: router.bucketName,
-      route,
-      data,
-    });
+    // return handleMultipartFiles({
+    //   req,
+    //   clientConfig: router.client,
+    //   defaultBucketName: router.bucketName,
+    //   route,
+    //   data,
+    // });
   }
 
   return handleFiles({

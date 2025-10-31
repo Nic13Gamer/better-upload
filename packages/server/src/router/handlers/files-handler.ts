@@ -1,11 +1,11 @@
 import { config } from '@/config';
 import { RejectUpload } from '@/error';
+import type { ClientConfig } from '@/types/clients';
 import type { ObjectMetadata, Route } from '@/types/router/internal';
+import { signPutObject } from '@/utils/internal/aws';
 import { isFileTypeAllowed } from '@/utils/internal/file-type';
 import { createSlug } from '@/utils/internal/slug';
 import type { UploadFileSchema } from '@/validations';
-import { PutObjectCommand, type S3Client } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 export async function handleFiles({
   req,
@@ -15,7 +15,7 @@ export async function handleFiles({
   data,
 }: {
   req: Request;
-  client: S3Client;
+  client: ClientConfig;
   defaultBucketName: string;
   route: Route;
   data: UploadFileSchema;
@@ -128,26 +128,17 @@ export async function handleFiles({
         objectCacheControl = objectInfo.cacheControl;
       }
 
-      const signedUrl = await getSignedUrl(
-        client,
-        new PutObjectCommand({
-          Bucket: bucketName,
-          Key: objectKey,
-          ContentType: file.type,
-          ContentLength: file.size,
-          Metadata: objectMetadata,
-          ACL: objectAcl,
-          StorageClass: objectStorageClass,
-          CacheControl: objectCacheControl,
-        }),
-        {
-          expiresIn: signedUrlExpiresIn,
-          unhoistableHeaders: new Set(
-            Object.keys(objectMetadata).map((key) => `x-amz-meta-${key}`)
-          ),
-          signableHeaders: new Set(objectCacheControl ? ['cache-control'] : []),
-        }
-      );
+      const signedUrl = await signPutObject(client, {
+        bucket: bucketName,
+        key: objectKey,
+        contentType: file.type,
+        contentLength: file.size,
+        metadata: objectMetadata,
+        acl: objectAcl,
+        storageClass: objectStorageClass,
+        cacheControl: objectCacheControl,
+        expiresIn: signedUrlExpiresIn,
+      });
 
       return {
         signedUrl,

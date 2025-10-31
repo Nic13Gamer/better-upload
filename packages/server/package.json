@@ -19,11 +19,12 @@
       "types": "./dist/index.d.ts"
     },
     "./clients": {
-      "import": "./dist/clients.js",
-      "types": "./dist/clients.d.ts"
+      "import": "./dist/clients/index.js",
+      "types": "./dist/clients/index.d.ts"
     }
   },
   "dependencies": {
+    "aws4fetch": "^1.0.20",
     "zod": "^4.1.12"
   },
   "devDependencies": {

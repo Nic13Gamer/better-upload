@@ -1,15 +1,15 @@
+import type { AwsClient } from 'aws4fetch';
+
 export type ClientConfig = {
-  buildBucketUrl: (params: { bucketName: string }) => string;
-  accessKeyId: string;
-  secretAccessKey: string;
-  region: string;
+  buildBucketUrl: (bucketName: string) => string;
+  awsClient: AwsClient;
 };
 
 export type CustomClientParams = {
   /**
    * Do not include `https://` or `http://`.
    *
-   * @example r2.cloudflarestorage.com
+   * @example s3.us-east-1.amazonaws.com
    */
   hostname: string;
   accessKeyId: string;
@@ -28,6 +28,12 @@ export type CustomClientParams = {
    * @default true
    */
   secure?: boolean;
+};
+
+export type AwsClientParams = {
+  accessKeyId: string;
+  secretAccessKey: string;
+  region: string;
 };
 
 export type CloudflareClientParams = {
