@@ -1,6 +1,6 @@
 import { config } from '@/config';
 import { RejectUpload } from '@/error';
-import type { ObjectMetadata, Route } from '@/types/internal';
+import type { ObjectMetadata, Route } from '@/types/router/internal';
 import { isFileTypeAllowed } from '@/utils/internal/file-type';
 import { createSlug } from '@/utils/internal/slug';
 import type { UploadFileSchema } from '@/validations';

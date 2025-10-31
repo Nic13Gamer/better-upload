@@ -1,5 +1,5 @@
 import type { ObjectCannedACL, StorageClass } from '@aws-sdk/client-s3';
-import type { StandardSchemaV1 } from './standard-schema';
+import type { StandardSchemaV1 } from '../standard-schema';
 
 export type UnknownMetadata = Record<string, unknown>;
 export type ObjectMetadata = Record<string, string>;

@@ -17,6 +17,10 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./clients": {
+      "import": "./dist/clients.js",
+      "types": "./dist/clients.d.ts"
     }
   },
   "dependencies": {

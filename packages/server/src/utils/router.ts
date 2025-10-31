@@ -4,7 +4,7 @@ import type {
   Route,
   RouteConfig,
   UnknownMetadata,
-} from '@/types/internal';
+} from '@/types/router/internal';
 import type { StandardSchemaV1 } from '@/types/standard-schema';
 
 export function route<

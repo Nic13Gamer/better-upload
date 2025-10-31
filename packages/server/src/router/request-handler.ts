@@ -1,4 +1,4 @@
-import type { Router } from '@/types/public';
+import type { Router } from '@/types/router/public';
 import { standardValidate } from '@/utils/internal/standard-schema';
 import { uploadFileSchema } from '@/validations';
 import { handleFiles } from './handlers/files-handler';
