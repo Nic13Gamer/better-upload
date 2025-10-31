@@ -19,7 +19,11 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "dependencies": {
+    "zod": "^4.1.12"
+  },
   "devDependencies": {
+    "@types/node": "^24",
     "tsconfig": "workspace:*",
     "tsdown": "^0.15.12",
     "typescript": "^5.9.3",
