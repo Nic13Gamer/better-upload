@@ -1,0 +1,48 @@
+{
+  "name": "@better-upload/server",
+  "description": "The Better Upload server library. Simple and easy file uploads for React.",
+  "version": "3.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "lint": "tsc",
+    "test": "vitest"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "devDependencies": {
+    "tsconfig": "workspace:*",
+    "tsdown": "^0.15.12",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.5"
+  },
+  "keywords": [
+    "react",
+    "nextjs",
+    "upload",
+    "easy uploads",
+    "simple",
+    "files",
+    "file upload",
+    "multipart upload"
+  ],
+  "license": "MIT",
+  "homepage": "https://better-upload.com",
+  "bugs": {
+    "url": "https://github.com/Nic13Gamer/better-upload/issues"
+  },
+  "author": "Nicholas",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nic13Gamer/better-upload.git"
+  }
+}
