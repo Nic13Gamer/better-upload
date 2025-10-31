@@ -1,4 +1,4 @@
-import type { ObjectCannedACL, StorageClass } from '@aws-sdk/client-s3';
+import type { ObjectAcl, StorageClass } from '../aws';
 import type { StandardSchemaV1 } from '../standard-schema';
 
 export type UnknownMetadata = Record<string, unknown>;
@@ -256,7 +256,7 @@ export type BeforeUploadCallbackObjectInfo = {
   /**
    * ACL (access control list) to apply to the S3 object.
    */
-  acl?: ObjectCannedACL;
+  acl?: ObjectAcl;
 
   /**
    * Storage class to apply to the S3 object.
