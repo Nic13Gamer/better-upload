@@ -21,6 +21,10 @@
     "./clients": {
       "import": "./dist/clients/index.js",
       "types": "./dist/clients/index.d.ts"
+    },
+    "./helpers": {
+      "import": "./dist/helpers/index.js",
+      "types": "./dist/helpers/index.d.ts"
     }
   },
   "dependencies": {

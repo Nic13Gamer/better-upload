@@ -1,6 +1,7 @@
-import type { ObjectAcl, StorageClass } from '@/types/aws';
+import { S3Error } from '@/error';
 import type { Client } from '@/types/clients';
 import type { ObjectMetadata } from '@/types/router/internal';
+import type { ObjectAcl, StorageClass } from '@/types/s3';
 import { parseXml } from './xml';
 
 export const baseSignedUrl = (base: string, params: { expiresIn: number }) => {
@@ -8,6 +9,21 @@ export const baseSignedUrl = (base: string, params: { expiresIn: number }) => {
   url.searchParams.set('X-Amz-Expires', params.expiresIn.toString());
   return url;
 };
+
+export async function throwS3Error(fn: Promise<Response>) {
+  const res = await fn;
+
+  if (!res.ok) {
+    const text = await res.text();
+    const parsed = parseXml<{
+      Error: { Code: string; Message: string };
+    }>(text);
+
+    throw new S3Error(`${parsed.Error.Code} - ${parsed.Error.Message}`);
+  }
+
+  return res;
+}
 
 export async function signPutObject(
   client: Client,
@@ -39,7 +55,7 @@ export async function signPutObject(
   }
 
   return (
-    await client.aws.sign(url.toString(), {
+    await client.s3.sign(url.toString(), {
       method: 'PUT',
       headers: {
         'content-length': params.contentLength.toString(),
@@ -71,28 +87,30 @@ export async function createMultipartUpload(
     cacheControl?: string;
   }
 ) {
-  const res = await client.aws.fetch(
-    `${client.buildBucketUrl(params.bucket)}/${params.key}?uploads`,
-    {
-      method: 'POST',
-      headers: {
-        'content-type': params.contentType,
-        ...(params.acl ? { 'x-amz-acl': params.acl } : {}),
-        ...(params.storageClass
-          ? { 'x-amz-storage-class': params.storageClass }
-          : {}),
-        ...(params.cacheControl
-          ? { 'cache-control': params.cacheControl }
-          : {}),
-        ...Object.fromEntries(
-          Object.entries(params.metadata || {}).map(([key, value]) => [
-            `x-amz-meta-${key.toLowerCase()}`,
-            value,
-          ])
-        ),
-      },
-      aws: { signQuery: true, allHeaders: true },
-    }
+  const res = await throwS3Error(
+    client.s3.fetch(
+      `${client.buildBucketUrl(params.bucket)}/${params.key}?uploads`,
+      {
+        method: 'POST',
+        headers: {
+          'content-type': params.contentType,
+          ...(params.acl ? { 'x-amz-acl': params.acl } : {}),
+          ...(params.storageClass
+            ? { 'x-amz-storage-class': params.storageClass }
+            : {}),
+          ...(params.cacheControl
+            ? { 'cache-control': params.cacheControl }
+            : {}),
+          ...Object.fromEntries(
+            Object.entries(params.metadata || {}).map(([key, value]) => [
+              `x-amz-meta-${key.toLowerCase()}`,
+              value,
+            ])
+          ),
+        },
+        aws: { signQuery: true, allHeaders: true },
+      }
+    )
   );
 
   const parsed = parseXml<{
@@ -125,7 +143,7 @@ export async function signUploadPart(
   url.searchParams.set('uploadId', params.uploadId);
 
   return (
-    await client.aws.sign(url.toString(), {
+    await client.s3.sign(url.toString(), {
       method: 'PUT',
       headers: {
         'content-length': params.contentLength.toString(),
@@ -153,7 +171,7 @@ export async function signCompleteMultipartUpload(
   url.searchParams.set('uploadId', params.uploadId);
 
   return (
-    await client.aws.sign(url.toString(), {
+    await client.s3.sign(url.toString(), {
       method: 'POST',
       aws: { signQuery: true, allHeaders: true },
     })
@@ -178,7 +196,7 @@ export async function signAbortMultipartUpload(
   url.searchParams.set('uploadId', params.uploadId);
 
   return (
-    await client.aws.sign(url.toString(), {
+    await client.s3.sign(url.toString(), {
       method: 'DELETE',
       aws: { signQuery: true, allHeaders: true },
     })

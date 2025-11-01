@@ -1,6 +1,6 @@
-export class RejectUpload extends Error {
+export class S3Error extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'RejectUpload';
+    this.name = 'S3Error';
   }
 }

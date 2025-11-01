@@ -1,4 +1,4 @@
-import type { ObjectAcl, StorageClass } from '../aws';
+import type { ObjectAcl, StorageClass } from '../s3';
 import type { StandardSchemaV1 } from '../standard-schema';
 
 export type UnknownMetadata = Record<string, unknown>;

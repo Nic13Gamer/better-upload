@@ -2,7 +2,7 @@ import type { AwsClient } from 'aws4fetch';
 
 export type Client = {
   buildBucketUrl: (bucketName: string) => string;
-  aws: AwsClient;
+  s3: AwsClient;
 };
 
 export type CustomClientParams = {

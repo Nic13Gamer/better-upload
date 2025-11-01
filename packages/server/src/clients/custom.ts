@@ -22,7 +22,7 @@ export function custom(params?: CustomClientParams): Client {
           ? `${hostname}/${bucketName}`
           : `${bucketName}.${hostname}`
       }`,
-    aws: new AwsClient({
+    s3: new AwsClient({
       accessKeyId,
       secretAccessKey,
       region,

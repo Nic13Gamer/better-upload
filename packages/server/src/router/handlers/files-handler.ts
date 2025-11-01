@@ -2,9 +2,9 @@ import { config } from '@/config';
 import { RejectUpload } from '@/error';
 import type { Client } from '@/types/clients';
 import type { ObjectMetadata, Route } from '@/types/router/internal';
-import { signPutObject } from '@/utils/internal/aws';
-import { isFileTypeAllowed } from '@/utils/internal/file-type';
-import { createSlug } from '@/utils/internal/slug';
+import { isFileTypeAllowed } from '@/utils/file-type';
+import { signPutObject } from '@/utils/s3';
+import { createSlug } from '@/utils/slug';
 import type { UploadFileSchema } from '@/validations';
 
 export async function handleFiles({
