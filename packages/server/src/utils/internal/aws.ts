@@ -1,6 +1,7 @@
 import type { ObjectAcl, StorageClass } from '@/types/aws';
 import type { ClientConfig } from '@/types/clients';
 import type { ObjectMetadata } from '@/types/router/internal';
+import { parseXml } from './xml';
 
 export const baseSignedUrl = (base: string, params: { expiresIn: number }) => {
   const url = new URL(base);
@@ -53,6 +54,132 @@ export async function signPutObject(
           ])
         ),
       },
+      aws: { signQuery: true, allHeaders: true },
+    })
+  ).url;
+}
+
+export async function createMultipartUpload(
+  client: ClientConfig,
+  params: {
+    bucket: string;
+    key: string;
+    contentType: string;
+    metadata?: ObjectMetadata;
+    acl?: ObjectAcl;
+    storageClass?: StorageClass;
+    cacheControl?: string;
+  }
+) {
+  const res = await client.awsClient.fetch(
+    `${client.buildBucketUrl(params.bucket)}/${params.key}?uploads`,
+    {
+      method: 'POST',
+      headers: {
+        'content-type': params.contentType,
+        ...(params.acl ? { 'x-amz-acl': params.acl } : {}),
+        ...(params.storageClass
+          ? { 'x-amz-storage-class': params.storageClass }
+          : {}),
+        ...(params.cacheControl
+          ? { 'cache-control': params.cacheControl }
+          : {}),
+        ...Object.fromEntries(
+          Object.entries(params.metadata || {}).map(([key, value]) => [
+            `x-amz-meta-${key.toLowerCase()}`,
+            value,
+          ])
+        ),
+      },
+      aws: { signQuery: true, allHeaders: true },
+    }
+  );
+
+  const parsed = parseXml<{
+    InitiateMultipartUploadResult: { UploadId: string };
+  }>(await res.text());
+
+  return {
+    uploadId: parsed.InitiateMultipartUploadResult.UploadId,
+  };
+}
+
+export async function signUploadPart(
+  client: ClientConfig,
+  params: {
+    bucket: string;
+    key: string;
+    uploadId: string;
+    partNumber: number;
+    contentLength: number;
+    expiresIn: number;
+  }
+) {
+  const url = baseSignedUrl(
+    `${client.buildBucketUrl(params.bucket)}/${params.key}`,
+    {
+      expiresIn: params.expiresIn,
+    }
+  );
+  url.searchParams.set('partNumber', params.partNumber.toString());
+  url.searchParams.set('uploadId', params.uploadId);
+
+  return (
+    await client.awsClient.sign(url.toString(), {
+      method: 'PUT',
+      headers: {
+        'content-length': params.contentLength.toString(),
+      },
+      aws: { signQuery: true, allHeaders: true },
+    })
+  ).url;
+}
+
+export async function signCompleteMultipartUpload(
+  client: ClientConfig,
+  params: {
+    bucket: string;
+    key: string;
+    uploadId: string;
+    expiresIn: number;
+  }
+) {
+  const url = baseSignedUrl(
+    `${client.buildBucketUrl(params.bucket)}/${params.key}`,
+    {
+      expiresIn: params.expiresIn,
+    }
+  );
+  url.searchParams.set('uploadId', params.uploadId);
+
+  return (
+    await client.awsClient.sign(url.toString(), {
+      method: 'POST',
+      aws: { signQuery: true, allHeaders: true },
+    })
+  ).url;
+}
+
+export async function signAbortMultipartUpload(
+  client: ClientConfig,
+  params: {
+    bucket: string;
+    key: string;
+    uploadId: string;
+    expiresIn: number;
+  }
+) {
+  const url = baseSignedUrl(
+    `${client.buildBucketUrl(params.bucket)}/${params.key}`,
+    {
+      expiresIn: params.expiresIn,
+    }
+  );
+  url.searchParams.set('uploadId', params.uploadId);
+
+  return (
+    await client.awsClient.sign(url.toString(), {
+      method: 'DELETE',
       aws: { signQuery: true, allHeaders: true },
     })
   ).url;

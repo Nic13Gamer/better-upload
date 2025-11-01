@@ -12,7 +12,13 @@ export type CustomClientParams = {
    * @example s3.us-east-1.amazonaws.com
    */
   hostname: string;
+  /**
+   * Access key ID.
+   */
   accessKeyId: string;
+  /**
+   * Secret access key.
+   */
   secretAccessKey: string;
   /**
    * @default us-east-1
@@ -31,8 +37,17 @@ export type CustomClientParams = {
 };
 
 export type AwsClientParams = {
+  /**
+   * AWS access key ID.
+   */
   accessKeyId: string;
+  /**
+   * AWS secret access key.
+   */
   secretAccessKey: string;
+  /**
+   * AWS region.
+   */
   region: string;
 };
 
