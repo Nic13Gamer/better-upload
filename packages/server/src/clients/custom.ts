@@ -1,7 +1,7 @@
-import type { ClientConfig, CustomClientParams } from '@/types/clients';
+import type { Client, CustomClientParams } from '@/types/clients';
 import { AwsClient } from 'aws4fetch';
 
-export function custom(params?: CustomClientParams): ClientConfig {
+export function custom(params?: CustomClientParams): Client {
   const {
     hostname,
     accessKeyId = process.env.AWS_ACCESS_KEY_ID,
@@ -22,7 +22,7 @@ export function custom(params?: CustomClientParams): ClientConfig {
           ? `${hostname}/${bucketName}`
           : `${bucketName}.${hostname}`
       }`,
-    awsClient: new AwsClient({
+    aws: new AwsClient({
       accessKeyId,
       secretAccessKey,
       region,

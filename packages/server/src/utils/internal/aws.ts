@@ -1,5 +1,5 @@
 import type { ObjectAcl, StorageClass } from '@/types/aws';
-import type { ClientConfig } from '@/types/clients';
+import type { Client } from '@/types/clients';
 import type { ObjectMetadata } from '@/types/router/internal';
 import { parseXml } from './xml';
 
@@ -10,7 +10,7 @@ export const baseSignedUrl = (base: string, params: { expiresIn: number }) => {
 };
 
 export async function signPutObject(
-  client: ClientConfig,
+  client: Client,
   params: {
     bucket: string;
     key: string;
@@ -39,7 +39,7 @@ export async function signPutObject(
   }
 
   return (
-    await client.awsClient.sign(url.toString(), {
+    await client.aws.sign(url.toString(), {
       method: 'PUT',
       headers: {
         'content-length': params.contentLength.toString(),
@@ -60,7 +60,7 @@ export async function signPutObject(
 }
 
 export async function createMultipartUpload(
-  client: ClientConfig,
+  client: Client,
   params: {
     bucket: string;
     key: string;
@@ -71,7 +71,7 @@ export async function createMultipartUpload(
     cacheControl?: string;
   }
 ) {
-  const res = await client.awsClient.fetch(
+  const res = await client.aws.fetch(
     `${client.buildBucketUrl(params.bucket)}/${params.key}?uploads`,
     {
       method: 'POST',
@@ -105,7 +105,7 @@ export async function createMultipartUpload(
 }
 
 export async function signUploadPart(
-  client: ClientConfig,
+  client: Client,
   params: {
     bucket: string;
     key: string;
@@ -125,7 +125,7 @@ export async function signUploadPart(
   url.searchParams.set('uploadId', params.uploadId);
 
   return (
-    await client.awsClient.sign(url.toString(), {
+    await client.aws.sign(url.toString(), {
       method: 'PUT',
       headers: {
         'content-length': params.contentLength.toString(),
@@ -136,7 +136,7 @@ export async function signUploadPart(
 }
 
 export async function signCompleteMultipartUpload(
-  client: ClientConfig,
+  client: Client,
   params: {
     bucket: string;
     key: string;
@@ -153,7 +153,7 @@ export async function signCompleteMultipartUpload(
   url.searchParams.set('uploadId', params.uploadId);
 
   return (
-    await client.awsClient.sign(url.toString(), {
+    await client.aws.sign(url.toString(), {
       method: 'POST',
       aws: { signQuery: true, allHeaders: true },
     })
@@ -161,7 +161,7 @@ export async function signCompleteMultipartUpload(
 }
 
 export async function signAbortMultipartUpload(
-  client: ClientConfig,
+  client: Client,
   params: {
     bucket: string;
     key: string;
@@ -178,7 +178,7 @@ export async function signAbortMultipartUpload(
   url.searchParams.set('uploadId', params.uploadId);
 
   return (
-    await client.awsClient.sign(url.toString(), {
+    await client.aws.sign(url.toString(), {
       method: 'DELETE',
       aws: { signQuery: true, allHeaders: true },
     })

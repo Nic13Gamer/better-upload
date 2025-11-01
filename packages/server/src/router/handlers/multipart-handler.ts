@@ -1,6 +1,6 @@
 import { config } from '@/config';
 import { RejectUpload } from '@/error';
-import type { ClientConfig } from '@/types/clients';
+import type { Client } from '@/types/clients';
 import type { ObjectMetadata, Route } from '@/types/router/internal';
 import {
   createMultipartUpload,
@@ -20,7 +20,7 @@ export async function handleMultipartFiles({
   data,
 }: {
   req: Request;
-  client: ClientConfig;
+  client: Client;
   defaultBucketName: string;
   route: Route;
   data: UploadFileSchema;

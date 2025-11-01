@@ -13,7 +13,7 @@ export function aws(params?: AwsClientParams) {
   const {
     accessKeyId = process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY,
-    region = process.env.AWS_REGION || 'us-east-1',
+    region = process.env.AWS_REGION,
   } = params ?? {};
 
   if (!accessKeyId || !secretAccessKey || !region) {

@@ -2,7 +2,7 @@ import type { CloudflareClientParams } from '@/types/clients';
 import { custom } from './custom';
 
 /**
- * Create a Cloudflare R2 client, compatible with the S3 API.
+ * Create a Cloudflare R2 client.
  *
  * Optionally, you can omit the parameters and use the following environment variables:
  * - `CLOUDFLARE_ACCOUNT_ID`

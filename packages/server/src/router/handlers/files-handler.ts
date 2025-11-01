@@ -1,6 +1,6 @@
 import { config } from '@/config';
 import { RejectUpload } from '@/error';
-import type { ClientConfig } from '@/types/clients';
+import type { Client } from '@/types/clients';
 import type { ObjectMetadata, Route } from '@/types/router/internal';
 import { signPutObject } from '@/utils/internal/aws';
 import { isFileTypeAllowed } from '@/utils/internal/file-type';
@@ -15,7 +15,7 @@ export async function handleFiles({
   data,
 }: {
   req: Request;
-  client: ClientConfig;
+  client: Client;
   defaultBucketName: string;
   route: Route;
   data: UploadFileSchema;
