@@ -1,7 +1,11 @@
 import { S3Error } from '@/error';
 import type { Client } from '@/types/clients';
-import type { ObjectMetadata } from '@/types/router/internal';
-import type { ObjectAcl, StorageClass } from '@/types/s3';
+import type {
+  HeadObjectResult,
+  ObjectAcl,
+  ObjectMetadata,
+  StorageClass,
+} from '@/types/s3';
 import { parseXml } from './xml';
 
 export const baseSignedUrl = (base: string, params: { expiresIn: number }) => {
@@ -23,6 +27,23 @@ export async function throwS3Error(fn: Promise<Response>) {
   }
 
   return res;
+}
+
+export function parseHeadObjectHeaders(headers: Headers): HeadObjectResult {
+  const metadata: Record<string, string> = {};
+
+  headers.forEach((value, key) => {
+    if (key.toLowerCase().startsWith('x-amz-meta-')) {
+      metadata[key.replace('x-amz-meta-', '')] = value;
+    }
+  });
+
+  return {
+    contentType: headers.get('content-type') || '',
+    contentLength: Number(headers.get('content-length') || 0),
+    eTag: headers.get('etag') || '',
+    metadata,
+  };
 }
 
 export async function signPutObject(

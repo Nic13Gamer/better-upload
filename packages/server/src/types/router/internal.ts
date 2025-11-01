@@ -1,8 +1,7 @@
-import type { ObjectAcl, StorageClass } from '../s3';
+import type { ObjectAcl, ObjectMetadata, StorageClass } from '../s3';
 import type { StandardSchemaV1 } from '../standard-schema';
 
 export type UnknownMetadata = Record<string, unknown>;
-export type ObjectMetadata = Record<string, string>;
 
 type ClientMetadata<T extends StandardSchemaV1 | undefined = undefined> =
   T extends StandardSchemaV1 ? StandardSchemaV1.InferOutput<T> : unknown;

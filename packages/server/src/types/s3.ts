@@ -6,6 +6,7 @@ export type ObjectAcl =
   | 'private'
   | 'public-read'
   | 'public-read-write';
+
 export type StorageClass =
   | 'DEEP_ARCHIVE'
   | 'EXPRESS_ONEZONE'
@@ -19,3 +20,28 @@ export type StorageClass =
   | 'SNOW'
   | 'STANDARD'
   | 'STANDARD_IA';
+
+export type ObjectMetadata = Record<string, string>;
+
+export type HeadObjectResult = {
+  contentType: string;
+  contentLength: number;
+
+  /**
+   * The ETag of the object.
+   *
+   * Includes quotes (`""`) as returned by S3.
+   */
+  eTag: string;
+
+  /**
+   * Object metadata.
+   *
+   * Keys **do not** include the `x-amz-meta-` prefix.
+   */
+  metadata: ObjectMetadata;
+};
+
+export type GetObjectResult = HeadObjectResult & {
+  blob: Blob;
+};

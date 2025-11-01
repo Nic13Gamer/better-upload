@@ -1,7 +1,7 @@
 import { config } from '@/config';
-import { RejectUpload } from '@/error';
 import type { Client } from '@/types/clients';
-import type { ObjectMetadata, Route } from '@/types/router/internal';
+import type { Route } from '@/types/router/internal';
+import type { ObjectMetadata } from '@/types/s3';
 import { isFileTypeAllowed } from '@/utils/file-type';
 import {
   createMultipartUpload,
@@ -11,6 +11,7 @@ import {
 } from '@/utils/s3';
 import { createSlug } from '@/utils/slug';
 import type { UploadFileSchema } from '@/validations';
+import { RejectUpload } from '../route';
 
 export async function handleMultipartFiles({
   req,
