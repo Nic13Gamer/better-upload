@@ -1,7 +1,8 @@
-import { createUploadRouteHandler, route } from 'better-upload/server';
-import { cloudflare } from 'better-upload/server/helpers';
+import { route, Router } from '@better-upload/server';
+import { toRouteHandler } from '@better-upload/server/adapters/next';
+import { cloudflare } from '@better-upload/server/clients';
 
-export const { POST } = createUploadRouteHandler({
+const router: Router = {
   client: cloudflare(),
   bucketName: process.env.AWS_BUCKET_NAME!,
   routes: {
@@ -45,4 +46,6 @@ export const { POST } = createUploadRouteHandler({
       },
     }),
   },
-});
+};
+
+export const { POST } = toRouteHandler(router);
