@@ -63,7 +63,11 @@ export async function handleMultipartFiles({
       );
     }
 
-    if (route.fileTypes && !isFileTypeAllowed(file.type, route.fileTypes)) {
+    if (
+      route.fileTypes &&
+      route.fileTypes.length > 0 &&
+      !isFileTypeAllowed(file.type, route.fileTypes)
+    ) {
       return Response.json(
         {
           error: {
