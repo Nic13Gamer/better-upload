@@ -7,6 +7,9 @@ import type {
 } from '@/types/router/internal';
 import type { StandardSchemaV1 } from '@/types/standard-schema';
 
+/**
+ * Define a route for file uploads.
+ */
 export function route<
   Multiple extends boolean = false,
   Multipart extends boolean = false,

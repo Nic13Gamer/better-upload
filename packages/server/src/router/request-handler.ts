@@ -4,6 +4,9 @@ import { uploadFileSchema } from '@/validations';
 import { handleFiles } from './handlers/files-handler';
 import { handleMultipartFiles } from './handlers/multipart-handler';
 
+/**
+ * Handle a request to a Better Upload router.
+ */
 export async function handleRequest(req: Request, router: Router) {
   if (req.method !== 'POST') {
     return Response.json(

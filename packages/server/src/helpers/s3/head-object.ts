@@ -3,6 +3,8 @@ import { parseHeadObjectHeaders, throwS3Error } from '@/utils/s3';
 
 /**
  * Head (retrieve metadata of) an object from an S3 bucket.
+ *
+ * Does not retrieve the object data itself.
  */
 export async function headObject(
   client: Client,
@@ -11,7 +13,7 @@ export async function headObject(
     key: string;
 
     /**
-     * The version ID of the object to delete (if versioning is enabled).
+     * The version ID of the object to head (if versioning is enabled).
      */
     versionId?: string;
   }

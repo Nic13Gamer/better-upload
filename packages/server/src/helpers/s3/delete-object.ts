@@ -8,10 +8,6 @@ export async function deleteObject(
   client: Client,
   params: {
     bucket: string;
-
-    /**
-     * The key of the object to delete.
-     */
     key: string;
 
     /**

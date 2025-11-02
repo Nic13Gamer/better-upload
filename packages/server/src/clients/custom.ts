@@ -1,7 +1,25 @@
 import type { Client, CustomClientParams } from '@/types/clients';
 import { AwsClient } from 'aws4fetch';
 
-export function custom(params?: CustomClientParams): Client {
+/**
+ * Create a custom S3 client.
+ *
+ * Works with any S3-compatible storage service.
+ *
+ * @example
+ *
+ * ```ts
+ * const s3 = custom({
+ *   hostname: 's3.us-east-1.amazonaws.com',
+ *   accessKeyId: 'your-access-key-id',
+ *   secretAccessKey: 'your-secret-access-key',
+ *   region: 'us-east-1',
+ *   secure: true,
+ *   forcePathStyle: false,
+ * });
+ * ```
+ */
+export function custom(params: CustomClientParams): Client {
   const {
     hostname,
     accessKeyId = process.env.AWS_ACCESS_KEY_ID,

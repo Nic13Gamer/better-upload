@@ -24,7 +24,14 @@ export type StorageClass =
 export type ObjectMetadata = Record<string, string>;
 
 export type HeadObjectResult = {
+  /**
+   * The content type of the object.
+   */
   contentType: string;
+
+  /**
+   * The size of the object in bytes.
+   */
   contentLength: number;
 
   /**
@@ -43,5 +50,14 @@ export type HeadObjectResult = {
 };
 
 export type GetObjectResult = HeadObjectResult & {
+  /**
+   * The object data as a Blob.
+   *
+   * @example
+   *
+   * ```ts
+   * const text = await blob.text();
+   * ```
+   */
   blob: Blob;
 };

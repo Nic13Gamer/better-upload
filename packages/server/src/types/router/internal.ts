@@ -295,6 +295,7 @@ type BeforeUploadCallbackResult<
        * - `metadata`: Custom S3 object metadata.
        * - `acl`: ACL to apply to the S3 object.
        * - `storageClass`: Storage class to apply to the S3 object.
+       * - `cacheControl`: Cache-Control header to apply to the S3 object.
        */
       objectInfo?: BeforeUploadCallbackObjectInfo;
     }
@@ -307,6 +308,7 @@ type BeforeUploadCallbackResult<
        * - `metadata`: Custom S3 object metadata.
        * - `acl`: ACL to apply to the S3 object.
        * - `storageClass`: Storage class to apply to the S3 object.
+       * - `cacheControl`: Cache-Control header to apply to the S3 object.
        */
       generateObjectInfo?: (data: {
         /**

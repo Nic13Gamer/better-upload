@@ -19,13 +19,17 @@ export type CustomClientParams = {
 
   /**
    * Access key ID.
+   *
+   * You can omit this to use the `AWS_ACCESS_KEY_ID` environment variable.
    */
-  accessKeyId: string;
+  accessKeyId?: string;
 
   /**
    * Secret access key.
+   *
+   * You can omit this to use the `AWS_SECRET_ACCESS_KEY` environment variable.
    */
-  secretAccessKey: string;
+  secretAccessKey?: string;
 
   /**
    * @default 'us-east-1'

@@ -2,6 +2,9 @@ import { handleRequest } from '@/router';
 import type { Router } from '@/types';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
+/**
+ * Works with Express and Fastify.
+ */
 export function toNodeHandler(router: Router) {
   return async (req: any, res: any) => {
     try {

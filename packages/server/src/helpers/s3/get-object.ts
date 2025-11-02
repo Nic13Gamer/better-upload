@@ -14,7 +14,7 @@ export async function getObject(
     key: string;
 
     /**
-     * The version ID of the object to delete (if versioning is enabled).
+     * The version ID of the object to get (if versioning is enabled).
      */
     versionId?: string;
   }
