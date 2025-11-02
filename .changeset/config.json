@@ -10,5 +10,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@repo/docs", "@repo/example", "@repo/old-domain-redirect"]
+  "ignore": ["@repo/*"]
 }

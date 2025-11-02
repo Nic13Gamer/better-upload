@@ -1,5 +1,5 @@
 {
-  "extends": "tsconfig/base.json",
+  "extends": "@repo/tsconfig/base.json",
   "compilerOptions": {
     "lib": ["es2022", "dom"],
     "paths": {
