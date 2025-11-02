@@ -114,9 +114,9 @@ importers:
 
   apps/example:
     dependencies:
-      '@aws-sdk/client-s3':
-        specifier: ^3.645.0
-        version: 3.840.0
+      '@better-upload/client':
+        specifier: workspace:*
+        version: link:../../packages/client
       '@better-upload/server':
         specifier: workspace:*
         version: link:../../packages/server
@@ -132,9 +132,6 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.1.2
         version: 1.2.3(@types/react@19.1.8)(react@19.1.0)
-      better-upload:
-        specifier: workspace:*
-        version: link:../../packages/better-upload
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.1

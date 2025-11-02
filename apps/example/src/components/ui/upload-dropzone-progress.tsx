@@ -1,7 +1,7 @@
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import type { UploadHookControl } from 'better-upload/client';
-import { formatBytes } from 'better-upload/client/helpers';
+import type { UploadHookControl } from '@better-upload/client';
+import { formatBytes } from '@better-upload/client/helpers';
 import { Dot, File, Upload } from 'lucide-react';
 import { useId } from 'react';
 import { useDropzone } from 'react-dropzone';
