@@ -35,12 +35,10 @@
   "keywords": [
     "react",
     "nextjs",
+    "tanstack",
     "upload",
-    "easy uploads",
-    "simple",
     "files",
-    "file upload",
-    "multipart upload"
+    "multipart"
   ],
   "license": "MIT",
   "homepage": "https://better-upload.com",
