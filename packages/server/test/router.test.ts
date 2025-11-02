@@ -16,7 +16,7 @@ vi.mock('@/utils/s3', async (importOriginal) => ({
 import { handleRequest, RejectUpload, route } from '@/router';
 
 describe('request handler', () => {
-  const router = createTestRouter({
+  const { router } = createTestRouter({
     routes: {
       singleImage: route({
         maxFileSize: 1024 * 1024 * 5, // 5MB
@@ -150,7 +150,7 @@ describe('request handler', () => {
 });
 
 describe('files handler', () => {
-  const router = createTestRouter({
+  const { router } = createTestRouter({
     routes: {
       multipleImages: route({
         multipleFiles: true,
@@ -379,7 +379,7 @@ describe('files handler', () => {
 });
 
 describe('multipart handler', () => {
-  const router = createTestRouter({
+  const { router } = createTestRouter({
     routes: {
       multipleImages: route({
         multipart: true,
