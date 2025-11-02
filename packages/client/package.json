@@ -1,7 +1,7 @@
 {
   "name": "@better-upload/client",
   "description": "The Better Upload client library. Simple and easy file uploads for React.",
-  "version": "2.0.3",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "build": "tsdown",

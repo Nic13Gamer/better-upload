@@ -1,7 +1,7 @@
 {
   "name": "@better-upload/server",
   "description": "The Better Upload server library. Simple and easy file uploads for React.",
-  "version": "2.0.3",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "build": "tsdown",
@@ -25,6 +25,14 @@
     "./helpers": {
       "import": "./dist/helpers/index.js",
       "types": "./dist/helpers/index.d.ts"
+    },
+    "./adapters/next": {
+      "import": "./dist/adapters/next.js",
+      "types": "./dist/adapters/next.d.ts"
+    },
+    "./adapters/node": {
+      "import": "./dist/adapters/node.js",
+      "types": "./dist/adapters/node.d.ts"
     }
   },
   "dependencies": {
