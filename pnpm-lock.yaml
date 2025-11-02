@@ -8419,7 +8419,7 @@ snapshots:
       '@babel/types': 7.27.7
       ast-kit: 2.1.1
       birpc: 2.4.0
-      debug: 4.4.1
+      debug: 4.4.3
       dts-resolver: 2.1.1
       get-tsconfig: 4.10.1
       rolldown: 1.0.0-beta.23
