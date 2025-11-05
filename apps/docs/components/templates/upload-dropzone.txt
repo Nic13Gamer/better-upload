@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import type { UploadHookControl } from 'better-upload/client';
+import type { UploadHookControl } from '@better-upload/client';
 import { Loader2, Upload } from 'lucide-react';
 import { useId } from 'react';
 import { useDropzone } from 'react-dropzone';
