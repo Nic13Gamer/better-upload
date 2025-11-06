@@ -1,6 +1,6 @@
 # Better Upload
 
-Simple and easy file uploads for React. Upload files directly to any S3-compatible service with minimal setup.
+Simple and easy file uploads for React. Upload directly to any S3-compatible service with minimal setup.
 
 Documentation is available [here](https://better-upload.com).
 
