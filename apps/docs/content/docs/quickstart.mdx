@@ -30,10 +30,10 @@ Before you start, make sure you have an S3-compatible bucket ready. You can use 
 
 ### Install
 
-Install the `better-upload` package, as well as the AWS S3 Client.
+Install the `@better-upload/server` and `@better-upload/client` packages.
 
 ```npm
-npm i better-upload @aws-sdk/client-s3
+npm i @better-upload/server @better-upload/client
 ```
 
 </Step>
@@ -42,176 +42,17 @@ npm i better-upload @aws-sdk/client-s3
 
 ### Set up server
 
-Your server will create pre-signed URLs, which the client uses to upload files directly to the S3 bucket.
+Your server generates pre-signed URLs, which the client uses to upload files directly to the S3 bucket.
 
-Change `my-bucket` to your bucket name, and configure the S3 client as needed.
+Change `my-bucket` to your bucket name, and [choose your S3 client](/docs/helpers-server).
 
-```ts tab="Next.js" title="app/api/upload/route.ts"
-import { S3Client } from '@aws-sdk/client-s3';
-import {
-  createUploadRouteHandler,
-  route,
-  type Router,
-} from 'better-upload/server';
+<include cwd>./components/mdx/quickstart/multiple.mdx#server</include>
 
-const s3 = new S3Client(); // [!code highlight]
+In the example above, we create the upload route `images`. Learn more about upload routes [here](/docs/routes-multiple).
 
-const router: Router = {
-  client: s3,
-  bucketName: 'my-bucket', // [!code highlight]
-  routes: {
-    demo: route({
-      fileTypes: ['image/*'],
-      multipleFiles: true,
-      maxFiles: 4,
-    }),
-  },
-};
-
-export const { POST } = createUploadRouteHandler(router);
-```
-
-```ts tab="TanStack Start" title="routes/api/upload.ts"
-import { createFileRoute } from '@tanstack/react-router';
-import { handleRequest, route, type Router } from 'better-upload/server';
-
-const s3 = new S3Client(); // [!code highlight]
-
-const router: Router = {
-  client: s3,
-  bucketName: 'my-bucket', // [!code highlight]
-  routes: {
-    demo: route({
-      fileTypes: ['image/*'],
-      multipleFiles: true,
-      maxFiles: 4,
-    }),
-  },
-};
-
-export const Route = createFileRoute('/api/upload')({
-  server: {
-    handlers: {
-      POST: async ({ request }) => {
-        return handleRequest(request, router);
-      },
-    },
-  },
-});
-```
-
-```ts tab="Remix" title="app/routes/api.upload.ts"
-import { ActionFunctionArgs } from '@remix-run/node';
-import { handleRequest, route, type Router } from 'better-upload/server';
-
-const s3 = new S3Client(); // [!code highlight]
-
-const router: Router = {
-  client: s3,
-  bucketName: 'my-bucket', // [!code highlight]
-  routes: {
-    demo: route({
-      fileTypes: ['image/*'],
-      multipleFiles: true,
-      maxFiles: 4,
-    }),
-  },
-};
-
-export async function action({ request }: ActionFunctionArgs) {
-  return handleRequest(request, router);
-}
-```
-
-```ts tab="Hono" title="server.ts"
-// When using a separate backend server, make sure to update the `api` option on the client hooks.
-
-import { Hono } from 'hono';
-import { handleRequest } from 'better-upload/server';
-
-const app = new Hono();
-
-const s3 = new S3Client(); // [!code highlight]
-
-const router: Router = {
-  client: s3,
-  bucketName: 'my-bucket', // [!code highlight]
-  routes: {
-    demo: route({
-      fileTypes: ['image/*'],
-      multipleFiles: true,
-      maxFiles: 4,
-    }),
-  },
-};
-
-app.post('/upload', (c) => {
-  return handleRequest(c.req.raw, router);
-});
-```
-
-In the example above, we create the upload route `demo`. Learn more about upload routes [here](/docs/routes-multiple).
-
-<Accordions>
-<Accordion title="Adding authentication">
-
-You can run code before uploads in the server. Use the `onBeforeUpload` callback:
-
-```ts
-import { RejectUpload, route, type Router } from 'better-upload/server';
-
-const auth = (req: Request) => ({ id: 'fake-user-id' }); // [!code highlight]
-
-const router: Router = {
-  client: s3,
-  bucketName: 'my-bucket',
-  routes: {
-    demo: route({
-      fileTypes: ['image/*'],
-      multipleFiles: true,
-      maxFiles: 4,
-      // [!code ++:7]
-      onBeforeUpload: async ({ req, files, clientMetadata }) => {
-        const user = await auth(req);
-
-        if (!user) {
-          throw new RejectUpload('Not logged in!');
-        }
-      },
-    }),
-  },
-};
-```
-
-</Accordion>
-<Accordion title="Changing S3 object key">
-
-You can change the S3 object key to any value you want. Use the `onBeforeUpload` callback:
-
-```ts
-const router: Router = {
-  client: s3,
-  bucketName: 'my-bucket',
-  routes: {
-    demo: route({
-      fileTypes: ['image/*'],
-      multipleFiles: true,
-      maxFiles: 4,
-      // [!code ++:7]
-      onBeforeUpload: async ({ req, files, clientMetadata }) => {
-        return {
-          generateObjectInfo: ({ file }) => ({
-            key: `files/${file.name}`,
-          }),
-        };
-      },
-    }),
-  },
-};
-```
-
-</Accordion>
-</Accordions>
+<include cwd>
+  ./components/mdx/quickstart/multiple.mdx#server-accordions
+</include>
 
 </Step>
 
@@ -219,7 +60,7 @@ const router: Router = {
 
 ### Create `<Uploader />` component
 
-We will now build our UI using pre-built components. We'll use `<UploadDropzone />` for multiple file uploads.
+We will now build our UI using pre-built components. Use `<UploadDropzone />` for multiple file uploads.
 
 Install it via the [shadcn](https://ui.shadcn.com/) CLI:
 
@@ -230,14 +71,14 @@ npx shadcn@latest add @better-upload/upload-dropzone
 We'll also use the `useUploadFiles` hook. The complete code looks like this:
 
 ```tsx title="uploader.tsx"
-'use client'; // For Next.js
+'use client'; // only for Next.js
 
-import { useUploadFiles } from 'better-upload/client';
+import { useUploadFiles } from '@better-upload/client';
 import { UploadDropzone } from '@/components/ui/upload-dropzone';
 
 export function Uploader() {
   const { control } = useUploadFiles({
-    route: 'demo',
+    route: 'images',
   });
 
   return (
