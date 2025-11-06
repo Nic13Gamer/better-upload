@@ -6,7 +6,7 @@ export type UnknownMetadata = Record<string, unknown>;
 type ClientMetadata<T extends StandardSchemaV1 | undefined = undefined> =
   T extends StandardSchemaV1 ? StandardSchemaV1.InferOutput<T> : unknown;
 
-export type FileInfo = {
+export type FileInfo<T extends boolean> = {
   /**
    * The name of the file.
    */
@@ -21,12 +21,29 @@ export type FileInfo = {
    * The MIME type of the file.
    */
   type: string;
+} & (T extends true
+  ? {
+      /**
+       * Information about the S3 object.
+       */
+      objectInfo: {
+        /**
+         * The S3 object key.
+         */
+        key: string;
 
-  /**
-   * The object key where the file will be uploaded to.
-   */
-  objectKey: string;
-};
+        /**
+         * Custom S3 object metadata.
+         *
+         * All keys are lower cased.
+         */
+        metadata: ObjectMetadata;
+        acl?: ObjectAcl;
+        storageClass?: StorageClass;
+        cacheControl?: string;
+      };
+    }
+  : {});
 
 export type RouteConfig<
   Multiple extends boolean,
@@ -117,13 +134,13 @@ export type RouteConfig<
           /**
            * Information about the file to be uploaded.
            */
-          file: Omit<FileInfo, 'objectKey'>;
+          file: FileInfo<false>;
         }
       : {
           /**
            * Information about the files to be uploaded.
            */
-          files: Omit<FileInfo, 'objectKey'>[];
+          files: FileInfo<false>[];
         })
   ) =>
     | BeforeUploadCallbackResult<Multiple, InterMetadata>
@@ -158,13 +175,13 @@ export type RouteConfig<
           /**
            * Information about the uploaded file, including the object key.
            */
-          file: FileInfo;
+          file: FileInfo<true>;
         }
       : {
           /**
            * Information about the uploaded files, including the object keys.
            */
-          files: FileInfo[];
+          files: FileInfo<true>[];
         })
   ) =>
     | AfterSignedUrlCallbackResult
@@ -314,7 +331,7 @@ type BeforeUploadCallbackResult<
         /**
          * Information about the file to be uploaded.
          */
-        file: Omit<FileInfo, 'objectKey'>;
+        file: FileInfo<false>;
       }) =>
         | BeforeUploadCallbackObjectInfo
         | Promise<BeforeUploadCallbackObjectInfo>;
@@ -346,12 +363,12 @@ export type Route = {
   onBeforeUpload?: (data: {
     req: Request;
     clientMetadata: unknown;
-    files: Omit<FileInfo, 'objectKey'>[];
+    files: FileInfo<false>[];
   }) => Promise<{
     metadata?: UnknownMetadata;
     bucketName?: string;
     generateObjectInfo?: (data: {
-      file: Omit<FileInfo, 'objectKey'>;
+      file: FileInfo<false>;
     }) =>
       | BeforeUploadCallbackObjectInfo
       | Promise<BeforeUploadCallbackObjectInfo>;
@@ -361,7 +378,7 @@ export type Route = {
     req: Request;
     metadata: UnknownMetadata;
     clientMetadata: unknown;
-    files: FileInfo[];
+    files: FileInfo<true>[];
   }) => Promise<{ metadata?: UnknownMetadata } | void>;
 };
 

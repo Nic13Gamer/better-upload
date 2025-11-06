@@ -15,11 +15,14 @@ export type SignedUrlsSuccessResponse = {
       multipart: {
         files: {
           file: {
-            objectKey: string;
-            objectMetadata: ObjectMetadata;
             name: string;
             size: number;
             type: string;
+            objectInfo: {
+              key: string;
+              metadata: ObjectMetadata;
+              cacheControl?: string;
+            };
           };
           parts: {
             signedUrl: string;
@@ -37,12 +40,14 @@ export type SignedUrlsSuccessResponse = {
       files: {
         signedUrl: string;
         file: {
-          objectKey: string;
-          objectMetadata: ObjectMetadata;
-          objectCacheControl?: string;
           name: string;
           size: number;
           type: string;
+          objectInfo: {
+            key: string;
+            metadata: ObjectMetadata;
+            cacheControl?: string;
+          };
         };
       }[];
     }

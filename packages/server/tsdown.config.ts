@@ -5,6 +5,7 @@ export default defineConfig({
     'src/index.ts',
     'src/clients/index.ts',
     'src/helpers/index.ts',
+    'src/internal-export.ts',
     'src/adapters/*.ts',
   ],
   format: ['esm'],

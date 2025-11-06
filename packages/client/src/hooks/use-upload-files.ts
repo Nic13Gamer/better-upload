@@ -133,7 +133,7 @@ export function useUploadFiles({
           retryDelay,
           onUploadBegin,
           onFileStateChange: ({ file }) => {
-            setUploads((prev) => new Map(prev).set(file.objectKey, file));
+            setUploads((prev) => new Map(prev).set(file.objectInfo.key, file));
             onUploadProgress?.({ file });
           },
         });

@@ -91,7 +91,7 @@ export async function uploadFiles(params: {
 
     const uploads = new Map<string, FileUploadInfo<UploadStatus>>(
       signedUrls.map((url) => [
-        url.file.objectKey,
+        url.file.objectInfo.key,
         {
           status: 'pending',
           progress: 0,
@@ -117,14 +117,14 @@ export async function uploadFiles(params: {
       const isMultipart = 'parts' in url;
 
       try {
-        uploads.set(url.file.objectKey, {
-          ...uploads.get(url.file.objectKey)!,
+        uploads.set(url.file.objectInfo.key, {
+          ...uploads.get(url.file.objectInfo.key)!,
           status: 'uploading',
           progress: 0,
         });
 
         params.onFileStateChange?.({
-          file: uploads.get(url.file.objectKey)!,
+          file: uploads.get(url.file.objectInfo.key)!,
         });
 
         if (isMultipart) {
@@ -139,18 +139,18 @@ export async function uploadFiles(params: {
             retry: params.retry,
             retryDelay: params.retryDelay,
             onProgress: (progress) => {
-              if (uploads.get(url.file.objectKey)!.status === 'failed') {
+              if (uploads.get(url.file.objectInfo.key)!.status === 'failed') {
                 return;
               }
 
-              uploads.set(url.file.objectKey, {
-                ...uploads.get(url.file.objectKey)!,
+              uploads.set(url.file.objectInfo.key, {
+                ...uploads.get(url.file.objectInfo.key)!,
                 status: progress === 1 ? 'complete' : 'uploading',
                 progress,
               });
 
               params.onFileStateChange?.({
-                file: uploads.get(url.file.objectKey)!,
+                file: uploads.get(url.file.objectInfo.key)!,
               });
             },
           });
@@ -158,20 +158,20 @@ export async function uploadFiles(params: {
           await uploadFileToS3({
             file,
             signedUrl: url.signedUrl,
-            objectMetadata: url.file.objectMetadata,
-            objectCacheControl: url.file.objectCacheControl,
+            objectMetadata: url.file.objectInfo.metadata,
+            objectCacheControl: url.file.objectInfo.cacheControl,
             signal: params.signal,
             retry: params.retry,
             retryDelay: params.retryDelay,
             onProgress: (progress) => {
-              uploads.set(url.file.objectKey, {
-                ...uploads.get(url.file.objectKey)!,
+              uploads.set(url.file.objectInfo.key, {
+                ...uploads.get(url.file.objectInfo.key)!,
                 status: progress === 1 ? 'complete' : 'uploading',
                 progress,
               });
 
               params.onFileStateChange?.({
-                file: uploads.get(url.file.objectKey)!,
+                file: uploads.get(url.file.objectInfo.key)!,
               });
             },
           });
@@ -183,8 +183,8 @@ export async function uploadFiles(params: {
           }).catch(() => {});
         }
 
-        uploads.set(url.file.objectKey, {
-          ...uploads.get(url.file.objectKey)!,
+        uploads.set(url.file.objectInfo.key, {
+          ...uploads.get(url.file.objectInfo.key)!,
           status: 'failed',
           error: {
             type: params.signal?.aborted ? 'aborted' : 's3_upload',
@@ -195,7 +195,7 @@ export async function uploadFiles(params: {
         });
 
         params.onFileStateChange?.({
-          file: uploads.get(url.file.objectKey)!,
+          file: uploads.get(url.file.objectInfo.key)!,
         });
       }
     });

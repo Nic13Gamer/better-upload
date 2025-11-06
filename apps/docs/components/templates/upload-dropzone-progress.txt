@@ -117,7 +117,7 @@ export function UploadDropzoneProgress({
       <div className="grid gap-2">
         {progresses.map((progress) => (
           <div
-            key={progress.objectKey}
+            key={progress.objectInfo.key}
             className={cn(
               'dark:bg-input/10 flex items-center gap-2 rounded-lg border bg-transparent p-3',
               {

@@ -39,17 +39,7 @@ export type FileUploadInfo<T extends UploadStatus> = {
   progress: number;
 
   /**
-   * The key of the S3 object.
-   */
-  objectKey: string;
-
-  /**
-   * The metadata of the S3 object.
-   */
-  objectMetadata: ObjectMetadata;
-
-  /**
-   * The original file that was uploaded.
+   * The original raw file that was uploaded.
    */
   raw: File;
 
@@ -67,6 +57,26 @@ export type FileUploadInfo<T extends UploadStatus> = {
    * The type of the file.
    */
   type: string;
+
+  /**
+   * Information about the S3 object.
+   */
+  objectInfo: {
+    /**
+     * The key of the S3 object.
+     */
+    key: string;
+
+    /**
+     * The metadata of the S3 object.
+     */
+    metadata: ObjectMetadata;
+
+    /**
+     * The Cache-Control header of the S3 object.
+     */
+    cacheControl?: string;
+  };
 } & (T extends 'failed'
   ? {
       error: ClientUploadError;

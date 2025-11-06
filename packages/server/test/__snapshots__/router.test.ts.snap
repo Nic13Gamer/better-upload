@@ -6,8 +6,10 @@ exports[`files handler > should accept valid multiple files upload request 1`] =
     {
       "file": {
         "name": "file1.jpg",
-        "objectKey": "multiple/file1.jpg",
-        "objectMetadata": {},
+        "objectInfo": {
+          "key": "multiple/file1.jpg",
+          "metadata": {},
+        },
         "size": 500000,
         "type": "image/jpeg",
       },
@@ -16,8 +18,10 @@ exports[`files handler > should accept valid multiple files upload request 1`] =
     {
       "file": {
         "name": "file2.png",
-        "objectKey": "multiple/file2.png",
-        "objectMetadata": {},
+        "objectInfo": {
+          "key": "multiple/file2.png",
+          "metadata": {},
+        },
         "size": 400000,
         "type": "image/png",
       },
@@ -34,8 +38,10 @@ exports[`files handler > should accept valid single file upload request 1`] = `
     {
       "file": {
         "name": "file1.jpg",
-        "objectKey": "single/file1.jpg",
-        "objectMetadata": {},
+        "objectInfo": {
+          "key": "single/file1.jpg",
+          "metadata": {},
+        },
         "size": 500000,
         "type": "image/jpeg",
       },
@@ -52,8 +58,10 @@ exports[`files handler > should accept valid upload with custom bucket 1`] = `
     {
       "file": {
         "name": "file1.jpg",
-        "objectKey": "custom/file1.jpg",
-        "objectMetadata": {},
+        "objectInfo": {
+          "key": "custom/file1.jpg",
+          "metadata": {},
+        },
         "size": 500000,
         "type": "image/jpeg",
       },
@@ -74,8 +82,10 @@ exports[`multipart handler > should accept valid multiple files upload request 1
         "completeSignedUrl": "complete-signed-url-placeholder",
         "file": {
           "name": "file1.jpg",
-          "objectKey": "multiple/file1.jpg",
-          "objectMetadata": {},
+          "objectInfo": {
+            "key": "multiple/file1.jpg",
+            "metadata": {},
+          },
           "size": 500000,
           "type": "image/jpeg",
         },
@@ -93,8 +103,10 @@ exports[`multipart handler > should accept valid multiple files upload request 1
         "completeSignedUrl": "complete-signed-url-placeholder",
         "file": {
           "name": "file2.png",
-          "objectKey": "multiple/file2.png",
-          "objectMetadata": {},
+          "objectInfo": {
+            "key": "multiple/file2.png",
+            "metadata": {},
+          },
           "size": 400000,
           "type": "image/png",
         },
@@ -123,8 +135,10 @@ exports[`multipart handler > should accept valid single file upload request 1`] 
         "completeSignedUrl": "complete-signed-url-placeholder",
         "file": {
           "name": "file1.jpg",
-          "objectKey": "single/file1.jpg",
-          "objectMetadata": {},
+          "objectInfo": {
+            "key": "single/file1.jpg",
+            "metadata": {},
+          },
           "size": 500000,
           "type": "image/jpeg",
         },
@@ -153,8 +167,10 @@ exports[`multipart handler > should accept valid upload with custom bucket 1`] =
         "completeSignedUrl": "complete-signed-url-placeholder",
         "file": {
           "name": "file1.jpg",
-          "objectKey": "custom/file1.jpg",
-          "objectMetadata": {},
+          "objectInfo": {
+            "key": "custom/file1.jpg",
+            "metadata": {},
+          },
           "size": 500000,
           "type": "image/jpeg",
         },

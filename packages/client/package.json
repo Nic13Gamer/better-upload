@@ -20,6 +20,10 @@
     "./helpers": {
       "import": "./dist/helpers/index.js",
       "types": "./dist/helpers/index.d.ts"
+    },
+    "./internal": {
+      "import": "./dist/internal-export.js",
+      "types": "./dist/internal-export.d.ts"
     }
   },
   "peerDependencies": {

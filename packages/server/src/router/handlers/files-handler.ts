@@ -147,7 +147,16 @@ export async function handleFiles({
 
       return {
         signedUrl,
-        file: { ...file, objectKey, objectMetadata, objectCacheControl },
+        file: {
+          ...file,
+          objectInfo: {
+            key: objectKey,
+            metadata: objectMetadata,
+            acl: objectAcl,
+            storageClass: objectStorageClass,
+            cacheControl: objectCacheControl,
+          },
+        },
       };
     })
   );
@@ -167,7 +176,17 @@ export async function handleFiles({
   }
 
   return Response.json({
-    files: signedUrls,
+    files: signedUrls.map((url) => ({
+      signedUrl: url.signedUrl,
+      file: {
+        ...url.file,
+        objectInfo: {
+          key: url.file.objectInfo.key,
+          metadata: url.file.objectInfo.metadata,
+          cacheControl: url.file.objectInfo.cacheControl,
+        },
+      },
+    })),
     metadata: responseMetadata,
   });
 }

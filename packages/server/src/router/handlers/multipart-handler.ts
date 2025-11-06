@@ -179,7 +179,16 @@ export async function handleMultipartFiles({
       ]);
 
       return {
-        file: { ...file, objectKey, objectMetadata },
+        file: {
+          ...file,
+          objectInfo: {
+            key: objectKey,
+            metadata: objectMetadata,
+            acl: objectAcl,
+            storageClass: objectStorageClass,
+            cacheControl: objectCacheControl,
+          },
+        },
         parts: partSignedUrls,
         uploadId: s3UploadId!,
         completeSignedUrl,
@@ -204,7 +213,17 @@ export async function handleMultipartFiles({
 
   return Response.json({
     multipart: {
-      files: signedUrls,
+      files: signedUrls.map((url) => ({
+        ...url,
+        file: {
+          ...url.file,
+          objectInfo: {
+            key: url.file.objectInfo.key,
+            metadata: url.file.objectInfo.metadata,
+            cacheControl: url.file.objectInfo.cacheControl,
+          },
+        },
+      })),
       partSize,
     },
     metadata: responseMetadata,
