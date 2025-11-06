@@ -8,54 +8,11 @@ If you prefer to use TanStack Query instead of the hooks provided by Better Uplo
 
 The complete code for a simple uploader is below.
 
-```tsx tab="Single file"
-'use client';
-
-import { useMutation } from '@tanstack/react-query';
-import { uploadFile } from 'better-upload/client';
-
-export function Uploader() {
-  const { mutate: upload, isPending } = useMutation({
-    mutationFn: async (file: File) => {
-      return uploadFile({
-        file,
-        route: 'form',
-        onFileStateChange: ({ file }) => {
-          // you handle the progress of the file
-          console.log(file);
-        },
-      });
-    },
-    onSuccess: ({ file, metadata }) => {
-      console.log({
-        file,
-        metadata,
-      });
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-  });
-
-  return (
-    <input
-      type="file"
-      disabled={isPending}
-      onChange={(e) => {
-        if (e.target.files?.[0]) {
-          upload(e.target.files[0]);
-        }
-      }}
-    />
-  );
-}
-```
-
 ```tsx tab="Multiple files"
 'use client';
 
+import { uploadFiles } from '@better-upload/client';
 import { useMutation } from '@tanstack/react-query';
-import { uploadFiles } from 'better-upload/client';
 
 export function Uploader() {
   const { mutate: upload, isPending } = useMutation({
@@ -96,6 +53,49 @@ export function Uploader() {
 }
 ```
 
+```tsx tab="Single files"
+'use client';
+
+import { uploadFile } from '@better-upload/client';
+import { useMutation } from '@tanstack/react-query';
+
+export function Uploader() {
+  const { mutate: upload, isPending } = useMutation({
+    mutationFn: async (file: File) => {
+      return uploadFile({
+        file,
+        route: 'form',
+        onFileStateChange: ({ file }) => {
+          // you handle the progress of the file
+          console.log(file);
+        },
+      });
+    },
+    onSuccess: ({ file, metadata }) => {
+      console.log({
+        file,
+        metadata,
+      });
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
+  return (
+    <input
+      type="file"
+      disabled={isPending}
+      onChange={(e) => {
+        if (e.target.files?.[0]) {
+          upload(e.target.files[0]);
+        }
+      }}
+    />
+  );
+}
+```
+
 ### Tracking upload state
 
 Note that by directly using the upload functions, you need to track the state of each file upload yourself. This is simple to do, an example for multiple files is below.
@@ -103,12 +103,12 @@ Note that by directly using the upload functions, you need to track the state of
 ```tsx
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
 import {
   type FileUploadInfo,
   type UploadStatus,
   uploadFiles,
-} from 'better-upload/client';
+} from '@better-upload/client';
+import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 
 export function Uploader() {
@@ -123,7 +123,10 @@ export function Uploader() {
         files,
         route: 'form',
         onFileStateChange: ({ file }) => {
-          setUploadState((prev) => new Map(prev).set(file.objectKey, file)); // [!code highlight]
+          // [!code highlight:3]
+          setUploadState((prev) =>
+            new Map(prev).set(file.objectInfo.key, file)
+          );
         },
       });
     },

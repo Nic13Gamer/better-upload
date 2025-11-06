@@ -1,12 +1,10 @@
 import { UploadDropzoneDemo } from '@/components/templates/upload-dropzone-demo';
 import { Button } from '@/components/ui/button';
-import { CodeBlock, Pre } from 'fumadocs-ui/components/codeblock';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { getMDXComponents } from '@/mdx-components';
 import { Files, PencilRulerIcon, Zap } from 'lucide-react';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import ClientCode from './code/client.mdx';
-import ServerCode from './code/server.mdx';
+import Codeblock from './codeblock.mdx';
 
 export const metadata: Metadata = {
   title: {
@@ -17,7 +15,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <main className="container mb-16 lg:px-20">
-      <div className="mt-24 flex flex-col items-center justify-between gap-16 sm:mt-32 md:mt-36 lg:mt-16 lg:flex-row">
+      <div className="lg:mt-18 mt-24 flex flex-col items-center justify-between gap-16 sm:mt-32 md:mt-36 lg:flex-row">
         <div className="space-y-4">
           <h1 className="text-4xl font-bold md:text-5xl lg:text-6xl">
             Better Upload
@@ -44,26 +42,13 @@ export default function HomePage() {
 
         <div className="h-[601px] w-full max-w-lg">
           <div className="border-fd-border flex flex-col items-center rounded-xl border border-dashed">
-            <div className="py-6">
+            <div className="py-7">
               <UploadDropzoneDemo />
             </div>
 
-            <Tabs items={['Client', 'Server']} className="my-0 w-full">
-              <Tab value="Client">
-                <CodeBlock>
-                  <Pre>
-                    <ClientCode />
-                  </Pre>
-                </CodeBlock>
-              </Tab>
-              <Tab value="Server">
-                <CodeBlock>
-                  <Pre>
-                    <ServerCode />
-                  </Pre>
-                </CodeBlock>
-              </Tab>
-            </Tabs>
+            <div className="w-full *:my-0">
+              <Codeblock components={getMDXComponents()} />
+            </div>
           </div>
         </div>
       </div>

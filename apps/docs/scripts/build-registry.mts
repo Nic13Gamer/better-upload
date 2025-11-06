@@ -6,19 +6,19 @@ const components = [
   {
     name: 'upload-button',
     title: 'Upload Button',
-    dependencies: ['better-upload', 'lucide-react'],
+    dependencies: ['@better-upload/client', 'lucide-react'],
     registryDependencies: ['button'],
   },
   {
     name: 'upload-dropzone',
     title: 'Upload Dropzone',
-    dependencies: ['better-upload', 'lucide-react', 'react-dropzone'],
+    dependencies: ['@better-upload/client', 'lucide-react', 'react-dropzone'],
     registryDependencies: [],
   },
   {
     name: 'upload-dropzone-progress',
     title: 'Upload Dropzone with Progress',
-    dependencies: ['better-upload', 'lucide-react', 'react-dropzone'],
+    dependencies: ['@better-upload/client', 'lucide-react', 'react-dropzone'],
     registryDependencies: ['progress'],
   },
 ];

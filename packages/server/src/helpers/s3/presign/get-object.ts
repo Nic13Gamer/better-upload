@@ -1,6 +1,9 @@
 import type { Client } from '@/types/clients';
 import { baseSignedUrl } from '@/utils/s3';
 
+/**
+ * Generate a pre-signed URL to get (download) an object from an S3 bucket.
+ */
 export async function presignGetObject(
   client: Client,
   params: {

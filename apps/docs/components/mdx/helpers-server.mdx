@@ -1,0 +1,88 @@
+<section id="s3-clients">
+
+```ts tab="AWS S3"
+import { aws } from '@better-upload/server/clients';
+
+const s3 = aws({
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+  region: 'us-east-1',
+});
+```
+
+```ts tab="Cloudflare R2"
+import { cloudflare } from '@better-upload/server/clients';
+
+const s3 = cloudflare({
+  accountId: 'your-account-id',
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+});
+```
+
+```ts tab="Tigris"
+import { tigris } from '@better-upload/server/clients';
+
+const s3 = tigris({
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+  endpoint: '...', // optional
+});
+```
+
+```ts tab="Backblaze B2"
+import { backblaze } from '@better-upload/server/clients';
+
+const s3 = backblaze({
+  region: 'your-backblaze-region',
+  applicationKeyId: 'your-application-key-id',
+  applicationKey: 'your-application-key',
+});
+```
+
+```ts tab="DigitalOcean Spaces"
+import { digitalOcean } from '@better-upload/server/clients';
+
+const s3 = digitalOcean({
+  region: 'your-spaces-region',
+  key: 'your-spaces-key',
+  secret: 'your-spaces-secret',
+});
+```
+
+```ts tab="Wasabi"
+import { wasabi } from '@better-upload/server/clients';
+
+const s3 = wasabi({
+  region: 'your-wasabi-region',
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+});
+```
+
+```ts tab="MinIO"
+import { minio } from '@better-upload/server/clients';
+
+const s3 = minio({
+  region: 'your-minio-region',
+  endpoint: 'https://minio.example.com'
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+});
+```
+
+```ts tab="Custom"
+// for any S3-compatible service
+import { custom } from '@better-upload/server/clients';
+
+const s3 = custom({
+  hostname: 's3.us-east-1.amazonaws.com',
+  accessKeyId: 'your-access-key-id',
+  secretAccessKey: 'your-secret-access-key',
+  region: 'us-east-1',
+  secure: true,
+  forcePathStyle: false,
+});
+```
+
+</section>

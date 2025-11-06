@@ -22,7 +22,7 @@ Better Upload provides React hooks that allow you to easily upload files using p
 ## Usage
 
 ```tsx title="my-component.tsx"
-import { useUploadFiles } from 'better-upload/client';
+import { useUploadFiles } from '@better-upload/client';
 
 export function MyComponent() {
   const {
@@ -43,7 +43,7 @@ export function MyComponent() {
     metadata,
     control, // for use in pre-built components
   } = useUploadFiles({
-    route: 'demo',
+    route: 'images',
   });
 
   return (
@@ -143,7 +143,7 @@ Callback that is called before requesting the pre-signed URLs. Use this to modif
 
 ```tsx
 useUploadFiles({
-  route: 'demo',
+  route: 'images',
   onBeforeUpload: ({ files }) => {
     // rename all files
     return files.map(
@@ -159,7 +159,7 @@ Event that is called before the files start being uploaded to S3. This happens a
 
 ```tsx
 useUploadFiles({
-  route: 'demo',
+  route: 'images',
   onUploadBegin: ({ files, metadata }) => {
     console.log('Upload begin');
   },
@@ -172,7 +172,7 @@ Event that is called when a file upload progress changes.
 
 ```tsx
 useUploadFiles({
-  route: 'demo',
+  route: 'images',
   onUploadProgress: ({ file }) => {
     console.log(`${file.name} upload progress: ${file.progress * 100}%`);
   },
@@ -187,7 +187,7 @@ Event that is called after files are successfully uploaded.
 // This event is called even if some files fail to upload, but some succeed.
 // This event is not called if all files fail to upload.
 useUploadFiles({
-  route: 'demo',
+  route: 'images',
   onUploadComplete: ({ files, failedFiles, metadata }) => {
     console.log(`${files.length} files uploaded`);
   },
@@ -202,7 +202,7 @@ Event that is called after the entire upload if a file fails to upload.
 // This event is called even if some files succeed to upload, but some fail.
 // This event is not called if all files succeed.
 useUploadFiles({
-  route: 'demo',
+  route: 'images',
   onUploadFail: ({ succeededFiles, failedFiles, metadata }) => {
     console.log('Some or all files failed to upload');
   },
@@ -215,7 +215,7 @@ Event that is called if a critical error occurs before the upload to S3, and no 
 
 ```tsx
 useUploadFiles({
-  route: 'demo',
+  route: 'images',
   onError: (error) => {
     console.log(error.message);
   },
@@ -233,7 +233,7 @@ Event that is called after the upload settles (either successfully completed or 
 
 ```tsx
 useUploadFiles({
-  route: 'demo',
+  route: 'images',
   onUploadSettle: ({ files, failedFiles, metadata }) => {
     console.log('Upload settled');
   },
@@ -247,7 +247,7 @@ It is possible to send metadata from the client to your server on the upload req
 ```tsx
 export function MyComponent() {
   const { upload } = useUploadFiles({
-    route: 'demo',
+    route: 'images',
   });
 
   return (

@@ -9,7 +9,7 @@ icon: Wrench
     {
       href: '/docs/helpers-server',
       title: 'Server-side',
-      description: 'Helpers for your server.',
+      description: 'Helpers for your router and server.',
     },
     {
       href: '/docs/helpers-client',
@@ -21,95 +21,75 @@ icon: Wrench
 
 ## S3 Clients
 
-Better Upload has some built-in clients for popular S3-compatible storage services, like Cloudflare R2. Suggest a new client by [opening an issue](https://github.com/Nic13Gamer/better-upload/issues).
+Better Upload has built-in clients for popular S3-compatible storage services, like AWS S3 and Cloudflare R2. Suggest a new client by [opening an issue](https://github.com/Nic13Gamer/better-upload/issues).
 
-```ts tab="Cloudflare R2"
-import { cloudflare } from 'better-upload/server/helpers';
-
-const client = cloudflare({
-  accountId: 'your-account-id',
-  accessKeyId: 'your-access-key-id',
-  secretAccessKey: 'your-secret-access-key',
-});
-
-const jurisdictionClient = cloudflare({
-  accountId: 'your-account-id',
-  accessKeyId: 'your-access-key-id',
-  secretAccessKey: 'your-secret-access-key',
-  jurisdiction: 'eu', // If you created your R2 bucket using a jurisdiction.
-});
-```
-
-```ts tab="Minio"
-import { minio } from 'better-upload/server/helpers';
-
-const client = minio({
-  region: 'your-minio-region',
-  endpoint: 'https://minio.example.com'
-  accessKeyId: 'your-access-key-id',
-  secretAccessKey: 'your-secret-access-key',
-});
-```
-
-```ts tab="Tigris"
-import { tigris } from 'better-upload/server/helpers';
-
-const client = tigris({
-  accessKeyId: 'your-access-key-id',
-  secretAccessKey: 'your-secret-access-key',
-  endpoint: '...', // Optional
-});
-```
-
-```ts tab="Backblaze B2"
-import { backblaze } from 'better-upload/server/helpers';
-
-const client = backblaze({
-  region: 'your-backblaze-region',
-  applicationKeyId: 'your-application-key-id',
-  applicationKey: 'your-application-key',
-});
-```
-
-```ts tab="Wasabi"
-import { wasabi } from 'better-upload/server/helpers';
-
-const client = wasabi({
-  region: 'your-wasabi-region',
-  accessKeyId: 'your-access-key-id',
-  secretAccessKey: 'your-secret-access-key',
-});
-```
-
-```ts tab="DigitalOcean Spaces"
-import { digitalOcean } from 'better-upload/server/helpers';
-
-const client = digitalOcean({
-  region: 'your-spaces-region',
-  key: 'your-spaces-key',
-  secret: 'your-spaces-secret',
-});
-```
+<include cwd>./components/mdx/helpers-server.mdx#s3-clients</include>
 
 <Callout>
-  All clients return an S3 client from the AWS SDK, just like `new S3Client()`,
-  but already configured for that service.
+  You can omit the parameters and let the client get your credentials from
+  environment variables.
 </Callout>
 
-## Bucket Objects
+## Objects
+
+Helpers for working with objects in S3-compatible storage services. Suggest new helpers by [opening an issue](https://github.com/Nic13Gamer/better-upload/issues).
+
+### Presign get object
+
+Generate a pre-signed URL to download an object.
+
+```ts
+import { presignGetObject } from '@better-upload/server/helpers';
+
+const url = await presignGetObject(s3, {
+  bucket: 'my-bucket',
+  key: 'example.png',
+  expiresIn: 3600, // 1 hour
+});
+```
+
+### Get object
+
+Get an object (including its content) from an S3 bucket.
+
+```ts
+import { getObject } from '@better-upload/server/helpers';
+
+const object = await getObject(s3, {
+  bucket: 'my-bucket',
+  key: 'example.png',
+});
+```
+
+### Head object
+
+Get metadata about an object without fetching its content.
+
+```ts
+import { headObject } from '@better-upload/server/helpers';
+
+const object = await headObject(s3, {
+  bucket: 'my-bucket',
+  key: 'example.png',
+});
+```
 
 ### Move object (rename)
 
-Moves an object from one location to another, within the same bucket. Also known as renaming.
+Move an object from one key to another, within or between, S3 buckets. Also known as renaming.
 
 ```ts
-import { moveObject } from 'better-upload/server/helpers';
+import { moveObject } from '@better-upload/server/helpers';
 
-await moveObject({
-  client: s3,
-  bucketName: 'my-bucket',
-  objectKey: 'example.jpg',
-  destinationKey: 'images/example.jpg',
+await moveObject(s3, {
+  source: {
+    bucket: 'source-bucket',
+    key: 'example.png',
+  },
+  destination: {
+    bucket: 'destination-bucket',
+    key: 'copy.png',
+  },
 });
 ```
 
@@ -117,3 +97,35 @@ await moveObject({
   This copies the object to the new location and then deletes the original
   object. It can be slow.
 </Callout>
+
+### Copy object
+
+Copy an object, within or between, S3 buckets.
+
+```ts
+import { copyObject } from '@better-upload/server/helpers';
+
+await copyObject(s3, {
+  source: {
+    bucket: 'source-bucket',
+    key: 'example.png',
+  },
+  destination: {
+    bucket: 'destination-bucket',
+    key: 'images/example.png',
+  },
+});
+```
+
+### Delete object
+
+Delete an object from an S3 bucket.
+
+```ts
+import { deleteObject } from '@better-upload/server/helpers';
+
+await deleteObject(s3, {
+  bucket: 'my-bucket',
+  key: 'example.png',
+});
+```

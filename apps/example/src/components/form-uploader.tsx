@@ -27,7 +27,7 @@ export function FormUploader() {
     onUploadComplete: ({ files }) => {
       form.setValue(
         'objectKeys',
-        files.map((file) => file.objectKey)
+        files.map((file) => file.objectInfo.key)
       );
     },
     onError: (error) => {
@@ -70,7 +70,7 @@ export function FormUploader() {
         {uploadedFiles.length > 0 ? (
           <div className="flex flex-col">
             {uploadedFiles.map((file) => (
-              <p key={file.objectKey}>{file.name}</p>
+              <p key={file.objectInfo.key}>{file.name}</p>
             ))}
           </div>
         ) : (

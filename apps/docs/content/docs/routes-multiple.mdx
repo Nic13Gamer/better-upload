@@ -24,7 +24,7 @@ You can create multiple routes for different purposes (e.g. images, videos).
 Here is a basic example of a multiple file upload route:
 
 ```ts
-import { route } from 'better-upload/server';
+import { route } from '@better-upload/server';
 
 route({
   multipleFiles: true,
@@ -152,7 +152,7 @@ In addition to all previous data, metadata from the `onBeforeUpload` callback is
 ```ts
 route({
   onAfterSignedUrl: async ({ req, files, metadata, clientMetadata }) => {
-    // the files now have the objectKey property
+    // the files now have the objectInfo property
 
     return {
       metadata: {
@@ -178,7 +178,7 @@ You can return an object with the following properties:
 
 ## Multipart uploads
 
-If you want to upload files larger than **5GB**, you need to use multipart uploads. To enable it, set `multipart` to `true`. It works both for single and multiple files. No change is needed in the client.
+If you want to upload files larger than **5GB**, you must use multipart uploads. To enable it, set `multipart` to `true`. It works both for single and multiple files. No change is needed in the client.
 
 ```ts
 route({
@@ -223,7 +223,7 @@ You can now also modify the following options:
 The router is where all upload routes are defined. To define a router, create an object with the `Router` type.
 
 ```ts
-import { type Router } from 'better-upload/server';
+import { type Router } from '@better-upload/server';
 
 export const router: Router = {
   client: s3,
