@@ -114,13 +114,6 @@ export function FormUploader() {
         files.map((file) => file.objectInfo.key)
       );
     },
-    onError: (error) => {
-      form.setErrorMap({
-        onSubmit: {
-          fields: { objectKeys: error.message || 'An error occurred.' },
-        },
-      });
-    },
   });
 
   return (
