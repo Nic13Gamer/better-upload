@@ -21,10 +21,10 @@ Better Upload provides React hooks that allow you to easily upload files using p
 
 ## Usage
 
-```tsx title="my-component.tsx"
+```tsx title="uploader.tsx"
 import { useUploadFile } from '@better-upload/client';
 
-export function MyComponent() {
+export function Uploader() {
   const {
     upload,
     uploadAsync,
@@ -216,7 +216,7 @@ useUploadFile({
 It is possible to send metadata from the client to your server on the upload request.
 
 ```tsx
-export function MyComponent() {
+export function Uploader() {
   const { upload } = useUploadFile({
     route: 'profile',
   });
