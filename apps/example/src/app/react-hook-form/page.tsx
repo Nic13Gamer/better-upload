@@ -1,4 +1,4 @@
-import { FormUploader } from '@/components/form-uploader';
+import { FormUploader } from '@/components/react-hook-form-uploader';
 
 export default function Page() {
   return (

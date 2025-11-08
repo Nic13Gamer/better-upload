@@ -5,6 +5,7 @@ import { useId } from 'react';
 
 type UploadButtonProps = {
   control: UploadHookControl<false>;
+  id?: string;
   accept?: string;
   metadata?: Record<string, unknown>;
   uploadOverride?: (
@@ -16,6 +17,7 @@ type UploadButtonProps = {
 
 export function UploadButton({
   control: { upload, isPending },
+  id: _id,
   accept,
   metadata,
   uploadOverride,
@@ -24,9 +26,9 @@ export function UploadButton({
 
   return (
     <Button disabled={isPending} className="relative" type="button">
-      <label htmlFor={id} className="absolute inset-0 cursor-pointer">
+      <label htmlFor={_id || id} className="absolute inset-0 cursor-pointer">
         <input
-          id={id}
+          id={_id || id}
           className="absolute inset-0 size-0 opacity-0"
           type="file"
           accept={accept}
