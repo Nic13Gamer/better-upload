@@ -10,11 +10,7 @@ export const baseOptions: BaseLayoutProps = {
       url: 'https://x.com/Nic13Gamer',
       text: 'X',
       type: 'icon',
-      icon: (
-        <div className="scale-85">
-          <XIcon />
-        </div>
-      ),
+      icon: <XIcon />,
       external: true,
     },
   ],

@@ -202,9 +202,9 @@ const router: Router = {
 ```
 
 </Accordion>
-<Accordion title="Changing S3 object key">
+<Accordion title="Modifying S3 object info">
 
-You can change the S3 object key to any value you want. Use the `onBeforeUpload` callback:
+You can modify the S3 object through the `onBeforeUpload` callback:
 
 ```ts
 const router: Router = {
@@ -213,11 +213,14 @@ const router: Router = {
   routes: {
     profile: route({
       fileTypes: ['image/*'],
-      // [!code ++:7]
+      // [!code ++:10]
       onBeforeUpload: async ({ req, file, clientMetadata }) => {
         return {
           objectInfo: {
             key: `files/${file.name}`,
+            metadata: {
+              author: 'user_123',
+            },
           },
         };
       },
