@@ -314,42 +314,55 @@ export function FormUploader() {
       {/* ... */}
 
       <CardContent>
-        <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)}>
+        <form
+          id="uploader-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+        >
           <FieldGroup>
             {/* ... */}
 
-            <Controller
+            <form.Field
               name="objectKeys"
-              control={form.control}
-              render={({ fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-objectKeys">
-                    Files
-                  </FieldLabel>
-                  {/* [!code highlight:18] */}
-                  {field.state.value.length > 0 ? (
-                    <div className="flex flex-col">
-                      {uploader.uploadedFiles.map((file) => (
-                        <span key={file.objectInfo.key} className="text-sm">
-                          {file.name}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <UploadDropzone
-                      id={field.name}
-                      control={uploader.control}
-                      description={{
-                        maxFiles: 5,
-                        maxFileSize: '5MB',
-                      }}
-                    />
-                  )}
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+              children={(field) => {
+                const isInvalid =
+                  (field.state.meta.isTouched && !field.state.meta.isValid) ||
+                  uploader.isError;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Folder name</FieldLabel>
+                    {field.state.value.length > 0 ? (
+                      <div className="flex flex-col">
+                        {uploader.uploadedFiles.map((file) => (
+                          <span key={file.objectInfo.key} className="text-sm">
+                            {file.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <UploadDropzone
+                        id={field.name}
+                        control={uploader.control}
+                        description={{
+                          maxFiles: 5,
+                          maxFileSize: '5MB',
+                        }}
+                      />
+                    )}
+                    {isInvalid && (
+                      <FieldError
+                        errors={
+                          uploader.error
+                            ? [{ message: uploader.error.message }]
+                            : field.state.meta.errors
+                        }
+                      />
+                    )}
+                  </Field>
+                );
+              }}
             />
           </FieldGroup>
         </form>
