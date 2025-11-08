@@ -16,6 +16,10 @@ export async function deleteObject(
     versionId?: string;
   }
 ) {
+  if (!params.key.trim()) {
+    throw new Error('The object key cannot be empty.');
+  }
+
   const url = new URL(`${client.buildBucketUrl(params.bucket)}/${params.key}`);
 
   if (params.versionId) {
