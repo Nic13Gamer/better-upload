@@ -28,7 +28,7 @@ import { Router } from '@better-upload/server';
 import { aws } from '@better-upload/server/clients';
 
 const router: Router = {
-  client: aws(); // or cloudflare(), backblaze(), tigris(), ...,
+  client: aws(), // or cloudflare(), backblaze(), tigris(), ...,
   bucketName: 'my-bucket',
   routes: {
     // ...
@@ -100,7 +100,7 @@ const router: Router = {
           },
         };
       },
-      
+
       onAfterSignedUrl: ({ file }) => {
         console.log(file.objectInfo); // full objectInfo is available here
       },
