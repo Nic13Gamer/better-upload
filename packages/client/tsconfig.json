@@ -1,0 +1,8 @@
+{
+  "extends": "@repo/tsconfig/react.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}

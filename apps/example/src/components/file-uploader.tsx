@@ -1,6 +1,6 @@
 'use client';
 
-import { useUploadFile } from 'better-upload/client';
+import { useUploadFile } from '@better-upload/client';
 import { toast } from 'sonner';
 import { UploadButton } from './ui/upload-button';
 

@@ -1,11 +1,12 @@
 import { cn } from '@/lib/utils';
-import type { UploadHookControl } from 'better-upload/client';
+import type { UploadHookControl } from '@better-upload/client';
 import { Loader2, Upload } from 'lucide-react';
 import { useId } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 type UploadDropzoneProps = {
   control: UploadHookControl<true>;
+  id?: string;
   accept?: string;
   metadata?: Record<string, unknown>;
   description?:
@@ -24,6 +25,7 @@ type UploadDropzoneProps = {
 
 export function UploadDropzone({
   control: { upload, isPending },
+  id: _id,
   accept,
   metadata,
   description,
@@ -48,7 +50,7 @@ export function UploadDropzone({
   return (
     <div
       className={cn(
-        'border-input relative rounded-lg border border-dashed transition-colors',
+        'border-input text-foreground relative rounded-lg border border-dashed transition-colors',
         {
           'border-primary/80': isDragActive,
         }
@@ -60,10 +62,11 @@ export function UploadDropzone({
           'dark:bg-input/10 flex w-full min-w-72 cursor-pointer flex-col items-center justify-center rounded-lg bg-transparent px-2 py-6 transition-colors',
           {
             'text-muted-foreground cursor-not-allowed': isPending,
-            'hover:bg-accent dark:hover:bg-accent/30': !isPending,
+            'hover:bg-accent dark:hover:bg-accent/40': !isPending,
+            'opacity-0': isDragActive,
           }
         )}
-        htmlFor={id}
+        htmlFor={_id || id}
       >
         <div className="my-2">
           {isPending ? (
@@ -95,15 +98,15 @@ export function UploadDropzone({
           {...getInputProps()}
           type="file"
           multiple
-          id={id}
+          id={_id || id}
           accept={accept}
           disabled={isPending}
         />
       </label>
 
       {isDragActive && (
-        <div className="bg-background pointer-events-none absolute inset-0 rounded-lg">
-          <div className="dark:bg-accent/30 bg-accent flex size-full flex-col items-center justify-center rounded-lg">
+        <div className="pointer-events-none absolute inset-0 rounded-lg">
+          <div className="dark:bg-accent/40 bg-accent flex size-full flex-col items-center justify-center rounded-lg">
             <div className="my-2">
               <Upload className="size-6" />
             </div>

@@ -1,0 +1,506 @@
+---
+title: React Hook Form
+---
+
+It's common for file uploads to be part of a form. In this guide, we'll take a look at how to add file uploads to a form built with **React Hook Form**. This guide is based on the shadcn/ui [form guide](https://ui.shadcn.com/docs/forms/react-hook-form) and will use the [`<Field />`](https://ui.shadcn.com/docs/components/field) component.
+
+We'll cover multiple file uploads, but the same principles apply for single file uploads.
+
+## Form
+
+<Steps>
+
+<Step>
+
+### Installation
+
+Install the following shadcn/ui components. Make sure to also have React Hook Form and Zod installed.
+
+```npm
+npx shadcn@latest add field input button
+```
+
+</Step>
+
+<Step>
+
+### Setup upload route
+
+Setup your upload route. Use your preferred framework, but for this example, we'll use Next.js.
+
+```ts title="app/api/upload/route.ts"
+import { route, type Router } from '@better-upload/server';
+import { toRouteHandler } from '@better-upload/server/adapters/next';
+import { aws } from '@better-upload/server/clients';
+
+const router: Router = {
+  client: aws(),
+  bucketName: 'my-bucket',
+  routes: {
+    form: route({
+      multipleFiles: true,
+      maxFiles: 5,
+      maxFileSize: 1024 * 1024 * 5, // 5MB
+      onBeforeUpload() {
+        return {
+          generateObjectInfo: ({ file }) => ({ key: `form/${file.name}` }),
+        };
+      },
+    }),
+  },
+};
+
+export const { POST } = toRouteHandler(router);
+```
+
+</Step>
+
+<Step>
+
+### Define form schema
+
+We'll start by defining the shape of our form using a Zod schema. It contains two fields:
+
+- `folderName`: For an arbitrary text input.
+- `objectKeys`: For the uploaded files, stores the S3 object keys.
+
+```tsx title="form.tsx"
+import * as z from 'zod';
+
+const formSchema = z.object({
+  folderName: z.string().min(1, 'Folder name is required.'),
+  objectKeys: z.array(z.string()).min(1, 'Upload at least one file.'),
+});
+```
+
+</Step>
+
+<Step>
+
+### Setup the form
+
+Next, we'll use the `useForm` hook from React Hook Form to create our form instance, along with the `useUploadFiles` hook to handle file uploads.
+
+```tsx title="form.tsx"
+import { useUploadFiles } from '@better-upload/client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+
+const formSchema = z.object({
+  folderName: z.string().min(1, 'Folder name is required.'),
+  objectKeys: z.array(z.string()).min(1, 'Upload at least one file.'),
+});
+
+export function FormUploader() {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      folderName: '',
+      objectKeys: [],
+    },
+  });
+
+  const uploader = useUploadFiles({
+    route: 'form',
+    onUploadComplete: ({ files }) => {
+      form.setValue(
+        'objectKeys',
+        files.map((file) => file.objectInfo.key)
+      );
+    },
+    onError: (error) => {
+      form.setError('objectKeys', {
+        message: error.message || 'An error occurred.',
+      });
+    },
+  });
+
+  function onSubmit(data: z.infer<typeof formSchema>) {
+    // call your API here
+    console.log(data);
+  }
+
+  return (
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      {/* ... */}
+      {/* Build the form here */}
+      {/* ... */}
+    </form>
+  );
+}
+```
+
+</Step>
+
+<Step>
+
+### Build the form
+
+We can now build the form using the `<Controller />` component from React Hook Form and the `<UploadDropzone />` component for the file uploads.
+
+```tsx title="form.tsx"
+'use client';
+
+import { useUploadFiles } from '@better-upload/client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
+import * as z from 'zod';
+
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { UploadDropzone } from '@/components/ui/upload-dropzone';
+
+const formSchema = z.object({
+  folderName: z.string().min(1, 'Folder name is required.'),
+  objectKeys: z.array(z.string()).min(1, 'Upload at least one file.'),
+});
+
+export function FormUploader() {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      folderName: '',
+      objectKeys: [],
+    },
+  });
+
+  const uploader = useUploadFiles({
+    route: 'form',
+    onUploadComplete: ({ files }) => {
+      form.setValue(
+        'objectKeys',
+        files.map((file) => file.objectInfo.key)
+      );
+    },
+    onError: (error) => {
+      form.setError('objectKeys', {
+        message: error.message || 'An error occurred.',
+      });
+    },
+  });
+
+  function onSubmit(data: z.infer<typeof formSchema>) {
+    // call your API here
+    console.log(data);
+  }
+
+  return (
+    <Card className="w-full sm:max-w-md">
+      <CardHeader>
+        <CardTitle>Form Uploader</CardTitle>
+        <CardDescription>Upload files to a specific folder.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)}>
+          <FieldGroup>
+            <Controller
+              name="folderName"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-demo-folderName">
+                    Folder name
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="form-rhf-demo-folderName"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="my-folder"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="objectKeys"
+              control={form.control}
+              render={({ fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-demo-objectKeys">
+                    Files
+                  </FieldLabel>
+                  <UploadDropzone
+                    id="form-rhf-demo-objectKeys"
+                    control={uploader.control}
+                    description={{
+                      maxFiles: 5,
+                      maxFileSize: '5MB',
+                    }}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </form>
+      </CardContent>
+      <CardFooter>
+        <Field orientation="horizontal">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              form.reset();
+              uploader.reset();
+            }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="submit"
+            form="form-rhf-demo"
+            disabled={uploader.isPending}
+          >
+            Submit
+          </Button>
+        </Field>
+      </CardFooter>
+    </Card>
+  );
+}
+```
+
+</Step>
+
+<Accordions>
+<Accordion title="Hiding dropzone after upload">
+
+Let's hide the dropzone after the user has uploaded files. We can do this by using the `uploadedFiles` array returned by the `useUploadFiles` hook.
+
+```tsx
+export function FormUploader() {
+  // ...
+
+  return (
+    <Card className="w-full sm:max-w-md">
+      {/* ... */}
+
+      <CardContent>
+        <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)}>
+          <FieldGroup>
+            {/* ... */}
+
+            <Controller
+              name="objectKeys"
+              control={form.control}
+              // [!code highlight]
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-demo-objectKeys">
+                    Files
+                  </FieldLabel>
+                  {/* [!code highlight:18] */}
+                  {field.value.length > 0 ? (
+                    <div className="flex flex-col">
+                      {uploader.uploadedFiles.map((file) => (
+                        <span key={file.objectInfo.key} className="text-sm">
+                          {file.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <UploadDropzone
+                      id="form-rhf-demo-objectKeys"
+                      control={uploader.control}
+                      description={{
+                        maxFiles: 5,
+                        maxFileSize: '5MB',
+                      }}
+                    />
+                  )}
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </form>
+      </CardContent>
+
+      {/* ... */}
+    </Card>
+  );
+}
+```
+
+</Accordion>
+</Accordions>
+
+</Steps>
+
+## Upload on form submit
+
+In this example, we only upload the files after the user clicks on the submit button. We'll use the `uploadOverride` prop to override the default behavior of the `<UploadDropzone />`.
+
+```tsx title="form.tsx"
+'use client';
+
+import { useUploadFiles } from '@better-upload/client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
+import * as z from 'zod';
+
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { UploadDropzone } from '@/components/ui/upload-dropzone';
+
+const formSchema = z.object({
+  folderName: z.string().min(1, 'Folder name is required.'),
+  files: z.array(z.file()).min(1, 'Upload at least one file.'),
+  // for Zod v3: z.array(z.instanceof(File)).min(1, 'Upload at least one file.'),
+});
+
+export function FormUploader() {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      folderName: '',
+      files: [],
+    },
+  });
+
+  const uploader = useUploadFiles({
+    route: 'form',
+    onError: (error) => {
+      form.setError('files', {
+        message: error.message || 'An error occurred.',
+      });
+    },
+  });
+
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    const { files } = await uploader.upload(data.files);
+
+    // call your API here
+    console.log({
+      folderName: data.folderName,
+      objectKeys: files.map((file) => file.objectInfo.key),
+    });
+  }
+
+  return (
+    <Card className="w-full sm:max-w-md">
+      <CardHeader>
+        <CardTitle>Form Uploader</CardTitle>
+        <CardDescription>Upload files to a specific folder.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)}>
+          <FieldGroup>
+            <Controller
+              name="folderName"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-demo-folderName">
+                    Folder name
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="form-rhf-demo-folderName"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="my-folder"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="files"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-rhf-demo-files">Files</FieldLabel>
+                  {field.value.length > 0 ? (
+                    <div className="flex flex-col">
+                      {field.value.map((file) => (
+                        <span key={file.name} className="text-sm">
+                          {file.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <UploadDropzone
+                      id="form-rhf-demo-files"
+                      control={uploader.control}
+                      description={{
+                        maxFiles: 5,
+                        maxFileSize: '5MB',
+                      }}
+                      uploadOverride={(files) => {
+                        field.onChange(Array.from(files));
+                      }}
+                    />
+                  )}
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </form>
+      </CardContent>
+      <CardFooter>
+        <Field orientation="horizontal">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              form.reset();
+              uploader.reset();
+            }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="submit"
+            form="form-rhf-demo"
+            disabled={uploader.isPending}
+          >
+            Submit
+          </Button>
+        </Field>
+      </CardFooter>
+    </Card>
+  );
+}
+```

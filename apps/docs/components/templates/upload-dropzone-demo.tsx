@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 export function UploadDropzoneDemo() {
   const id = useId();
 
-  const { getRootProps, getInputProps, isDragActive, inputRef } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (files) => {
       toast.info(
         `You dropped ${files.length} file${files.length > 1 ? 's' : ''}.`
@@ -30,7 +30,10 @@ export function UploadDropzoneDemo() {
       <label
         {...getRootProps()}
         className={cn(
-          'dark:bg-input/10 flex w-full min-w-72 cursor-pointer flex-col items-center justify-center rounded-lg bg-transparent px-2 py-6 transition-colors'
+          'dark:bg-input/10 hover:bg-accent dark:hover:bg-accent/40 flex w-full min-w-72 cursor-pointer flex-col items-center justify-center rounded-lg bg-transparent px-2 py-6 transition-colors',
+          {
+            'opacity-0': isDragActive,
+          }
         )}
         htmlFor={id}
       >
@@ -56,8 +59,8 @@ export function UploadDropzoneDemo() {
       </label>
 
       {isDragActive && (
-        <div className="bg-background pointer-events-none absolute inset-0 rounded-lg">
-          <div className="dark:bg-accent/30 bg-accent flex size-full flex-col items-center justify-center rounded-lg">
+        <div className="pointer-events-none absolute inset-0 rounded-lg">
+          <div className="dark:bg-accent/40 bg-accent flex size-full flex-col items-center justify-center rounded-lg">
             <div className="my-2">
               <Upload className="size-6" />
             </div>

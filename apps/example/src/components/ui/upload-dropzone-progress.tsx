@@ -1,13 +1,14 @@
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import type { UploadHookControl } from 'better-upload/client';
-import { formatBytes } from 'better-upload/client/helpers';
+import type { UploadHookControl } from '@better-upload/client';
+import { formatBytes } from '@better-upload/client/helpers';
 import { Dot, File, Upload } from 'lucide-react';
 import { useId } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 type UploadDropzoneProgressProps = {
   control: UploadHookControl<true>;
+  id?: string;
   accept?: string;
   metadata?: Record<string, unknown>;
   description?:
@@ -26,6 +27,7 @@ type UploadDropzoneProgressProps = {
 
 export function UploadDropzoneProgress({
   control: { upload, isPending, progresses },
+  id: _id,
   accept,
   metadata,
   description,
@@ -48,12 +50,12 @@ export function UploadDropzoneProgress({
   });
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="text-foreground flex flex-col gap-3">
       <div
         className={cn(
           'relative rounded-lg border border-dashed transition-colors',
           {
-            'border-primary/70': isDragActive,
+            'border-primary/80': isDragActive,
           }
         )}
       >
@@ -63,10 +65,11 @@ export function UploadDropzoneProgress({
             'dark:bg-input/10 flex w-full min-w-72 cursor-pointer flex-col items-center justify-center rounded-lg bg-transparent px-2 py-6 transition-colors',
             {
               'text-muted-foreground cursor-not-allowed': isPending,
-              'hover:bg-accent dark:hover:bg-accent/30': !isPending,
+              'hover:bg-accent dark:hover:bg-accent/40': !isPending,
+              'opacity-0': isDragActive,
             }
           )}
-          htmlFor={id}
+          htmlFor={_id || id}
         >
           <div className="my-2">
             <Upload className="size-6" />
@@ -95,15 +98,15 @@ export function UploadDropzoneProgress({
             {...getInputProps()}
             type="file"
             multiple
-            id={id}
+            id={_id || id}
             accept={accept}
             disabled={isPending}
           />
         </label>
 
         {isDragActive && (
-          <div className="bg-background pointer-events-none absolute inset-0 rounded-lg">
-            <div className="dark:bg-accent/30 bg-accent flex size-full flex-col items-center justify-center rounded-lg">
+          <div className="pointer-events-none absolute inset-0 rounded-lg">
+            <div className="dark:bg-accent/40 bg-accent flex size-full flex-col items-center justify-center rounded-lg">
               <div className="my-2">
                 <Upload className="size-6" />
               </div>
@@ -117,7 +120,7 @@ export function UploadDropzoneProgress({
       <div className="grid gap-2">
         {progresses.map((progress) => (
           <div
-            key={progress.objectKey}
+            key={progress.objectInfo.key}
             className={cn(
               'dark:bg-input/10 flex items-center gap-2 rounded-lg border bg-transparent p-3',
               {

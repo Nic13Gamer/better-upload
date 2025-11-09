@@ -1,0 +1,36 @@
+```tsx tab="Client"
+export function Uploader() {
+  const { control } = useUploadFiles({
+    route: 'images',
+  });
+
+  return (
+    <UploadDropzone
+      control={control}
+      accept="image/*"
+      description={{
+        maxFiles: 4,
+        maxFileSize: '2MB',
+        fileTypes: 'JPEG, PNG, GIF',
+      }}
+    />
+  );
+}
+```
+
+```ts tab="Server"
+const router: Router = {
+  client: aws(),
+  bucketName: 'my-bucket',
+  routes: {
+    images: route({
+      multipleFiles: true,
+      maxFiles: 4,
+      fileTypes: ['image/*'],
+      maxFileSize: 1024 * 1024 * 2,
+    }),
+  },
+};
+
+export const { POST } = toRouteHandler(router);
+```

@@ -21,10 +21,10 @@ Better Upload provides React hooks that allow you to easily upload files using p
 
 ## Usage
 
-```tsx title="my-component.tsx"
-import { useUploadFile } from 'better-upload/client';
+```tsx title="uploader.tsx"
+import { useUploadFile } from '@better-upload/client';
 
-export function MyComponent() {
+export function Uploader() {
   const {
     upload,
     uploadAsync,
@@ -40,7 +40,7 @@ export function MyComponent() {
     metadata,
     control, // for use in pre-built components
   } = useUploadFile({
-    route: 'demo',
+    route: 'profile',
   });
 
   return (
@@ -133,7 +133,7 @@ Callback that is called before requesting the pre-signed URL. Use this to modify
 
 ```tsx
 useUploadFile({
-  route: 'demo',
+  route: 'profile',
   onBeforeUpload: ({ file }) => {
     // rename the file
     return new File([file], 'renamed-' + file.name, { type: file.type });
@@ -147,7 +147,7 @@ Event that is called before the file starts being uploaded to S3. This happens a
 
 ```tsx
 useUploadFile({
-  route: 'demo',
+  route: 'profile',
   onUploadBegin: ({ file, metadata }) => {
     console.log('Upload begin');
   },
@@ -160,7 +160,7 @@ Event that is called when the file upload progress changes.
 
 ```tsx
 useUploadFile({
-  route: 'demo',
+  route: 'profile',
   onUploadProgress: ({ file }) => {
     console.log(`Upload progress: ${file.progress * 100}%`);
   },
@@ -173,7 +173,7 @@ Event that is called after the file is successfully uploaded.
 
 ```tsx
 useUploadFile({
-  route: 'demo',
+  route: 'profile',
   onUploadComplete: ({ file, metadata }) => {
     console.log('File uploaded');
   },
@@ -186,7 +186,7 @@ Event that is called if the upload fails.
 
 ```tsx
 useUploadFile({
-  route: 'demo',
+  route: 'profile',
   onError: (error) => {
     console.log(error.message);
   },
@@ -204,7 +204,7 @@ Event that is called after the upload settles (either successfully completed or 
 
 ```tsx
 useUploadFile({
-  route: 'demo',
+  route: 'profile',
   onUploadSettle: ({ file, metadata }) => {
     console.log('Upload settled');
   },
@@ -216,9 +216,9 @@ useUploadFile({
 It is possible to send metadata from the client to your server on the upload request.
 
 ```tsx
-export function MyComponent() {
+export function Uploader() {
   const { upload } = useUploadFile({
-    route: 'demo',
+    route: 'profile',
   });
 
   return (

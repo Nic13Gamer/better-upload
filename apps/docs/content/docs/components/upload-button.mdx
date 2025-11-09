@@ -65,12 +65,12 @@ The `<UploadButton />` should be used with the `useUploadFile` hook.
 ```tsx
 'use client';
 
-import { useUploadFile } from 'better-upload/client';
+import { useUploadFile } from '@better-upload/client';
 import { UploadButton } from '@/components/ui/upload-button';
 
 export function Uploader() {
   const { control } = useUploadFile({
-    route: 'demo',
+    route: 'profile',
   });
 
   return <UploadButton control={control} accept="image/*" />;
@@ -87,6 +87,10 @@ The button will open a file picker dialog when clicked, and upload the selected 
       type: 'object',
       description: 'Control object returned by the useUploadFile hook.',
       required: true,
+    },
+    id: {
+      type: 'string',
+      description: 'The id of the input element.',
     },
     accept: {
       type: 'string',

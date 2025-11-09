@@ -1,0 +1,72 @@
+{
+  "name": "@better-upload/server",
+  "description": "The Better Upload server library. Simple and easy file uploads for React.",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "lint": "tsc",
+    "test": "vitest"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./clients": {
+      "import": "./dist/clients/index.js",
+      "types": "./dist/clients/index.d.ts"
+    },
+    "./helpers": {
+      "import": "./dist/helpers/index.js",
+      "types": "./dist/helpers/index.d.ts"
+    },
+    "./adapters/next": {
+      "import": "./dist/adapters/next.js",
+      "types": "./dist/adapters/next.d.ts"
+    },
+    "./adapters/node": {
+      "import": "./dist/adapters/node.js",
+      "types": "./dist/adapters/node.d.ts"
+    },
+    "./internal": {
+      "import": "./dist/internal-export.js",
+      "types": "./dist/internal-export.d.ts"
+    }
+  },
+  "dependencies": {
+    "aws4fetch": "^1.0.20",
+    "fast-xml-parser": "^5.3.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "@repo/tsconfig": "workspace:*",
+    "tsdown": "^0.15.12",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.5"
+  },
+  "keywords": [
+    "react",
+    "nextjs",
+    "tanstack",
+    "upload",
+    "files",
+    "multipart"
+  ],
+  "license": "MIT",
+  "homepage": "https://better-upload.com",
+  "bugs": {
+    "url": "https://github.com/Nic13Gamer/better-upload/issues"
+  },
+  "author": "Nicholas",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nic13Gamer/better-upload.git"
+  }
+}

@@ -9,12 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.645.0",
-    "@hookform/resolvers": "^3.10.0",
-    "@radix-ui/react-label": "^2.1.4",
+    "@better-upload/client": "workspace:*",
+    "@better-upload/server": "workspace:*",
+    "@hookform/resolvers": "^5.2.2",
+    "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-progress": "^1.1.2",
-    "@radix-ui/react-slot": "^1.1.2",
-    "better-upload": "workspace:*",
+    "@radix-ui/react-separator": "^1.1.8",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@tanstack/react-form": "^1.23.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.484.0",
@@ -23,11 +25,11 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
-    "react-hook-form": "^7.56.1",
+    "react-hook-form": "^7.66.0",
     "sonner": "^2.0.1",
     "tailwind-merge": "^3.0.2",
     "tw-animate-css": "^1.2.4",
-    "zod": "^3.23.8"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

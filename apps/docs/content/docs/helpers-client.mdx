@@ -9,7 +9,7 @@ icon: Wrench
     {
       href: '/docs/helpers-server',
       title: 'Server-side',
-      description: 'Helpers for your server.',
+      description: 'Helpers for your router and server.',
     },
     {
       href: '/docs/helpers-client',
@@ -24,7 +24,7 @@ icon: Wrench
 Format a number of bytes into a human-readable string.
 
 ```ts
-import { formatBytes } from 'better-upload/client/helpers';
+import { formatBytes } from '@better-upload/client/helpers';
 
 formatBytes(1000); // "1 kB"
 formatBytes(1000, { decimalPlaces: 2 }); // "1.00 kB"
