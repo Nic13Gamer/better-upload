@@ -1,5 +1,11 @@
 # @better-upload/server
 
+## 3.0.1
+
+### Patch Changes
+
+- [`4952ac4`](https://github.com/Nic13Gamer/better-upload/commit/4952ac43aa88bacc24a520f2fa51b0a056a66a7a) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Fix MinIO client host
+
 ## 3.0.0
 
 ### Major Changes
