@@ -25,7 +25,7 @@ export function wasabi(params?: WasabiClientParams) {
   }
 
   return custom({
-    hostname: `s3.${region}.wasabisys.com`,
+    host: `s3.${region}.wasabisys.com`,
     accessKeyId,
     secretAccessKey,
     region,

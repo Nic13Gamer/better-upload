@@ -9,13 +9,27 @@ export type CustomClientParams = {
   /**
    * Do not include `https://` or `http://`.
    *
+   * @deprecated use `host` instead
+   *
    * @example
    *
    * ```ts
    * hostname: 's3.us-east-1.amazonaws.com'
    * ```
    */
-  hostname: string;
+  hostname?: string;
+
+  /**
+   * Do not include `https://` or `http://`.
+   *
+   * @example
+   *
+   * ```ts
+   * host: 's3.us-east-1.amazonaws.com'
+   * host: 'localhost:9000'
+   * ```
+   */
+  host: string;
 
   /**
    * Access key ID.

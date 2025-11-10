@@ -10,7 +10,7 @@ import { AwsClient } from 'aws4fetch';
  *
  * ```ts
  * const s3 = custom({
- *   hostname: 's3.us-east-1.amazonaws.com',
+ *   host: 's3.us-east-1.amazonaws.com',
  *   accessKeyId: 'your-access-key-id',
  *   secretAccessKey: 'your-secret-access-key',
  *   region: 'us-east-1',
@@ -22,6 +22,7 @@ import { AwsClient } from 'aws4fetch';
 export function custom(params: CustomClientParams): Client {
   const {
     hostname,
+    host: _host,
     accessKeyId = process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY,
     forcePathStyle = false,
@@ -29,16 +30,16 @@ export function custom(params: CustomClientParams): Client {
     secure = true,
   } = params ?? {};
 
-  if (!hostname || !accessKeyId || !secretAccessKey) {
+  if ((!_host && !hostname) || !accessKeyId || !secretAccessKey) {
     throw new Error('Missing required parameters for Custom S3 client.');
   }
+
+  const host = _host ?? hostname;
 
   return {
     buildBucketUrl: (bucketName) =>
       `http${secure ? 's' : ''}://${
-        forcePathStyle
-          ? `${hostname}/${bucketName}`
-          : `${bucketName}.${hostname}`
+        forcePathStyle ? `${host}/${bucketName}` : `${bucketName}.${host}`
       }`,
     s3: new AwsClient({
       accessKeyId,

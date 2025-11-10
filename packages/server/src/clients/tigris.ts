@@ -25,7 +25,7 @@ export function tigris(params?: TigrisClientParams) {
   }
 
   return custom({
-    hostname: endpoint ? new URL(endpoint).hostname : 't3.storage.dev',
+    host: endpoint ? new URL(endpoint).host : 't3.storage.dev',
     accessKeyId,
     secretAccessKey,
     region: 'auto',

@@ -27,7 +27,7 @@ export function backblaze(params?: BackblazeClientParams) {
   }
 
   return custom({
-    hostname: `s3.${region}.backblazeb2.com`,
+    host: `s3.${region}.backblazeb2.com`,
     accessKeyId: applicationKeyId,
     secretAccessKey: applicationKey,
     region,

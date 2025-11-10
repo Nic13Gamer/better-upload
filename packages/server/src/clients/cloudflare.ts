@@ -28,7 +28,7 @@ export function cloudflare(params?: CloudflareClientParams) {
   }
 
   return custom({
-    hostname: `${accountId}.${jurisdiction ? `${jurisdiction}.` : ''}r2.cloudflarestorage.com`,
+    host: `${accountId}.${jurisdiction ? `${jurisdiction}.` : ''}r2.cloudflarestorage.com`,
     accessKeyId,
     secretAccessKey,
     region: 'auto',

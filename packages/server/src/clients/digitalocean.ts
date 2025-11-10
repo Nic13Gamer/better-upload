@@ -23,7 +23,7 @@ export function digitalOcean(params?: DigitalOceanClientParams) {
   }
 
   return custom({
-    hostname: `${region}.digitaloceanspaces.com`,
+    host: `${region}.digitaloceanspaces.com`,
     accessKeyId: key,
     secretAccessKey: secret,
     region: 'us-east-1',

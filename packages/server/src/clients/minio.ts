@@ -27,10 +27,11 @@ export function minio(params?: MinioClientParams) {
   }
 
   return custom({
-    hostname: new URL(endpoint).hostname,
+    host: new URL(endpoint).host,
     accessKeyId,
     secretAccessKey,
     region,
     forcePathStyle: true,
+    secure: endpoint.startsWith('https:'),
   });
 }

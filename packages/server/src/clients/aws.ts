@@ -21,7 +21,7 @@ export function aws(params?: AwsClientParams) {
   }
 
   return custom({
-    hostname: `s3.${region}.amazonaws.com`,
+    host: `s3.${region}.amazonaws.com`,
     accessKeyId,
     secretAccessKey,
     region,
