@@ -1,5 +1,11 @@
 # @better-upload/server
 
+## 3.0.2
+
+### Patch Changes
+
+- [`da4718b`](https://github.com/Nic13Gamer/better-upload/commit/da4718bf67e56822385cd8fd561e9a5efd80c10b) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Add `sessionToken` to custom & AWS clients
+
 ## 3.0.1
 
 ### Patch Changes
