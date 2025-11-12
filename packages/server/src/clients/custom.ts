@@ -16,6 +16,7 @@ import { AwsClient } from 'aws4fetch';
  *   region: 'us-east-1',
  *   secure: true,
  *   forcePathStyle: false,
+ *   sessionToken: '...',
  * });
  * ```
  */
@@ -28,6 +29,7 @@ export function custom(params: CustomClientParams): Client {
     forcePathStyle = false,
     region = process.env.AWS_REGION ?? 'us-east-1',
     secure = true,
+    sessionToken,
   } = params ?? {};
 
   if ((!_host && !hostname) || !accessKeyId || !secretAccessKey) {
@@ -44,6 +46,7 @@ export function custom(params: CustomClientParams): Client {
     s3: new AwsClient({
       accessKeyId,
       secretAccessKey,
+      sessionToken,
       region,
       service: 's3',
       retries: 0,

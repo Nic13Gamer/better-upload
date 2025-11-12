@@ -61,6 +61,11 @@ export type CustomClientParams = {
    * @default true
    */
   secure?: boolean;
+
+  /**
+   * Session token for temporary credentials.
+   */
+  sessionToken?: string;
 };
 
 export type AwsClientParams = {
@@ -78,6 +83,11 @@ export type AwsClientParams = {
    * AWS region.
    */
   region: string;
+
+  /**
+   * AWS session token for temporary credentials.
+   */
+  sessionToken?: string;
 };
 
 export type CloudflareClientParams = {
