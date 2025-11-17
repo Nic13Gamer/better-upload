@@ -4,6 +4,7 @@ import type {
   HeadObjectResult,
   ObjectAcl,
   ObjectMetadata,
+  PostFormData,
   StorageClass,
 } from '@/types/s3';
 import { parseXml } from './xml';
@@ -222,4 +223,132 @@ export async function signAbortMultipartUpload(
       aws: { signQuery: true, allHeaders: true },
     })
   ).url;
+}
+
+export function createPostPolicy(params: {
+  bucket: string;
+  key: string;
+  contentType: string;
+  contentLength: number;
+  metadata?: ObjectMetadata;
+  acl?: ObjectAcl;
+  storageClass?: StorageClass;
+  cacheControl?: string;
+  expiresIn: number;
+}): { policy: string; conditions: any[] } {
+  const expiration = new Date(Date.now() + params.expiresIn * 1000);
+
+  const conditions: any[] = [
+    { bucket: params.bucket },
+    { key: params.key },
+    { 'Content-Type': params.contentType },
+    ['content-length-range', params.contentLength, params.contentLength],
+  ];
+
+  // Add optional conditions
+  if (params.acl) {
+    conditions.push({ acl: params.acl });
+  }
+  if (params.storageClass) {
+    conditions.push({ 'x-amz-storage-class': params.storageClass });
+  }
+  if (params.cacheControl) {
+    conditions.push({ 'Cache-Control': params.cacheControl });
+  }
+
+  // Add metadata conditions
+  if (params.metadata) {
+    Object.entries(params.metadata).forEach(([key, value]) => {
+      conditions.push({ [`x-amz-meta-${key.toLowerCase()}`]: value });
+    });
+  }
+
+  const policyDocument = {
+    expiration: expiration.toISOString(),
+    conditions,
+  };
+
+  const policy = btoa(JSON.stringify(policyDocument));
+
+  return { policy, conditions };
+}
+
+export async function signPostObject(
+  client: Client,
+  params: {
+    bucket: string;
+    key: string;
+    contentType: string;
+    contentLength: number;
+    metadata?: ObjectMetadata;
+    acl?: ObjectAcl;
+    storageClass?: StorageClass;
+    cacheControl?: string;
+    expiresIn: number;
+  }
+): Promise<PostFormData> {
+  const { policy } = createPostPolicy(params);
+
+  // Create the form fields
+  const fields: PostFormData['fields'] = {
+    key: params.key,
+    'Content-Type': params.contentType,
+    bucket: params.bucket,
+    'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
+    'X-Amz-Credential': '', // Will be filled by client.s3.sign
+    'X-Amz-Date': '', // Will be filled by client.s3.sign
+    Policy: policy,
+    'X-Amz-Signature': '', // Will be filled by client.s3.sign
+  };
+
+  // Add optional fields
+  if (params.acl) {
+    fields.acl = params.acl;
+  }
+  if (params.storageClass) {
+    fields['x-amz-storage-class'] = params.storageClass;
+  }
+  if (params.cacheControl) {
+    fields['Cache-Control'] = params.cacheControl;
+  }
+
+  // Add metadata fields
+  if (params.metadata) {
+    Object.entries(params.metadata).forEach(([key, value]) => {
+      fields[`x-amz-meta-${key.toLowerCase()}`] = value;
+    });
+  }
+
+  // Use the client to sign the POST policy
+  const bucketUrl = client.buildBucketUrl(params.bucket);
+  const signResult = await client.s3.sign(bucketUrl, {
+    method: 'POST',
+    body: policy,
+    aws: { signQuery: false, allHeaders: false },
+  });
+
+  // Extract signing information from the signed request
+  const url = new URL(signResult.url);
+  const signedHeaders = signResult.headers || {};
+
+  // Update fields with actual signing information
+  const xAmzCredential = signedHeaders.get('x-amz-credential');
+  if (xAmzCredential != null) {
+    fields['X-Amz-Credential'] = xAmzCredential;
+  }
+
+  const xAmzDate = signedHeaders.get("x-amz-date");
+  if (xAmzDate != null) {
+    fields['X-Amz-Date'] = xAmzDate;
+  }
+
+  const xAmzSignature = signedHeaders.get("x-amz-signature");
+  if (xAmzSignature != null) {
+    fields['X-Amz-Signature'] = xAmzSignature;
+  }
+
+  return {
+    url: bucketUrl,
+    fields,
+  };
 }

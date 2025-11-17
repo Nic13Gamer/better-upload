@@ -29,6 +29,7 @@ exports[`files handler > should accept valid multiple files upload request 1`] =
     },
   ],
   "metadata": {},
+  "method": "put",
 }
 `;
 
@@ -49,6 +50,7 @@ exports[`files handler > should accept valid single file upload request 1`] = `
     },
   ],
   "metadata": {},
+  "method": "put",
 }
 `;
 
@@ -69,6 +71,7 @@ exports[`files handler > should accept valid upload with custom bucket 1`] = `
     },
   ],
   "metadata": {},
+  "method": "put",
 }
 `;
 
@@ -186,5 +189,122 @@ exports[`multipart handler > should accept valid upload with custom bucket 1`] =
     ],
     "partSize": 52428800,
   },
+}
+`;
+
+exports[`uploadMethod handler > should accept valid multiple files upload request with POST method 1`] = `
+{
+  "files": [
+    {
+      "file": {
+        "name": "file1.jpg",
+        "objectInfo": {
+          "key": "multiple-post/file1.jpg",
+          "metadata": {},
+        },
+        "size": 500000,
+        "type": "image/jpeg",
+      },
+      "postForm": "post-form-placeholder",
+    },
+    {
+      "file": {
+        "name": "file2.png",
+        "objectInfo": {
+          "key": "multiple-post/file2.png",
+          "metadata": {},
+        },
+        "size": 400000,
+        "type": "image/png",
+      },
+      "postForm": "post-form-placeholder",
+    },
+  ],
+  "metadata": {},
+  "method": "post",
+}
+`;
+
+exports[`uploadMethod handler > should accept valid single file upload request with POST method 1`] = `
+{
+  "files": [
+    {
+      "file": {
+        "name": "file1.jpg",
+        "objectInfo": {
+          "key": "single-post/file1.jpg",
+          "metadata": {},
+        },
+        "size": 500000,
+        "type": "image/jpeg",
+      },
+      "postForm": "post-form-placeholder",
+    },
+  ],
+  "metadata": {},
+  "method": "post",
+}
+`;
+
+exports[`uploadMethod handler > should accept valid single file upload request with PUT method 1`] = `
+{
+  "files": [
+    {
+      "file": {
+        "name": "file1.jpg",
+        "objectInfo": {
+          "key": "single-put/file1.jpg",
+          "metadata": {},
+        },
+        "size": 500000,
+        "type": "image/jpeg",
+      },
+      "signedUrl": "signed-url-placeholder",
+    },
+  ],
+  "metadata": {},
+  "method": "put",
+}
+`;
+
+exports[`uploadMethod handler > should accept valid upload with custom bucket using POST method 1`] = `
+{
+  "files": [
+    {
+      "file": {
+        "name": "file1.jpg",
+        "objectInfo": {
+          "key": "custom-post/file1.jpg",
+          "metadata": {},
+        },
+        "size": 500000,
+        "type": "image/jpeg",
+      },
+      "postForm": "post-form-placeholder",
+    },
+  ],
+  "metadata": {},
+  "method": "post",
+}
+`;
+
+exports[`uploadMethod handler > should default to PUT method when uploadMethod is not specified 1`] = `
+{
+  "files": [
+    {
+      "file": {
+        "name": "file1.jpg",
+        "objectInfo": {
+          "key": "default/file1.jpg",
+          "metadata": {},
+        },
+        "size": 500000,
+        "type": "image/jpeg",
+      },
+      "signedUrl": "signed-url-placeholder",
+    },
+  ],
+  "metadata": {},
+  "method": "put",
 }
 `;

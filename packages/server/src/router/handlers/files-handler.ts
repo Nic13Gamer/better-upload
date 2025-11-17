@@ -3,7 +3,7 @@ import type { Client } from '@/types/clients';
 import type { Route } from '@/types/router/internal';
 import type { ObjectMetadata } from '@/types/s3';
 import { isFileTypeAllowed } from '@/utils/file-type';
-import { signPutObject } from '@/utils/s3';
+import { signPutObject, signPostObject } from '@/utils/s3';
 import { createSlug } from '@/utils/slug';
 import type { UploadFileSchema } from '@/validations';
 import { RejectUpload } from '../route';
@@ -105,6 +105,9 @@ export async function handleFiles({
     throw error;
   }
 
+  // Determine upload method (default to 'put' for backward compatibility)
+  const uploadMethod = route.uploadMethod || 'put';
+
   const signedUrls = await Promise.all(
     files.map(async (file) => {
       let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
@@ -133,31 +136,60 @@ export async function handleFiles({
         objectCacheControl = objectInfo.cacheControl;
       }
 
-      const signedUrl = await signPutObject(client, {
-        bucket: bucketName,
-        key: objectKey,
-        contentType: file.type,
-        contentLength: file.size,
-        metadata: objectMetadata,
-        acl: objectAcl,
-        storageClass: objectStorageClass,
-        cacheControl: objectCacheControl,
-        expiresIn: signedUrlExpiresIn,
-      });
+      // Sign based on upload method
+      if (uploadMethod === 'post') {
+        const postForm = await signPostObject(client, {
+          bucket: bucketName,
+          key: objectKey,
+          contentType: file.type,
+          contentLength: file.size,
+          metadata: objectMetadata,
+          acl: objectAcl,
+          storageClass: objectStorageClass,
+          cacheControl: objectCacheControl,
+          expiresIn: signedUrlExpiresIn,
+        });
 
-      return {
-        signedUrl,
-        file: {
-          ...file,
-          objectInfo: {
-            key: objectKey,
-            metadata: objectMetadata,
-            acl: objectAcl,
-            storageClass: objectStorageClass,
-            cacheControl: objectCacheControl,
+        return {
+          postForm,
+          file: {
+            ...file,
+            objectInfo: {
+              key: objectKey,
+              metadata: objectMetadata,
+              acl: objectAcl,
+              storageClass: objectStorageClass,
+              cacheControl: objectCacheControl,
+            },
           },
-        },
-      };
+        };
+      } else {
+        const signedUrl = await signPutObject(client, {
+          bucket: bucketName,
+          key: objectKey,
+          contentType: file.type,
+          contentLength: file.size,
+          metadata: objectMetadata,
+          acl: objectAcl,
+          storageClass: objectStorageClass,
+          cacheControl: objectCacheControl,
+          expiresIn: signedUrlExpiresIn,
+        });
+
+        return {
+          signedUrl,
+          file: {
+            ...file,
+            objectInfo: {
+              key: objectKey,
+              metadata: objectMetadata,
+              acl: objectAcl,
+              storageClass: objectStorageClass,
+              cacheControl: objectCacheControl,
+            },
+          },
+        };
+      }
     })
   );
 
@@ -176,17 +208,25 @@ export async function handleFiles({
   }
 
   return Response.json({
-    files: signedUrls.map((url) => ({
-      signedUrl: url.signedUrl,
-      file: {
-        ...url.file,
-        objectInfo: {
-          key: url.file.objectInfo.key,
-          metadata: url.file.objectInfo.metadata,
-          cacheControl: url.file.objectInfo.cacheControl,
+    method: uploadMethod,
+    files: signedUrls.map((url) => {
+      const fileResponse = {
+        file: {
+          ...url.file,
+          objectInfo: {
+            key: url.file.objectInfo.key,
+            metadata: url.file.objectInfo.metadata,
+            cacheControl: url.file.objectInfo.cacheControl,
+          },
         },
-      },
-    })),
+      };
+
+      if (uploadMethod === "put") {
+        return { ...fileResponse, signedUrl: url.signedUrl };
+      } else {
+        return { ...fileResponse, postForm: url.postForm };
+      }
+    }),
     metadata: responseMetadata,
   });
 }
