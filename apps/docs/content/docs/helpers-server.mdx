@@ -117,6 +117,26 @@ await copyObject(s3, {
 });
 ```
 
+### Put object
+
+Upload an object to an S3 bucket.
+
+```ts
+import { putObject } from '@better-upload/server/helpers';
+
+await putObject(s3, {
+  bucket: 'my-bucket',
+  key: 'example.txt',
+  body: 'Hello, world!',
+  contentType: 'text/plain',
+});
+```
+
+<Callout>
+  Do not use this helper for large files or for client-side uploads (use the
+  standard router instead).
+</Callout>
+
 ### Delete object
 
 Delete an object from an S3 bucket.
