@@ -99,6 +99,22 @@ export type RouteConfig<
   signedUrlExpiresIn?: number;
 
   /**
+   * Upload method to use for file uploads.
+   *
+   * - 'put': Uses presigned PUT URLs (default, current behavior)
+   * - 'post': Uses presigned POST form data
+   *
+   * @default 'put'
+   *
+   * @example
+   *
+   * ```ts
+   * uploadMethod: 'post' // Use presigned POST
+   * ```
+   */
+  uploadMethod?: 'put' | 'post';
+
+  /**
    * Schema for validating metadata sent from the client. You can use any validation library that is compatible with `standard-schema`.
    *
    * @example
@@ -350,6 +366,7 @@ export type Route = {
   maxFileSize?: number;
   fileTypes?: string[];
   signedUrlExpiresIn?: number;
+  uploadMethod?: 'put' | 'post';
   clientMetadataSchema?: StandardSchemaV1;
 
   maxFiles?: number;

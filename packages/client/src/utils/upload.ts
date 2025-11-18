@@ -6,12 +6,37 @@ import type {
 } from '@/types/internal';
 import type { FileUploadInfo, UploadStatus } from '@/types/public';
 import { withRetries } from './internal/retry';
-import { uploadFileToS3, uploadMultipartFileToS3 } from './internal/s3-upload';
+import {
+  uploadFileToS3,
+  uploadFileToS3Post,
+  uploadMultipartFileToS3,
+} from './internal/s3-upload';
 
 /**
  * Upload multiple files to S3.
  *
- * This will not throw if one of the uploads fails, but will return the files that failed to upload.
+ * This function handles the complete upload process: requesting signed URLs from your server,
+ * uploading files to S3 (supporting both single-part and multipart uploads), and tracking
+ * progress for each file. Failed uploads are returned separately without throwing errors.
+ *
+ * @param params - Upload configuration object
+ * @param params.api - API endpoint for requesting signed URLs (default: '/api/upload')
+ * @param params.route - Upload route name that matches your server configuration
+ * @param params.files - Array of files or FileList to upload
+ * @param params.metadata - Optional metadata to send to your server
+ * @param params.multipartBatchSize - Number of parts to upload simultaneously in multipart uploads
+ * @param params.uploadBatchSize - Number of files to upload simultaneously (default: all files)
+ * @param params.signal - AbortSignal to cancel the upload operation
+ * @param params.headers - Additional headers to send when requesting signed URLs
+ * @param params.credentials - Credentials mode for the signed URL request
+ * @param params.retry - Number of retry attempts for failed operations
+ * @param params.retryDelay - Delay in milliseconds between retry attempts
+ * @param params.onUploadBegin - Callback fired when uploads begin with file info and server metadata
+ * @param params.onFileStateChange - Callback fired when any file's upload state changes
+ *
+ * @returns Promise resolving to upload results with successful files, failed files, and server metadata
+ *
+ * @throws {ClientUploadErrorClass} When no files are provided, server errors occur, or upload is aborted
  */
 export async function uploadFiles(params: {
   api?: string;
@@ -155,26 +180,52 @@ export async function uploadFiles(params: {
             },
           });
         } else {
-          await uploadFileToS3({
-            file,
-            signedUrl: url.signedUrl,
-            objectMetadata: url.file.objectInfo.metadata,
-            objectCacheControl: url.file.objectInfo.cacheControl,
-            signal: params.signal,
-            retry: params.retry,
-            retryDelay: params.retryDelay,
-            onProgress: (progress) => {
-              uploads.set(url.file.objectInfo.key, {
-                ...uploads.get(url.file.objectInfo.key)!,
-                status: progress === 1 ? 'complete' : 'uploading',
-                progress,
-              });
+          // Handle both PUT and POST upload methods
+          if (payload.method === 'post' && 'postForm' in url) {
+            await uploadFileToS3Post({
+              file,
+              postForm: url.postForm,
+              signal: params.signal,
+              retry: params.retry,
+              retryDelay: params.retryDelay,
+              onProgress: (progress) => {
+                uploads.set(url.file.objectInfo.key, {
+                  ...uploads.get(url.file.objectInfo.key)!,
+                  status: progress === 1 ? 'complete' : 'uploading',
+                  progress,
+                });
 
-              params.onFileStateChange?.({
-                file: uploads.get(url.file.objectInfo.key)!,
-              });
-            },
-          });
+                params.onFileStateChange?.({
+                  file: uploads.get(url.file.objectInfo.key)!,
+                });
+              },
+            });
+          } else if ('signedUrl' in url) {
+            await uploadFileToS3({
+              file,
+              signedUrl: url.signedUrl,
+              objectMetadata: url.file.objectInfo.metadata,
+              objectCacheControl: url.file.objectInfo.cacheControl,
+              signal: params.signal,
+              retry: params.retry,
+              retryDelay: params.retryDelay,
+              onProgress: (progress) => {
+                uploads.set(url.file.objectInfo.key, {
+                  ...uploads.get(url.file.objectInfo.key)!,
+                  status: progress === 1 ? 'complete' : 'uploading',
+                  progress,
+                });
+
+                params.onFileStateChange?.({
+                  file: uploads.get(url.file.objectInfo.key)!,
+                });
+              },
+            });
+          } else {
+            throw new Error(
+              'Invalid upload configuration: missing signedUrl or postForm'
+            );
+          }
         }
       } catch (error) {
         if (isMultipart) {
@@ -254,7 +305,27 @@ export async function uploadFiles(params: {
 /**
  * Upload a single file to S3.
  *
- * This will throw if the upload fails.
+ * This is a convenience wrapper around uploadFiles for single file uploads.
+ * Unlike uploadFiles, this function will throw an error if the upload fails,
+ * making it suitable for cases where you need strict error handling.
+ *
+ * @param params - Upload configuration object
+ * @param params.api - API endpoint for requesting signed URLs (default: '/api/upload')
+ * @param params.route - Upload route name that matches your server configuration
+ * @param params.file - Single file to upload
+ * @param params.metadata - Optional metadata to send to your server
+ * @param params.multipartBatchSize - Number of parts to upload simultaneously in multipart uploads
+ * @param params.signal - AbortSignal to cancel the upload operation
+ * @param params.headers - Additional headers to send when requesting signed URLs
+ * @param params.credentials - Credentials mode for the signed URL request
+ * @param params.retry - Number of retry attempts for failed operations
+ * @param params.retryDelay - Delay in milliseconds between retry attempts
+ * @param params.onUploadBegin - Callback fired when upload begins with file info and server metadata
+ * @param params.onFileStateChange - Callback fired when the file's upload state changes
+ *
+ * @returns Promise resolving to upload result with the successfully uploaded file and server metadata
+ *
+ * @throws {ClientUploadErrorClass} When the upload fails, server errors occur, or upload is aborted
  */
 export async function uploadFile(params: {
   api?: string;

@@ -19,7 +19,7 @@
   },
   "packageManager": "pnpm@9.15.5",
   "engines": {
-    "node": "24.x",
+    "node": "22.x",
     "pnpm": "9.x"
   }
 }

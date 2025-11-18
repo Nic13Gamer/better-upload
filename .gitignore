@@ -42,3 +42,15 @@ next-env.d.ts
 .contentlayer
 .content-collections
 .source
+
+# IntelliJ
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/codeStyles/Project.xml
+/.idea/.gitignore
+/.idea/better-upload.iml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/prettier.xml
+/.idea/vcs.xml
+/packages/client/client.iml
+/packages/server/server.iml
