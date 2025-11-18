@@ -641,6 +641,451 @@ describe('uploadMethod handler', () => {
   });
 });
 
+describe('presigned POST functionality', () => {
+  const { router } = createTestRouter({
+    routes: {
+      postWithMetadata: route({
+        uploadMethod: 'post',
+        maxFileSize: 1024 * 1024 * 5, // 5MB
+        fileTypes: ['image/*'],
+        onBeforeUpload({ file }) {
+          return {
+            objectInfo: {
+              key: `post-meta/${file.name}`,
+              metadata: {
+                'user-id': '12345',
+                'upload-session': 'abc-def-ghi',
+              },
+            },
+          };
+        },
+      }),
+      postWithAcl: route({
+        uploadMethod: 'post',
+        maxFileSize: 1024 * 1024 * 5, // 5MB
+        fileTypes: ['image/*'],
+        onBeforeUpload({ file }) {
+          return {
+            objectInfo: {
+              key: `post-acl/${file.name}`,
+              acl: 'public-read',
+            },
+          };
+        },
+      }),
+      postWithStorageClass: route({
+        uploadMethod: 'post',
+        maxFileSize: 1024 * 1024 * 5, // 5MB
+        fileTypes: ['image/*'],
+        onBeforeUpload({ file }) {
+          return {
+            objectInfo: {
+              key: `post-storage/${file.name}`,
+              storageClass: 'STANDARD_IA',
+            },
+          };
+        },
+      }),
+      postWithCacheControl: route({
+        uploadMethod: 'post',
+        maxFileSize: 1024 * 1024 * 5, // 5MB
+        fileTypes: ['image/*'],
+        onBeforeUpload({ file }) {
+          return {
+            objectInfo: {
+              key: `post-cache/${file.name}`,
+              cacheControl: 'max-age=31536000',
+            },
+          };
+        },
+      }),
+      postWithAllOptions: route({
+        uploadMethod: 'post',
+        maxFileSize: 1024 * 1024 * 5, // 5MB
+        fileTypes: ['image/*'],
+        signedUrlExpiresIn: 1800, // 30 minutes
+        onBeforeUpload({ file }) {
+          return {
+            bucketName: 'test-bucket-all-options',
+            objectInfo: {
+              key: `post-all/${file.name}`,
+              metadata: {
+                project: 'test-project',
+                environment: 'staging',
+              },
+              acl: 'private',
+              storageClass: 'INTELLIGENT_TIERING',
+              cacheControl: 'max-age=86400, must-revalidate',
+            },
+          };
+        },
+      }),
+      postLargeFile: route({
+        uploadMethod: 'post',
+        maxFileSize: 1024 * 1024 * 100, // 100MB
+        fileTypes: ['video/*'],
+        onBeforeUpload({ file }) {
+          return {
+            objectInfo: {
+              key: `post-large/${file.name}`,
+            },
+          };
+        },
+      }),
+    },
+  });
+
+  it('should generate valid POST form with metadata', async () => {
+    const res = await handleRequest(
+      routerRequest({
+        method: 'POST',
+        body: routerUploadBody({
+          route: 'postWithMetadata',
+          files: [{ name: 'test-image.jpg', size: 500000, type: 'image/jpeg' }],
+        }),
+      }),
+      router
+    );
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.method).toBe('post');
+    expect(json.files).toHaveLength(1);
+
+    const file = json.files[0];
+    expect(file.postForm).toBeDefined();
+    expect(file.signedUrl).toBeUndefined();
+
+    // Replace dynamic values for snapshot
+    if (file.postForm?.fields) {
+      file.postForm.fields['X-Amz-Credential'] = 'credential-placeholder';
+      file.postForm.fields['X-Amz-Date'] = 'date-placeholder';
+      file.postForm.fields.Policy = 'policy-placeholder';
+      file.postForm.fields['X-Amz-Signature'] = 'signature-placeholder';
+    }
+    expect(json).toMatchSnapshot();
+  });
+
+  it('should generate valid POST form with ACL', async () => {
+    const res = await handleRequest(
+      routerRequest({
+        method: 'POST',
+        body: routerUploadBody({
+          route: 'postWithAcl',
+          files: [
+            { name: 'public-image.jpg', size: 300000, type: 'image/jpeg' },
+          ],
+        }),
+      }),
+      router
+    );
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.method).toBe('post');
+
+    const file = json.files[0];
+    expect(file.postForm.fields.acl).toBe('public-read');
+    expect(file.file.objectInfo.acl).toBe('public-read');
+
+    // Replace dynamic values for snapshot
+    if (file.postForm?.fields) {
+      file.postForm.fields['X-Amz-Credential'] = 'credential-placeholder';
+      file.postForm.fields['X-Amz-Date'] = 'date-placeholder';
+      file.postForm.fields.Policy = 'policy-placeholder';
+      file.postForm.fields['X-Amz-Signature'] = 'signature-placeholder';
+    }
+    expect(json).toMatchSnapshot();
+  });
+
+  it('should generate valid POST form with storage class', async () => {
+    const res = await handleRequest(
+      routerRequest({
+        method: 'POST',
+        body: routerUploadBody({
+          route: 'postWithStorageClass',
+          files: [
+            { name: 'storage-test.jpg', size: 400000, type: 'image/jpeg' },
+          ],
+        }),
+      }),
+      router
+    );
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.method).toBe('post');
+
+    const file = json.files[0];
+    expect(file.postForm.fields['x-amz-storage-class']).toBe('STANDARD_IA');
+    expect(file.file.objectInfo.storageClass).toBe('STANDARD_IA');
+
+    // Replace dynamic values for snapshot
+    if (file.postForm?.fields) {
+      file.postForm.fields['X-Amz-Credential'] = 'credential-placeholder';
+      file.postForm.fields['X-Amz-Date'] = 'date-placeholder';
+      file.postForm.fields.Policy = 'policy-placeholder';
+      file.postForm.fields['X-Amz-Signature'] = 'signature-placeholder';
+    }
+    expect(json).toMatchSnapshot();
+  });
+
+  it('should generate valid POST form with cache control', async () => {
+    const res = await handleRequest(
+      routerRequest({
+        method: 'POST',
+        body: routerUploadBody({
+          route: 'postWithCacheControl',
+          files: [
+            { name: 'cached-image.jpg', size: 250000, type: 'image/jpeg' },
+          ],
+        }),
+      }),
+      router
+    );
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.method).toBe('post');
+
+    const file = json.files[0];
+    expect(file.postForm.fields['Cache-Control']).toBe('max-age=31536000');
+    expect(file.file.objectInfo.cacheControl).toBe('max-age=31536000');
+
+    // Replace dynamic values for snapshot
+    if (file.postForm?.fields) {
+      file.postForm.fields['X-Amz-Credential'] = 'credential-placeholder';
+      file.postForm.fields['X-Amz-Date'] = 'date-placeholder';
+      file.postForm.fields.Policy = 'policy-placeholder';
+      file.postForm.fields['X-Amz-Signature'] = 'signature-placeholder';
+    }
+    expect(json).toMatchSnapshot();
+  });
+
+  it('should generate valid POST form with all options combined', async () => {
+    const res = await handleRequest(
+      routerRequest({
+        method: 'POST',
+        body: routerUploadBody({
+          route: 'postWithAllOptions',
+          files: [
+            { name: 'complete-test.jpg', size: 600000, type: 'image/jpeg' },
+          ],
+        }),
+      }),
+      router
+    );
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.method).toBe('post');
+
+    const file = json.files[0];
+    const fields = file.postForm.fields;
+
+    // Validate key fields are present before snapshot
+    expect(fields.bucket).toBe('test-bucket-all-options');
+    expect(fields.key).toBe('post-all/complete-test.jpg');
+    expect(fields.acl).toBe('private');
+    expect(fields['x-amz-storage-class']).toBe('INTELLIGENT_TIERING');
+    expect(fields['Cache-Control']).toBe('max-age=86400, must-revalidate');
+    expect(fields['x-amz-meta-project']).toBe('test-project');
+    expect(fields['x-amz-meta-environment']).toBe('staging');
+
+    // Replace dynamic values for snapshot
+    if (file.postForm?.fields) {
+      file.postForm.fields['X-Amz-Credential'] = 'credential-placeholder';
+      file.postForm.fields['X-Amz-Date'] = 'date-placeholder';
+      file.postForm.fields.Policy = 'policy-placeholder';
+      file.postForm.fields['X-Amz-Signature'] = 'signature-placeholder';
+    }
+    expect(json).toMatchSnapshot();
+  });
+
+  it('should generate POST form for large files within POST limits', async () => {
+    const res = await handleRequest(
+      routerRequest({
+        method: 'POST',
+        body: routerUploadBody({
+          route: 'postLargeFile',
+          files: [
+            {
+              name: 'large-video.mp4',
+              size: 50 * 1024 * 1024,
+              type: 'video/mp4',
+            },
+          ], // 50MB
+        }),
+      }),
+      router
+    );
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.method).toBe('post');
+
+    const file = json.files[0];
+    expect(file.postForm).toBeDefined();
+
+    const fields = file.postForm.fields;
+    expect(fields.key).toBe('post-large/large-video.mp4');
+    expect(fields['content-type']).toBe('video/mp4');
+
+    // Policy should include content-length-range for the large file
+    const policyBuffer = Buffer.from(fields.Policy, 'base64');
+    const policy = JSON.parse(policyBuffer.toString('utf-8'));
+
+    expect(policy.conditions).toContainEqual([
+      'content-length-range',
+      50 * 1024 * 1024, // exact file size
+      50 * 1024 * 1024 + 16 * 1024, // file size + headroom for form fields
+    ]);
+  });
+
+  it('should validate POST form policy structure', async () => {
+    const res = await handleRequest(
+      routerRequest({
+        method: 'POST',
+        body: routerUploadBody({
+          route: 'postWithMetadata',
+          files: [
+            { name: 'policy-test.jpg', size: 100000, type: 'image/jpeg' },
+          ],
+        }),
+      }),
+      router
+    );
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+
+    const file = json.files[0];
+    const fields = file.postForm.fields;
+
+    // Decode and validate policy
+    const policyBuffer = Buffer.from(fields.Policy, 'base64');
+    const policy = JSON.parse(policyBuffer.toString('utf-8'));
+
+    expect(policy.expiration).toBeDefined();
+    expect(new Date(policy.expiration).getTime()).toBeGreaterThan(Date.now());
+
+    expect(policy.conditions).toBeInstanceOf(Array);
+    expect(policy.conditions).toContainEqual({ bucket: 'my-default-bucket' });
+    expect(policy.conditions).toContainEqual({
+      key: 'post-meta/policy-test.jpg',
+    });
+    expect(policy.conditions).toContainEqual({ 'content-type': 'image/jpeg' });
+    expect(policy.conditions).toContainEqual({
+      'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
+    });
+    expect(policy.conditions).toContainEqual({ 'x-amz-meta-user-id': '12345' });
+    expect(policy.conditions).toContainEqual({
+      'x-amz-meta-upload-session': 'abc-def-ghi',
+    });
+
+    // Validate content-length-range
+    const contentLengthCondition = policy.conditions.find(
+      (condition: any) =>
+        Array.isArray(condition) && condition[0] === 'content-length-range'
+    );
+    expect(contentLengthCondition).toBeDefined();
+    expect(contentLengthCondition[1]).toBe(100000); // exact file size
+    expect(contentLengthCondition[2]).toBe(100000 + 16 * 1024); // file size + headroom
+  });
+
+  it('should handle POST form with empty metadata gracefully', async () => {
+    const { router: emptyMetaRouter } = createTestRouter({
+      routes: {
+        postEmpty: route({
+          uploadMethod: 'post',
+          maxFileSize: 1024 * 1024 * 5,
+          fileTypes: ['image/*'],
+          onBeforeUpload({ file }) {
+            return {
+              objectInfo: {
+                key: `post-empty/${file.name}`,
+                metadata: {}, // empty metadata
+              },
+            };
+          },
+        }),
+      },
+    });
+
+    const res = await handleRequest(
+      routerRequest({
+        method: 'POST',
+        body: routerUploadBody({
+          route: 'postEmpty',
+          files: [{ name: 'empty-meta.jpg', size: 200000, type: 'image/jpeg' }],
+        }),
+      }),
+      emptyMetaRouter
+    );
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.method).toBe('post');
+
+    const file = json.files[0];
+    const fields = file.postForm.fields;
+
+    // Should not have any x-amz-meta- fields
+    const metaFields = Object.keys(fields).filter((key) =>
+      key.startsWith('x-amz-meta-')
+    );
+    expect(metaFields).toHaveLength(0);
+  });
+
+  it('should handle POST form with special characters in metadata', async () => {
+    const { router: specialCharsRouter } = createTestRouter({
+      routes: {
+        postSpecialChars: route({
+          uploadMethod: 'post',
+          maxFileSize: 1024 * 1024 * 5,
+          fileTypes: ['image/*'],
+          onBeforeUpload({ file }) {
+            return {
+              objectInfo: {
+                key: `post-special/${file.name}`,
+                metadata: {
+                  description: 'Test file with special chars: åäö!@#$%',
+                  tags: 'test,upload,special-chars',
+                },
+              },
+            };
+          },
+        }),
+      },
+    });
+
+    const res = await handleRequest(
+      routerRequest({
+        method: 'POST',
+        body: routerUploadBody({
+          route: 'postSpecialChars',
+          files: [
+            { name: 'special-chars.jpg', size: 150000, type: 'image/jpeg' },
+          ],
+        }),
+      }),
+      specialCharsRouter
+    );
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.method).toBe('post');
+
+    const file = json.files[0];
+    const fields = file.postForm.fields;
+
+    expect(fields['x-amz-meta-description']).toBe(
+      'Test file with special chars: åäö!@#$%'
+    );
+    expect(fields['x-amz-meta-tags']).toBe('test,upload,special-chars');
+  });
+});
+
 describe('multipart handler', () => {
   const { router } = createTestRouter({
     routes: {

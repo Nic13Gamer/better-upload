@@ -192,6 +192,193 @@ exports[`multipart handler > should accept valid upload with custom bucket 1`] =
 }
 `;
 
+exports[`presigned POST functionality > should generate valid POST form with ACL 1`] = `
+{
+  "files": [
+    {
+      "file": {
+        "name": "public-image.jpg",
+        "objectInfo": {
+          "acl": "public-read",
+          "key": "post-acl/public-image.jpg",
+          "metadata": {},
+        },
+        "size": 300000,
+        "type": "image/jpeg",
+      },
+      "postForm": {
+        "fields": {
+          "Policy": "policy-placeholder",
+          "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
+          "X-Amz-Credential": "credential-placeholder",
+          "X-Amz-Date": "date-placeholder",
+          "X-Amz-Signature": "signature-placeholder",
+          "acl": "public-read",
+          "bucket": "my-default-bucket",
+          "content-type": "image/jpeg",
+          "key": "post-acl/public-image.jpg",
+        },
+        "url": "https://my-default-bucket.s3.us-east-1.amazonaws.com",
+      },
+    },
+  ],
+  "metadata": {},
+  "method": "post",
+}
+`;
+
+exports[`presigned POST functionality > should generate valid POST form with all options combined 1`] = `
+{
+  "files": [
+    {
+      "file": {
+        "name": "complete-test.jpg",
+        "objectInfo": {
+          "acl": "private",
+          "cacheControl": "max-age=86400, must-revalidate",
+          "key": "post-all/complete-test.jpg",
+          "metadata": {
+            "environment": "staging",
+            "project": "test-project",
+          },
+          "storageClass": "INTELLIGENT_TIERING",
+        },
+        "size": 600000,
+        "type": "image/jpeg",
+      },
+      "postForm": {
+        "fields": {
+          "Cache-Control": "max-age=86400, must-revalidate",
+          "Policy": "policy-placeholder",
+          "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
+          "X-Amz-Credential": "credential-placeholder",
+          "X-Amz-Date": "date-placeholder",
+          "X-Amz-Signature": "signature-placeholder",
+          "acl": "private",
+          "bucket": "test-bucket-all-options",
+          "content-type": "image/jpeg",
+          "key": "post-all/complete-test.jpg",
+          "x-amz-meta-environment": "staging",
+          "x-amz-meta-project": "test-project",
+          "x-amz-storage-class": "INTELLIGENT_TIERING",
+        },
+        "url": "https://test-bucket-all-options.s3.us-east-1.amazonaws.com",
+      },
+    },
+  ],
+  "metadata": {},
+  "method": "post",
+}
+`;
+
+exports[`presigned POST functionality > should generate valid POST form with cache control 1`] = `
+{
+  "files": [
+    {
+      "file": {
+        "name": "cached-image.jpg",
+        "objectInfo": {
+          "cacheControl": "max-age=31536000",
+          "key": "post-cache/cached-image.jpg",
+          "metadata": {},
+        },
+        "size": 250000,
+        "type": "image/jpeg",
+      },
+      "postForm": {
+        "fields": {
+          "Cache-Control": "max-age=31536000",
+          "Policy": "policy-placeholder",
+          "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
+          "X-Amz-Credential": "credential-placeholder",
+          "X-Amz-Date": "date-placeholder",
+          "X-Amz-Signature": "signature-placeholder",
+          "bucket": "my-default-bucket",
+          "content-type": "image/jpeg",
+          "key": "post-cache/cached-image.jpg",
+        },
+        "url": "https://my-default-bucket.s3.us-east-1.amazonaws.com",
+      },
+    },
+  ],
+  "metadata": {},
+  "method": "post",
+}
+`;
+
+exports[`presigned POST functionality > should generate valid POST form with metadata 1`] = `
+{
+  "files": [
+    {
+      "file": {
+        "name": "test-image.jpg",
+        "objectInfo": {
+          "key": "post-meta/test-image.jpg",
+          "metadata": {
+            "upload-session": "abc-def-ghi",
+            "user-id": "12345",
+          },
+        },
+        "size": 500000,
+        "type": "image/jpeg",
+      },
+      "postForm": {
+        "fields": {
+          "Policy": "policy-placeholder",
+          "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
+          "X-Amz-Credential": "credential-placeholder",
+          "X-Amz-Date": "date-placeholder",
+          "X-Amz-Signature": "signature-placeholder",
+          "bucket": "my-default-bucket",
+          "content-type": "image/jpeg",
+          "key": "post-meta/test-image.jpg",
+          "x-amz-meta-upload-session": "abc-def-ghi",
+          "x-amz-meta-user-id": "12345",
+        },
+        "url": "https://my-default-bucket.s3.us-east-1.amazonaws.com",
+      },
+    },
+  ],
+  "metadata": {},
+  "method": "post",
+}
+`;
+
+exports[`presigned POST functionality > should generate valid POST form with storage class 1`] = `
+{
+  "files": [
+    {
+      "file": {
+        "name": "storage-test.jpg",
+        "objectInfo": {
+          "key": "post-storage/storage-test.jpg",
+          "metadata": {},
+          "storageClass": "STANDARD_IA",
+        },
+        "size": 400000,
+        "type": "image/jpeg",
+      },
+      "postForm": {
+        "fields": {
+          "Policy": "policy-placeholder",
+          "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
+          "X-Amz-Credential": "credential-placeholder",
+          "X-Amz-Date": "date-placeholder",
+          "X-Amz-Signature": "signature-placeholder",
+          "bucket": "my-default-bucket",
+          "content-type": "image/jpeg",
+          "key": "post-storage/storage-test.jpg",
+          "x-amz-storage-class": "STANDARD_IA",
+        },
+        "url": "https://my-default-bucket.s3.us-east-1.amazonaws.com",
+      },
+    },
+  ],
+  "metadata": {},
+  "method": "post",
+}
+`;
+
 exports[`uploadMethod handler > should accept valid multiple files upload request with POST method 1`] = `
 {
   "files": [

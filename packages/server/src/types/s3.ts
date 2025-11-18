@@ -76,13 +76,13 @@ export type PostFormData = {
    */
   fields: {
     key: string;
-    'Content-Type': string;
+    'content-type': string; // Note: lowercase as per S3 policy requirements
     bucket: string;
     'X-Amz-Algorithm': string;
     'X-Amz-Credential': string;
     'X-Amz-Date': string;
     Policy: string;
     'X-Amz-Signature': string;
-    [key: string]: string; // Additional metadata fields
+    [key: string]: string; // Additional metadata and optional fields
   };
 };
