@@ -1,5 +1,11 @@
 # @better-upload/server
 
+## 3.0.3
+
+### Patch Changes
+
+- [`4fa8ac2`](https://github.com/Nic13Gamer/better-upload/commit/4fa8ac203baaa31659b96ecdf2f73a98774dcd78) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Add `putObject` helper
+
 ## 3.0.2
 
 ### Patch Changes
