@@ -16,6 +16,17 @@ export async function presignGetObject(
     versionId?: string;
 
     /**
+     * The range of bytes to retrieve from the object.
+     *
+     * @example
+     *
+     * ```ts
+     * range: 'bytes=0-1023' // Get the first 1024 bytes
+     * ```
+     */
+    range?: string;
+
+    /**
      * Expiration time in seconds for the pre-signed URL.
      *
      * @default 900 // 15 minutes
@@ -36,6 +47,9 @@ export async function presignGetObject(
 
   if (params.versionId) {
     url.searchParams.set('versionId', params.versionId);
+  }
+  if (params.range) {
+    url.searchParams.set('range', params.range);
   }
 
   return (

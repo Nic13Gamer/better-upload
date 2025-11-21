@@ -17,6 +17,17 @@ export async function getObject(
      * The version ID of the object to get (if versioning is enabled).
      */
     versionId?: string;
+
+    /**
+     * The range of bytes to retrieve from the object.
+     *
+     * @example
+     *
+     * ```ts
+     * range: 'bytes=0-1023' // Get the first 1024 bytes
+     * ```
+     */
+    range?: string;
   }
 ): Promise<GetObjectResult> {
   if (!params.key.trim()) {
@@ -27,6 +38,9 @@ export async function getObject(
 
   if (params.versionId) {
     url.searchParams.set('versionId', params.versionId);
+  }
+  if (params.range) {
+    url.searchParams.set('range', params.range);
   }
 
   const res = await throwS3Error(
