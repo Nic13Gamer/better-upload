@@ -1,5 +1,13 @@
 # @better-upload/server
 
+## 3.0.4
+
+### Patch Changes
+
+- [`f9ad2b6`](https://github.com/Nic13Gamer/better-upload/commit/f9ad2b65d1eeec613ddfbe8b1e64a8a9e1eac981) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Add `range` option to get object helpers
+
+- [`246da28`](https://github.com/Nic13Gamer/better-upload/commit/246da28af24f52a1e854e774dca4424e43dd802e) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Fix `putObject` helper content length
+
 ## 3.0.3
 
 ### Patch Changes
