@@ -17,17 +17,6 @@ export default function HomePage() {
     <main className="container mb-16 lg:px-20">
       <div className="lg:mt-18 mt-24 flex flex-col items-center justify-between gap-16 sm:mt-32 md:mt-36 lg:flex-row">
         <div className="grid gap-4">
-          <a
-            href="https://www.producthunt.com/products/better-upload?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-better&#0045;upload"
-            target="_blank"
-            className="w-[230px]"
-          >
-            <img
-              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1040966&theme=light&t=1763758544269"
-              alt="Better&#0032;Upload - Simple&#0032;and&#0032;easy&#0032;file&#0032;uploads&#0032;for&#0032;React&#0044;&#0032;use&#0032;your&#0032;S3&#0032;bucket | Product Hunt"
-            />
-          </a>
-
           <h1 className="text-4xl font-bold md:text-5xl lg:text-6xl">
             Better Upload
           </h1>
