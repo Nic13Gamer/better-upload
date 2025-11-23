@@ -5,10 +5,35 @@ import type {
   UploadStatus,
 } from './public';
 
+/**
+ * Metadata associated with S3 objects. Used for custom key-value pairs that are stored with the uploaded file.
+ * All values must be strings as per S3 object metadata requirements.
+ */
 export type ObjectMetadata = Record<string, string>;
+
+/**
+ * Server metadata that can contain any type of data sent from the server during upload operations.
+ * This is used to pass additional context or configuration from the server to the client.
+ */
 export type ServerMetadata = Record<string, unknown>;
 
+/**
+ * Form data structure for POST-based uploads to S3.
+ * Contains the target URL and the form fields required for the upload.
+ */
+export type PostFormData = {
+  /** The URL endpoint where the POST request should be sent */
+  url: string;
+  /** Key-value pairs of form fields required by S3 for the POST upload */
+  fields: Record<string, string>;
+};
+
+/**
+ * Response structure returned by the server when requesting signed URLs for file uploads.
+ * Contains all necessary information to perform either single-part or multipart uploads.
+ */
 export type SignedUrlsSuccessResponse = {
+  method: 'put' | 'post';
   metadata: ServerMetadata;
 } & (
   | {
@@ -37,22 +62,29 @@ export type SignedUrlsSuccessResponse = {
       };
     }
   | {
-      files: {
-        signedUrl: string;
-        file: {
-          name: string;
-          size: number;
-          type: string;
-          objectInfo: {
-            key: string;
-            metadata: ObjectMetadata;
-            cacheControl?: string;
+      files: Array<
+        {
+          file: {
+            name: string;
+            size: number;
+            type: string;
+            objectInfo: {
+              key: string;
+              metadata: ObjectMetadata;
+              cacheControl?: string;
+            };
           };
-        };
-      }[];
+        } & ({ signedUrl: string } | { postForm: PostFormData })
+      >;
     }
 );
 
+/**
+ * Configuration properties for upload hooks, supporting both single and multiple file uploads.
+ * Contains all the necessary options, callbacks, and event handlers for controlling file upload behavior.
+ *
+ * @template T - Boolean flag indicating whether this is for multiple file uploads (true) or single file upload (false)
+ */
 export type UploadHookProps<T extends boolean> = {
   /**
    * The API endpoint to use for uploading files.
@@ -213,10 +245,23 @@ export type UploadHookProps<T extends boolean> = {
       onError?: (error: ClientUploadError) => void;
     });
 
+/**
+ * Return type for upload hooks, providing both direct access to upload controls
+ * and a nested control object for convenience and backwards compatibility.
+ *
+ * @template T - Boolean flag indicating whether this is for multiple file uploads (true) or single file upload (false)
+ */
 export type UploadHookReturn<T extends boolean> = UploadHookControl<T> & {
+  /** Nested control object containing the same upload control methods and properties */
   control: UploadHookControl<T>;
 };
 
+/**
+ * Result returned from direct upload operations, containing uploaded files and server metadata.
+ * The structure varies based on whether it's a single or multiple file upload operation.
+ *
+ * @template T - Boolean flag indicating whether this is for multiple file uploads (true) or single file upload (false)
+ */
 export type DirectUploadResult<T extends boolean> = {
   /**
    * Metadata sent back from the server.

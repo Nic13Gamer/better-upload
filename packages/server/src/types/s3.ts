@@ -61,3 +61,28 @@ export type GetObjectResult = HeadObjectResult & {
    */
   blob: Blob;
 };
+
+/**
+ * Presigned POST form data for S3 uploads
+ */
+export type PostFormData = {
+  /**
+   * The URL to POST the form to
+   */
+  url: string;
+
+  /**
+   * Form fields to include in the POST request
+   */
+  fields: {
+    key: string;
+    'content-type': string; // Note: lowercase as per S3 policy requirements
+    bucket: string;
+    'X-Amz-Algorithm': string;
+    'X-Amz-Credential': string;
+    'X-Amz-Date': string;
+    Policy: string;
+    'X-Amz-Signature': string;
+    [key: string]: string; // Additional metadata and optional fields
+  };
+};

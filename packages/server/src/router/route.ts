@@ -22,6 +22,7 @@ export function route<
     maxFileSize: config.maxFileSize,
     fileTypes: config.fileTypes,
     signedUrlExpiresIn: config.signedUrlExpiresIn,
+    uploadMethod: config.uploadMethod,
     clientMetadataSchema: config.clientMetadataSchema,
 
     maxFiles: config.multipleFiles ? config.maxFiles : 1,
