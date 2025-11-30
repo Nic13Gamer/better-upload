@@ -39,13 +39,11 @@ export async function getObject(
   if (params.versionId) {
     url.searchParams.set('versionId', params.versionId);
   }
-  if (params.range) {
-    url.searchParams.set('range', params.range);
-  }
 
   const res = await throwS3Error(
     client.s3.fetch(url.toString(), {
       method: 'GET',
+      headers: params.range ? { 'Range': params.range } : undefined,
       aws: { signQuery: true, allHeaders: true },
     })
   );
