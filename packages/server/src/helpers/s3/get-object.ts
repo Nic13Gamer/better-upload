@@ -43,7 +43,7 @@ export async function getObject(
   const res = await throwS3Error(
     client.s3.fetch(url.toString(), {
       method: 'GET',
-      headers: params.range ? { 'Range': params.range } : undefined,
+      ...(params.range && { headers: { 'Range': params.range } }),
       aws: { signQuery: true, allHeaders: true },
     })
   );
