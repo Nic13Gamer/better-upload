@@ -158,6 +158,7 @@ describe('files handler signed URL validation', () => {
           headers: {
             'Content-Type': 'text/plain',
             'Content-Length': '1000',
+            'x-amz-acl': 'public-read',
           },
         })
       ).toBe(true);
@@ -176,7 +177,6 @@ describe('files handler signed URL validation', () => {
       );
       const json = await res.json();
       const url = new URL(json.files[0].signedUrl);
-      url.searchParams.set('x-amz-acl', 'private'); // modify ACL to incorrect value
 
       expect(res.status).toBe(200);
 
@@ -187,6 +187,7 @@ describe('files handler signed URL validation', () => {
           headers: {
             'Content-Type': 'text/plain',
             'Content-Length': '1000',
+            'x-amz-acl': 'private', // modify ACL to incorrect value
           },
         })
       ).toBe(false);
@@ -217,6 +218,7 @@ describe('files handler signed URL validation', () => {
           headers: {
             'Content-Type': 'text/plain',
             'Content-Length': '1000',
+            'x-amz-storage-class': 'GLACIER',
           },
         })
       ).toBe(true);
@@ -235,7 +237,6 @@ describe('files handler signed URL validation', () => {
       );
       const json = await res.json();
       const url = new URL(json.files[0].signedUrl);
-      url.searchParams.set('x-amz-storage-class', 'STANDARD'); // modify Storage Class to incorrect value
 
       expect(res.status).toBe(200);
 
@@ -246,6 +247,7 @@ describe('files handler signed URL validation', () => {
           headers: {
             'Content-Type': 'text/plain',
             'Content-Length': '1000',
+            'x-amz-storage-class': 'STANDARD', // modify Storage Class to incorrect value
           },
         })
       ).toBe(false);
