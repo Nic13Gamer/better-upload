@@ -49,6 +49,7 @@ export type SignedUrlsSuccessResponse = {
             cacheControl?: string;
           };
         };
+        headers: Record<string, string>;
       }[];
     }
 );

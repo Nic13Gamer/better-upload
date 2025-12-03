@@ -4,6 +4,7 @@ import { withRetries } from './retry';
 export async function uploadFileToS3(params: {
   signedUrl: string;
   file: File;
+  headers: Record<string, string>;
   objectMetadata: ObjectMetadata;
   objectCacheControl?: string;
   onProgress?: (progress: number) => void;
@@ -51,6 +52,10 @@ export async function uploadFileToS3(params: {
 
         Object.entries(params.objectMetadata).forEach(([key, value]) => {
           xhr.setRequestHeader(`x-amz-meta-${key}`, value);
+        });
+
+        Object.entries(params.headers).forEach(([key, value]) => {
+          xhr.setRequestHeader(key, value);
         });
 
         xhr.send(params.file);

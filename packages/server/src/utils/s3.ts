@@ -68,13 +68,6 @@ export async function signPutObject(
   );
   url.searchParams.set('X-Amz-Content-Sha256', 'UNSIGNED-PAYLOAD');
 
-  if (params.acl) {
-    url.searchParams.set('x-amz-acl', params.acl);
-  }
-  if (params.storageClass) {
-    url.searchParams.set('x-amz-storage-class', params.storageClass);
-  }
-
   return (
     await client.s3.sign(url.toString(), {
       method: 'PUT',
@@ -90,6 +83,10 @@ export async function signPutObject(
             value,
           ])
         ),
+        ...(params.acl ? { 'x-amz-acl': params.acl } : {}),
+        ...(params.storageClass
+          ? { 'x-amz-storage-class': params.storageClass }
+          : {}),
       },
       aws: { signQuery: true, allHeaders: true },
     })

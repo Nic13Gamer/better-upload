@@ -186,6 +186,14 @@ export async function handleFiles({
           cacheControl: url.file.objectInfo.cacheControl,
         },
       },
+      headers: {
+        ...(url.file.objectInfo.acl
+          ? { 'x-amz-acl': url.file.objectInfo.acl }
+          : {}),
+        ...(url.file.objectInfo.storageClass
+          ? { 'x-amz-storage-class': url.file.objectInfo.storageClass }
+          : {}),
+      },
     })),
     metadata: responseMetadata,
   });

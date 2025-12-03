@@ -158,6 +158,7 @@ export async function uploadFiles(params: {
           await uploadFileToS3({
             file,
             signedUrl: url.signedUrl,
+            headers: url.headers,
             objectMetadata: url.file.objectInfo.metadata,
             objectCacheControl: url.file.objectInfo.cacheControl,
             signal: params.signal,
