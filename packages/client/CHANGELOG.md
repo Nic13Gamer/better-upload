@@ -1,5 +1,11 @@
 # @better-upload/client
 
+## 3.0.5
+
+### Patch Changes
+
+- [`fbcf0e3`](https://github.com/Nic13Gamer/better-upload/commit/fbcf0e31d6b3cb687746ad6fde950807910a0cf9) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Use headers instead of query params for PUT
+
 ## 3.0.4
 
 ## 3.0.3
