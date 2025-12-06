@@ -1,5 +1,11 @@
 # @better-upload/server
 
+## 3.0.6
+
+### Patch Changes
+
+- [#90](https://github.com/Nic13Gamer/better-upload/pull/90) [`c7d951c`](https://github.com/Nic13Gamer/better-upload/commit/c7d951c43686168212b9e48d25d522a2ce7d2f13) Thanks [@gschlabitz](https://github.com/gschlabitz)! - Add Linode client
+
 ## 3.0.5
 
 ### Patch Changes
