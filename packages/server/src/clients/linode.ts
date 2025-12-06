@@ -5,13 +5,13 @@ import { custom } from './custom';
  * Create a Linode Object Storage client.
  *
  * Optionally, you can omit the parameters and use the following environment variables:
- * - `AWS_REGION` or `LINODE_REGION`
- * - `AWS_ACCESS_KEY_ID` or `LINODE_ACCESS_KEY`
- * - `AWS_SECRET_ACCESS_KEY` or `LINODE_SECRET_KEY`
+ * - `LINODE_REGION`
+ * - `AWS_ACCESS_KEY_ID`
+ * - `AWS_SECRET_ACCESS_KEY`
  */
 export function linode(params?: LinodeClientParams) {
   const {
-    region = process.env.AWS_REGION || process.env.LINODE_REGION,
+    region = process.env.LINODE_REGION,
     accessKey = process.env.AWS_ACCESS_KEY_ID || process.env.LINODE_ACCESS_KEY,
     secretKey = process.env.AWS_SECRET_ACCESS_KEY ||
       process.env.LINODE_SECRET_KEY,
