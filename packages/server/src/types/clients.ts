@@ -148,6 +148,23 @@ export type DigitalOceanClientParams = {
   secret: string;
 };
 
+export type LinodeClientParams = {
+  /**
+   * Linode Object Storage region.
+   */
+  region: string;
+
+  /**
+   * Linode Object Storage access key.
+   */
+  accessKey: string;
+
+  /**
+   * Linode Object Storage secret key.
+   */
+  secretKey: string;
+};
+
 export type MinioClientParams = {
   /**
    * MinIO region.

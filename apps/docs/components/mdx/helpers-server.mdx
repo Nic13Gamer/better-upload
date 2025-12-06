@@ -71,6 +71,16 @@ const s3 = minio({
 });
 ```
 
+```ts tab="Linode"
+import { linode } from '@better-upload/server/clients';
+
+const s3 = linode({
+  region: 'your-linode-region',
+  accessKey: 'your-access-key',
+  secretKey: 'your-secret-key',
+});
+```
+
 ```ts tab="Custom"
 // for any S3-compatible service
 import { custom } from '@better-upload/server/clients';
