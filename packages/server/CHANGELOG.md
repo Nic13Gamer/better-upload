@@ -1,5 +1,13 @@
 # @better-upload/server
 
+## 3.0.7
+
+### Patch Changes
+
+- [`4f1bb6f`](https://github.com/Nic13Gamer/better-upload/commit/4f1bb6fbfbf6a86a686e8d0b156c65282264a677) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Skip upload for specific files
+
+- [`4f1bb6f`](https://github.com/Nic13Gamer/better-upload/commit/4f1bb6fbfbf6a86a686e8d0b156c65282264a677) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Add `getObjectStream` S3 helper
+
 ## 3.0.6
 
 ### Patch Changes
