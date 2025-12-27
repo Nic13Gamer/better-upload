@@ -77,6 +77,11 @@ export type FileUploadInfo<T extends UploadStatus> = {
      */
     cacheControl?: string;
   };
+
+  /**
+   * If the upload was skipped because the server indicated it was already completed.
+   */
+  skip: 'completed' | undefined;
 } & (T extends 'failed'
   ? {
       error: ClientUploadError;

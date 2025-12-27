@@ -102,100 +102,126 @@ export async function handleMultipartFiles({
     throw error;
   }
 
-  const signedUrls = await Promise.all(
-    files.map(async (file) => {
-      let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
-      let objectMetadata = {} as ObjectMetadata;
-      let objectAcl = undefined;
-      let objectStorageClass = undefined;
-      let objectCacheControl = undefined;
+  const signedUrls = (
+    await Promise.all(
+      files.map(async (file) => {
+        let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
+        let objectMetadata = {} as ObjectMetadata;
+        let objectAcl = undefined;
+        let objectStorageClass = undefined;
+        let objectCacheControl = undefined;
+        let skip = undefined;
 
-      if (generateObjectInfoCallback) {
-        const objectInfo = await generateObjectInfoCallback({ file });
+        if (generateObjectInfoCallback) {
+          const objectInfo = await generateObjectInfoCallback({ file });
 
-        if (objectInfo.key) {
-          objectKey = objectInfo.key;
+          if (objectInfo.key) {
+            objectKey = objectInfo.key;
+          }
+          if (objectInfo.metadata) {
+            objectMetadata = Object.fromEntries(
+              Object.entries(objectInfo.metadata).map(([key, value]) => [
+                key.toLowerCase(),
+                value,
+              ])
+            );
+          }
+
+          objectAcl = objectInfo.acl;
+          objectStorageClass = objectInfo.storageClass;
+          objectCacheControl = objectInfo.cacheControl;
+          skip = objectInfo.skip;
         }
-        if (objectInfo.metadata) {
-          objectMetadata = Object.fromEntries(
-            Object.entries(objectInfo.metadata).map(([key, value]) => [
-              key.toLowerCase(),
-              value,
-            ])
-          );
+
+        if (skip === 'ignore') {
+          return null;
+        } else if (skip === 'completed') {
+          return {
+            file: {
+              ...file,
+              objectInfo: {
+                key: objectKey,
+                metadata: objectMetadata,
+                acl: objectAcl,
+                storageClass: objectStorageClass,
+                cacheControl: objectCacheControl,
+              },
+            },
+            parts: [],
+            uploadId: '',
+            completeSignedUrl: '',
+            abortSignedUrl: '',
+            skip: 'completed',
+          };
         }
 
-        objectAcl = objectInfo.acl;
-        objectStorageClass = objectInfo.storageClass;
-        objectCacheControl = objectInfo.cacheControl;
-      }
+        const { uploadId: s3UploadId } = await createMultipartUpload(client, {
+          bucket: bucketName,
+          key: objectKey,
+          contentType: file.type,
+          metadata: objectMetadata,
+          acl: objectAcl,
+          storageClass: objectStorageClass,
+          cacheControl: objectCacheControl,
+        });
 
-      const { uploadId: s3UploadId } = await createMultipartUpload(client, {
-        bucket: bucketName,
-        key: objectKey,
-        contentType: file.type,
-        metadata: objectMetadata,
-        acl: objectAcl,
-        storageClass: objectStorageClass,
-        cacheControl: objectCacheControl,
-      });
+        const totalParts = Math.ceil(file.size / partSize);
 
-      const totalParts = Math.ceil(file.size / partSize);
+        const partSignedUrls = await Promise.all(
+          Array.from({ length: totalParts }, async (_, index) => {
+            const size = Math.min(partSize, file.size - index * partSize);
 
-      const partSignedUrls = await Promise.all(
-        Array.from({ length: totalParts }, async (_, index) => {
-          const size = Math.min(partSize, file.size - index * partSize);
+            const url = await signUploadPart(client, {
+              bucket: bucketName,
+              key: objectKey,
+              uploadId: s3UploadId,
+              partNumber: index + 1,
+              contentLength: size,
+              expiresIn: partSignedUrlExpiresIn,
+            });
 
-          const url = await signUploadPart(client, {
+            return {
+              signedUrl: url,
+              partNumber: index + 1,
+              size,
+            };
+          })
+        );
+
+        const [completeSignedUrl, abortSignedUrl] = await Promise.all([
+          signCompleteMultipartUpload(client, {
             bucket: bucketName,
             key: objectKey,
             uploadId: s3UploadId,
-            partNumber: index + 1,
-            contentLength: size,
-            expiresIn: partSignedUrlExpiresIn,
-          });
-
-          return {
-            signedUrl: url,
-            partNumber: index + 1,
-            size,
-          };
-        })
-      );
-
-      const [completeSignedUrl, abortSignedUrl] = await Promise.all([
-        signCompleteMultipartUpload(client, {
-          bucket: bucketName,
-          key: objectKey,
-          uploadId: s3UploadId,
-          expiresIn: completeSignedUrlExpiresIn,
-        }),
-        signAbortMultipartUpload(client, {
-          bucket: bucketName,
-          key: objectKey,
-          uploadId: s3UploadId,
-          expiresIn: completeSignedUrlExpiresIn,
-        }),
-      ]);
-
-      return {
-        file: {
-          ...file,
-          objectInfo: {
+            expiresIn: completeSignedUrlExpiresIn,
+          }),
+          signAbortMultipartUpload(client, {
+            bucket: bucketName,
             key: objectKey,
-            metadata: objectMetadata,
-            acl: objectAcl,
-            storageClass: objectStorageClass,
-            cacheControl: objectCacheControl,
+            uploadId: s3UploadId,
+            expiresIn: completeSignedUrlExpiresIn,
+          }),
+        ]);
+
+        return {
+          file: {
+            ...file,
+            objectInfo: {
+              key: objectKey,
+              metadata: objectMetadata,
+              acl: objectAcl,
+              storageClass: objectStorageClass,
+              cacheControl: objectCacheControl,
+            },
           },
-        },
-        parts: partSignedUrls,
-        uploadId: s3UploadId!,
-        completeSignedUrl,
-        abortSignedUrl,
-      };
-    })
-  );
+          parts: partSignedUrls,
+          uploadId: s3UploadId!,
+          completeSignedUrl,
+          abortSignedUrl,
+        };
+      })
+    )
+  ).filter((i) => i !== null);
 
   let responseMetadata;
   try {

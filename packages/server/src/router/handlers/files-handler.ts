@@ -105,61 +105,84 @@ export async function handleFiles({
     throw error;
   }
 
-  const signedUrls = await Promise.all(
-    files.map(async (file) => {
-      let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
-      let objectMetadata = {} as ObjectMetadata;
-      let objectAcl = undefined;
-      let objectStorageClass = undefined;
-      let objectCacheControl = undefined;
+  const signedUrls = (
+    await Promise.all(
+      files.map(async (file) => {
+        let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
+        let objectMetadata = {} as ObjectMetadata;
+        let objectAcl = undefined;
+        let objectStorageClass = undefined;
+        let objectCacheControl = undefined;
+        let skip = undefined;
 
-      if (generateObjectInfoCallback) {
-        const objectInfo = await generateObjectInfoCallback({ file });
+        if (generateObjectInfoCallback) {
+          const objectInfo = await generateObjectInfoCallback({ file });
 
-        if (objectInfo.key) {
-          objectKey = objectInfo.key;
+          if (objectInfo.key) {
+            objectKey = objectInfo.key;
+          }
+          if (objectInfo.metadata) {
+            objectMetadata = Object.fromEntries(
+              Object.entries(objectInfo.metadata).map(([key, value]) => [
+                key.toLowerCase(),
+                value,
+              ])
+            );
+          }
+
+          objectAcl = objectInfo.acl;
+          objectStorageClass = objectInfo.storageClass;
+          objectCacheControl = objectInfo.cacheControl;
+          skip = objectInfo.skip;
         }
-        if (objectInfo.metadata) {
-          objectMetadata = Object.fromEntries(
-            Object.entries(objectInfo.metadata).map(([key, value]) => [
-              key.toLowerCase(),
-              value,
-            ])
-          );
+
+        if (skip === 'ignore') {
+          return null;
+        } else if (skip === 'completed') {
+          return {
+            signedUrl: '',
+            file: {
+              ...file,
+              objectInfo: {
+                key: objectKey,
+                metadata: objectMetadata,
+                acl: objectAcl,
+                storageClass: objectStorageClass,
+                cacheControl: objectCacheControl,
+              },
+            },
+            skip: 'completed',
+          };
         }
 
-        objectAcl = objectInfo.acl;
-        objectStorageClass = objectInfo.storageClass;
-        objectCacheControl = objectInfo.cacheControl;
-      }
+        const signedUrl = await signPutObject(client, {
+          bucket: bucketName,
+          key: objectKey,
+          contentType: file.type,
+          contentLength: file.size,
+          metadata: objectMetadata,
+          acl: objectAcl,
+          storageClass: objectStorageClass,
+          cacheControl: objectCacheControl,
+          expiresIn: signedUrlExpiresIn,
+        });
 
-      const signedUrl = await signPutObject(client, {
-        bucket: bucketName,
-        key: objectKey,
-        contentType: file.type,
-        contentLength: file.size,
-        metadata: objectMetadata,
-        acl: objectAcl,
-        storageClass: objectStorageClass,
-        cacheControl: objectCacheControl,
-        expiresIn: signedUrlExpiresIn,
-      });
-
-      return {
-        signedUrl,
-        file: {
-          ...file,
-          objectInfo: {
-            key: objectKey,
-            metadata: objectMetadata,
-            acl: objectAcl,
-            storageClass: objectStorageClass,
-            cacheControl: objectCacheControl,
+        return {
+          signedUrl,
+          file: {
+            ...file,
+            objectInfo: {
+              key: objectKey,
+              metadata: objectMetadata,
+              acl: objectAcl,
+              storageClass: objectStorageClass,
+              cacheControl: objectCacheControl,
+            },
           },
-        },
-      };
-    })
-  );
+        };
+      })
+    )
+  ).filter((i) => i !== null);
 
   let responseMetadata;
   try {
@@ -194,6 +217,7 @@ export async function handleFiles({
           ? { 'x-amz-storage-class': url.file.objectInfo.storageClass }
           : {}),
       },
+      skip: url.skip,
     })),
     metadata: responseMetadata,
   });

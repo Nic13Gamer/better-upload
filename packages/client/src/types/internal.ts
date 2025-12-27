@@ -32,6 +32,7 @@ export type SignedUrlsSuccessResponse = {
           uploadId: string;
           completeSignedUrl: string;
           abortSignedUrl: string;
+          skip?: 'completed';
         }[];
         partSize: number;
       };
@@ -50,6 +51,7 @@ export type SignedUrlsSuccessResponse = {
           };
         };
         headers: Record<string, string>;
+        skip?: 'completed';
       }[];
     }
 );

@@ -254,7 +254,7 @@ export type RouteConfig<
         multipart?: Multipart;
       });
 
-export type BeforeUploadCallbackObjectInfo = {
+export type BeforeUploadCallbackObjectInfo<Multiple extends boolean> = {
   /**
    * The S3 object key to upload to.
    */
@@ -285,7 +285,17 @@ export type BeforeUploadCallbackObjectInfo = {
    * **WARNING:** If not set, the client is able to set it to any value (does not apply to multipart uploads).
    */
   cacheControl?: string;
-};
+} & (Multiple extends true
+  ? {
+      /**
+       * Skip upload of this specific file.
+       *
+       * - `ignore`: Completely ignore this file and remove it from the rest of the upload flow (`onAfterSignedUrl` and client).
+       * - `completed`: Skip upload (won't generate pre-signed URL) but include it on the rest of the upload flow (`onAfterSignedUrl` and client). Will run completed events on client-side.
+       */
+      skip?: 'ignore' | 'completed';
+    }
+  : {});
 
 type BeforeUploadCallbackResult<
   Multiple extends boolean,
@@ -314,7 +324,7 @@ type BeforeUploadCallbackResult<
        * - `storageClass`: Storage class to apply to the S3 object.
        * - `cacheControl`: Cache-Control header to apply to the S3 object.
        */
-      objectInfo?: BeforeUploadCallbackObjectInfo;
+      objectInfo?: BeforeUploadCallbackObjectInfo<false>;
     }
   : {
       /**
@@ -326,6 +336,7 @@ type BeforeUploadCallbackResult<
        * - `acl`: ACL to apply to the S3 object.
        * - `storageClass`: Storage class to apply to the S3 object.
        * - `cacheControl`: Cache-Control header to apply to the S3 object.
+       * - `skip`: `ignore` or `completed` to skip upload of a specific file.
        */
       generateObjectInfo?: (data: {
         /**
@@ -333,8 +344,8 @@ type BeforeUploadCallbackResult<
          */
         file: FileInfo<false>;
       }) =>
-        | BeforeUploadCallbackObjectInfo
-        | Promise<BeforeUploadCallbackObjectInfo>;
+        | BeforeUploadCallbackObjectInfo<true>
+        | Promise<BeforeUploadCallbackObjectInfo<true>>;
     });
 
 type AfterSignedUrlCallbackResult = {
@@ -370,8 +381,8 @@ export type Route = {
     generateObjectInfo?: (data: {
       file: FileInfo<false>;
     }) =>
-      | BeforeUploadCallbackObjectInfo
-      | Promise<BeforeUploadCallbackObjectInfo>;
+      | BeforeUploadCallbackObjectInfo<true>
+      | Promise<BeforeUploadCallbackObjectInfo<true>>;
   } | void>;
 
   onAfterSignedUrl?: (data: {

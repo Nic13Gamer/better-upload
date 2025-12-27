@@ -57,7 +57,7 @@ export function route<
                           acl: res.objectInfo!.acl,
                           storageClass: res.objectInfo!.storageClass,
                           cacheControl: res.objectInfo!.cacheControl,
-                        }) satisfies BeforeUploadCallbackObjectInfo
+                        }) satisfies BeforeUploadCallbackObjectInfo<true>
                     : undefined;
 
               return {

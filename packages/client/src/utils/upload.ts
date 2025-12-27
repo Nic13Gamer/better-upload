@@ -93,8 +93,9 @@ export async function uploadFiles(params: {
       signedUrls.map((url) => [
         url.file.objectInfo.key,
         {
-          status: 'pending',
-          progress: 0,
+          skip: url.skip,
+          status: url.skip === 'completed' ? 'complete' : 'pending',
+          progress: url.skip === 'completed' ? 1 : 0,
           raw: files.find(
             (file) =>
               file.name === url.file.name &&
@@ -113,6 +114,10 @@ export async function uploadFiles(params: {
           item.file.size === file.size &&
           item.file.type === file.type
       )!;
+
+      if (!url || url.skip === 'completed') {
+        return;
+      }
 
       const isMultipart = 'parts' in url;
 
