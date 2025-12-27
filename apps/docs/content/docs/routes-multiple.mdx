@@ -114,13 +114,21 @@ You can return an object with the following properties:
 <TypeTable
   type={{
     generateObjectInfo: {
-      description:
-        'Information about the S3 object. Includes the object key, metadata, ACL, and other properties.',
+      description: (
+        <>
+          Information about the S3 object. Includes the object key, metadata,
+          ACL, and other properties.
+          <br/>
+          <br/>
+          You can also skip the upload of specific files by using <code>skip</code>.
+        </>
+      ),
       type: '() => object',
       typeDescription: (
         <>
           Can return: <code>key</code>, <code>metadata</code>, <code>acl</code>,{' '}
-          <code>storageClass</code>, <code>cacheControl</code>.
+          <code>storageClass</code>, <code>cacheControl</code>,{' '}
+          <code>skip</code>.
         </>
       ),
       required: false,
@@ -140,7 +148,8 @@ You can return an object with the following properties:
       type: 'string',
       required: false,
     },
-  }}
+
+}}
 />
 
 ### After generating pre-signed URL
