@@ -31,10 +31,10 @@
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
+    "@types/react": "^19.2.7",
+    "react": "^19.2.3",
     "tsdown": "^0.15.12",
-    "typescript": "^5.9.3",
-    "react": "^19",
-    "@types/react": "^19"
+    "typescript": "^5.9.3"
   },
   "keywords": [
     "react",
