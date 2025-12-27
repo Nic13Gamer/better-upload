@@ -61,3 +61,10 @@ export type GetObjectResult = HeadObjectResult & {
    */
   blob: Blob;
 };
+
+export type GetObjectStreamResult = HeadObjectResult & {
+  /**
+   * The object data as a ReadableStream.
+   */
+  stream: ReadableStream<Uint8Array<ArrayBufferLike>>;
+};

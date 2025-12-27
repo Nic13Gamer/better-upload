@@ -36,7 +36,7 @@ Helpers for working with objects in S3-compatible storage services. Suggest new 
 
 ### Presign get object
 
-Generate a pre-signed URL to download an object.
+Generate a pre-signed URL to download an object. Commonly used for client-side downloads.
 
 ```ts
 import { presignGetObject } from '@better-upload/server/helpers';
@@ -53,9 +53,16 @@ const url = await presignGetObject(s3, {
 Get an object (including its content) from an S3 bucket.
 
 ```ts
-import { getObject } from '@better-upload/server/helpers';
+import { getObject, getObjectStream } from '@better-upload/server/helpers';
 
+// as a Blob
 const object = await getObject(s3, {
+  bucket: 'my-bucket',
+  key: 'example.png',
+});
+
+// as a ReadableStream
+const objectStream = await getObjectStream(s3, {
   bucket: 'my-bucket',
   key: 'example.png',
 });
