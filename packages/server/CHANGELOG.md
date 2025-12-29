@@ -1,5 +1,11 @@
 # @better-upload/server
 
+## 3.0.8
+
+### Patch Changes
+
+- [`85324c4`](https://github.com/Nic13Gamer/better-upload/commit/85324c4cf0e0a73cd4f9a6b1da356afacc9435d3) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Add helpers for S3 multipart operations
+
 ## 3.0.7
 
 ### Patch Changes
