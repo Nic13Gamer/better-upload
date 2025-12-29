@@ -1,118 +1,98 @@
-import { createHash } from 'crypto';
 import type { Client } from '@/types/clients';
-import { throwS3Error } from '@/utils/s3';
+import { getBodyContentLength, throwS3Error } from '@/utils/s3';
 import { parseXml } from '@/utils/xml';
 
 /**
- * Delete an object from an S3 bucket.
+ * Delete multiple objects from an S3 bucket.
+ *
+ * Up to 1000 objects can be deleted in a single request.
  */
 export async function deleteObjects(
   client: Client,
   params: {
     bucket: string;
-    /**
-     * Array of objects to delete.
-     */
-    objects: Array<{
+    objects: {
       key: string;
-    /**
-     * The version ID of the object to delete (if versioning is enabled).
-     */
+      /**
+       * The version ID of the object to delete (if versioning is enabled).
+       */
       versionId?: string;
-    }>;
+      /**
+       * The ETag of the object to delete (if conditional deletion is desired).
+       */
+      eTag?: string;
+    }[];
+    quiet?: boolean;
   }
 ) {
   if (params.objects.length === 0) {
     throw new Error('No objects provided for deletion.');
   }
 
-  for (const obj of params.objects) {
-    if (!obj.key.trim()) {
-      throw new Error('Object keys cannot be empty.');
-    }
-  }
-
   if (params.objects.length > 1000) {
-    throw new Error('Cannot delete more than 1000 objects in a single request.');
+    throw new Error(
+      'Cannot delete more than 1000 objects in a single request.'
+    );
   }
 
-  const objectsXml = params.objects
-    .map(
-      (obj) => `
-      <Object>
-        <Key>${obj.key}</Key>
-        ${obj.versionId ? `<VersionId>${obj.versionId}</VersionId>` : ''}
-      </Object>
-    `
-    )
-    .join('');
+  if (params.objects.some((obj) => !obj.key.trim())) {
+    throw new Error('Object keys cannot be empty.');
+  }
 
-  const xmlBody = `<?xml version="1.0" encoding="UTF-8"?>
-    <Delete>
-      ${objectsXml}
-    </Delete>`;
+  const body = `<Delete>
+  ${params.objects.map(
+    (obj) => `<Object>
+    <Key>${obj.key}</Key>
+    ${obj.versionId ? `<VersionId>${obj.versionId}</VersionId>` : ''}
+    ${obj.eTag ? `<ETag>${obj.eTag}</ETag>` : ''}
+  </Object>`
+  )}
+  ${params.quiet ? '<Quiet>true</Quiet>' : ''}
+</Delete>`;
 
-  const url = new URL(`${client.buildBucketUrl(params.bucket)}?delete`);
-
-  const md5 = createHash('md5').update(xmlBody).digest('base64');
-const res = await throwS3Error(
-    client.s3.fetch(url.toString(), {
+  const res = await throwS3Error(
+    client.s3.fetch(`${client.buildBucketUrl(params.bucket)}/?delete`, {
       method: 'POST',
       headers: {
-        'Content-MD5': md5,
-        'Content-Type': 'application/xml',
+        'content-type': 'application/xml',
+        'content-length': getBodyContentLength(body)!.toString(),
       },
-      body: xmlBody,
+      body,
       aws: { signQuery: true, allHeaders: true },
     })
   );
 
   const parsed = parseXml<{
     DeleteResult: {
-      Deleted?:
-        | {
-            Key: string;
-            VersionId?: string;
-            DeleteMarker?: boolean;
-            DeleteMarkerVersionId?: string;
-          }
-        | Array<{
-            Key: string;
-            VersionId?: string;
-            DeleteMarker?: boolean;
-            DeleteMarkerVersionId?: string;
-          }>;
-      Error?:
-        | { Key: string; VersionId?: string; Code: string; Message: string }
-        | Array<{
-            Key: string;
-            VersionId?: string;
-            Code: string;
-            Message: string;
-          }>;
+      Deleted?: {
+        DeleteMarker?: boolean;
+        DeleteMarkerVersionId?: string;
+        Key: string;
+        VersionId?: string;
+      }[];
+      Error?: {
+        Code: string;
+        Key: string;
+        Message: string;
+        VersionId?: string;
+      }[];
     };
-  }>(await res.text());
-
-  const toArray = <T>(item: T | T[] | undefined): T[] => {
-    if (!item) return [];
-    return Array.isArray(item) ? item : [item];
-  };
+  }>(await res.text(), { array: true });
 
   return {
-    deleted: toArray(parsed.DeleteResult.Deleted).map((d) => ({
-      key: d.Key,
-      versionId: d.VersionId,
-      deleteMarker: d.DeleteMarker,
-      deleteMarkerVersionId: d.DeleteMarkerVersionId,
-    })),
-    errors: toArray(parsed.DeleteResult.Error).map((e) => ({
-      key: e.Key,
-      versionId: e.VersionId,
-      code: e.Code,
-      message: e.Message,
-    })),
+    deleted:
+      parsed.DeleteResult.Deleted?.map((i) => ({
+        deleteMarker: i.DeleteMarker,
+        deleteMarkerVersionId: i.DeleteMarkerVersionId,
+        key: i.Key,
+        versionId: i.VersionId,
+      })) || [],
+    errors:
+      parsed.DeleteResult.Error?.map((i) => ({
+        code: i.Code,
+        message: i.Message,
+        key: i.Key,
+        versionId: i.VersionId,
+      })) || [],
   };
 }
-
-
-
