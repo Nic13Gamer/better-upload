@@ -157,6 +157,29 @@ await deleteObject(s3, {
 });
 ```
 
+### Delete multiple objects
+
+Delete multiple objects from an S3 bucket in a single request.
+
+```ts
+import { deleteObjects } from '@better-upload/server/helpers';
+
+const result = await deleteObjects(s3, {
+  bucket: 'my-bucket',
+  objects: [
+    { key: 'file1.png' },
+    { key: 'file2.png' },
+  ],
+});
+
+console.log(result.deleted); // Successfully deleted objects
+console.log(result.errors); // Failed deletions
+```
+
+<Callout type="info">
+ The S3 API allows deleting up to 1000 objects in a single request.
+</Callout>
+
 ### Multipart uploads
 
 Helpers for working with multipart uploads in S3-compatible storage services.
