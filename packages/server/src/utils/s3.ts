@@ -220,3 +220,37 @@ export async function signAbortMultipartUpload(
     })
   ).url;
 }
+
+export function getBodyContentLength(body: BodyInit | null): number | null {
+  if (body == null) return 0;
+
+  if (typeof body === 'string') {
+    return new TextEncoder().encode(body).length;
+  }
+
+  if (body instanceof Blob) {
+    return body.size;
+  }
+
+  if (body instanceof ArrayBuffer) {
+    return body.byteLength;
+  }
+
+  if (ArrayBuffer.isView(body)) {
+    return body.byteLength;
+  }
+
+  if (body instanceof URLSearchParams) {
+    return new TextEncoder().encode(body.toString()).length;
+  }
+
+  if (body instanceof FormData) {
+    return null;
+  }
+
+  if (body instanceof ReadableStream) {
+    return null;
+  }
+
+  return null;
+}

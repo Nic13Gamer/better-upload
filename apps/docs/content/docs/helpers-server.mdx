@@ -156,3 +156,70 @@ await deleteObject(s3, {
   key: 'example.png',
 });
 ```
+
+### Multipart uploads
+
+Helpers for working with multipart uploads in S3-compatible storage services.
+
+#### Create multipart upload
+
+Create a new multipart upload in an S3 bucket.
+
+```ts
+import { createMultipartUpload } from '@better-upload/server/helpers';
+
+const { uploadId } = await createMultipartUpload(s3, {
+  bucket: 'my-bucket',
+  key: 'large-file.zip',
+  contentType: 'application/zip',
+});
+```
+
+#### Upload part
+
+Upload a part of a multipart upload.
+
+```ts
+import { uploadPart } from '@better-upload/server/helpers';
+
+const { eTag } = await uploadPart(s3, {
+  bucket: 'my-bucket',
+  key: 'large-file.zip',
+  uploadId: '...',
+  partNumber: 1,
+  body: partData,
+});
+```
+
+#### Complete multipart upload
+
+Complete a multipart upload in an S3 bucket.
+
+```ts
+import { completeMultipartUpload } from '@better-upload/server/helpers';
+
+await completeMultipartUpload(s3, {
+  bucket: 'my-bucket',
+  key: 'large-file.zip',
+  uploadId: '...',
+  parts: [
+    { partNumber: 1, eTag: '...' },
+    { partNumber: 2, eTag: '...' },
+    // ...
+  ],
+});
+```
+
+#### Abort multipart upload
+
+Abort a multipart upload in an S3 bucket.
+
+```ts
+import { abortMultipartUpload } from '@better-upload/server/helpers';
+
+await abortMultipartUpload(s3, {
+  bucket: 'my-bucket',
+  key: 'large-file.zip',
+  uploadId: '...',
+});
+```
