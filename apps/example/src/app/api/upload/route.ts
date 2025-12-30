@@ -1,9 +1,17 @@
 import { route, Router } from '@better-upload/server';
 import { toRouteHandler } from '@better-upload/server/adapters/next';
-import { cloudflare } from '@better-upload/server/clients';
+import { linode } from '@better-upload/server/clients';
+const validateConfig = () =>{
+  
+  return {
+    accessKey: process.env.AWS_ACCESS_KEY_ID,
+    region: process.env.AWS_REGION,
+    secretKey: process.env.AWS_SECRET_ACCESS_KEY,
+  }
+}
 
 const router: Router = {
-  client: cloudflare(),
+  client: linode(validateConfig()),
   bucketName: process.env.AWS_BUCKET_NAME!,
   routes: {
     image: route({

@@ -1,5 +1,6 @@
 import { FileUploader } from '@/components/file-uploader';
 import { FilesUploader } from '@/components/files-uploader';
+import { PasteUploader } from '@/components/paste-uploader';
 
 export default function Home() {
   return (
@@ -19,6 +20,14 @@ export default function Home() {
           </p>
 
           <FilesUploader />
+        </div>
+
+        <div className="w-full space-y-1">
+          <p className="text-sm font-medium">
+            Paste from clipboard (paste area)
+          </p>
+
+          <PasteUploader />
         </div>
       </div>
     </main>
