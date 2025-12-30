@@ -157,6 +157,19 @@ await deleteObject(s3, {
 });
 ```
 
+### Delete objects
+
+Delete multiple objects from an S3 bucket in a single request.
+
+```ts
+import { deleteObjects } from '@better-upload/server/helpers';
+
+const { deleted, errors } = await deleteObjects(s3, {
+  bucket: 'my-bucket',
+  objects: [{ key: 'file1.png' }, { key: 'file2.png' }],
+});
+```
+
 ### Multipart uploads
 
 Helpers for working with multipart uploads in S3-compatible storage services.
