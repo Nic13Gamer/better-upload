@@ -1,5 +1,11 @@
 # @better-upload/server
 
+## 3.0.9
+
+### Patch Changes
+
+- [#100](https://github.com/Nic13Gamer/better-upload/pull/100) [`b629022`](https://github.com/Nic13Gamer/better-upload/commit/b629022765ef98568cda8d0337cfd96dedd2adf9) Thanks [@weepaho3](https://github.com/weepaho3)! - Add `deleteObjects` S3 helper
+
 ## 3.0.8
 
 ### Patch Changes
