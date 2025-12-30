@@ -40,13 +40,15 @@ export async function deleteObjects(
   }
 
   const body = `<Delete>
-  ${params.objects.map(
-    (obj) => `<Object>
+  ${params.objects
+    .map(
+      (obj) => `<Object>
     <Key>${obj.key}</Key>
     ${obj.versionId ? `<VersionId>${obj.versionId}</VersionId>` : ''}
     ${obj.eTag ? `<ETag>${obj.eTag}</ETag>` : ''}
   </Object>`
-  )}
+    )
+    .join('')}
   ${params.quiet ? '<Quiet>true</Quiet>' : ''}
 </Delete>`;
 
@@ -56,6 +58,7 @@ export async function deleteObjects(
       headers: {
         'content-type': 'application/xml',
         'content-length': getBodyContentLength(body)!.toString(),
+        'x-amz-checksum-sha256': await sha256(body),
       },
       body,
       aws: { signQuery: true, allHeaders: true },
@@ -95,4 +98,12 @@ export async function deleteObjects(
         versionId: i.VersionId,
       })) || [],
   };
+}
+
+async function sha256(input: string) {
+  const hashBuffer = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(input)
+  );
+  return btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
 }
