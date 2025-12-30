@@ -1,0 +1,192 @@
+---
+title: Upload Paste Area
+description: A paste area that uploads multiple files from the clipboard with preview.
+---
+
+import { UploadPasteAreaDemo } from '@/components/templates/upload-paste-area-demo';
+
+## Demo
+
+<Showcase>
+  <UploadPasteAreaDemo />
+</Showcase>
+
+## Installation
+
+<Tabs items={['CLI', 'Manual']}>
+
+<Tab value="CLI">
+
+```bash
+npx shadcn@latest add @better-upload/upload-paste-area
+```
+
+</Tab>
+
+<Tab value="Manual">
+<Steps>
+<Step>
+
+**Install the following dependencies:**
+
+```npm
+npm i lucide-react
+```
+
+Make sure to have [shadcn/ui](https://ui.shadcn.com/docs/installation) set up in your project.
+
+</Step>
+
+<Step>
+
+**Copy and paste the following code into your project.**
+
+<include cwd lang="tsx" meta="title='components/ui/upload-paste-area.tsx'">
+  ./components/templates/upload-paste-area.txt
+</include>
+
+</Step>
+
+<Step>
+
+**Update the import paths to match your project setup.**
+
+</Step>
+
+</Steps>
+</Tab>
+
+</Tabs>
+
+## Usage
+
+The `<UploadPasteArea />` should be used with the `useUploadFiles` hook.
+
+```tsx
+'use client';
+
+import { useUploadFiles } from '@better-upload/client';
+import { UploadPasteArea } from '@/components/ui/upload-paste-area';
+
+export function Uploader() {
+  const { control } = useUploadFiles({
+    route: 'images',
+  });
+
+  return <UploadPasteArea control={control} accept="image/*" />;
+}
+```
+
+### How It Works
+
+1. **Click** the paste area to focus it
+2. **Paste** files using `Ctrl+V` (or `Cmd+V` on macOS)
+3. **Preview** the pasted files with image thumbnails
+4. **Remove** individual files using the X button
+5. **Upload** when ready by clicking the Upload button
+6. **Clear** all files using the Clear button
+
+This workflow is inspired by WhatsApp Web's paste-to-upload feature, where files are staged for preview before being sent.
+
+### Use Cases
+
+- Pasting screenshots directly from the clipboard
+- Pasting images copied from other applications
+- Quick image uploads without needing to save files first
+- Reviewing files before uploading
+
+### Description
+
+You can customize the description shown in the paste area. You can pass a string, or an object with the following properties:
+
+- `maxFiles`: The maximum number of files that can be uploaded.
+- `maxFileSize`: The maximum size of the files that can be uploaded, use a formatted string (e.g. `10MB`).
+- `fileTypes`: The file types that can be uploaded.
+
+```tsx
+<UploadPasteArea
+  control={control}
+  accept="image/*"
+  description={{
+    maxFiles: 4,
+    maxFileSize: '2MB',
+    fileTypes: 'JPEG, PNG, GIF',
+  }}
+/>
+```
+
+<Callout>
+  Note that this is only cosmetic and does not enforce any restrictions
+  client-side.
+</Callout>
+
+### Combining with Dropzone
+
+You can use the paste area alongside a dropzone to give users multiple ways to upload files:
+
+```tsx
+'use client';
+
+import { useUploadFiles } from '@better-upload/client';
+import { UploadDropzone } from '@/components/ui/upload-dropzone';
+import { UploadPasteArea } from '@/components/ui/upload-paste-area';
+
+export function Uploader() {
+  const { control } = useUploadFiles({
+    route: 'images',
+  });
+
+  return (
+    <div className="flex flex-col gap-4">
+      <UploadDropzone control={control} accept="image/*" />
+      <UploadPasteArea control={control} accept="image/*" />
+    </div>
+  );
+}
+```
+
+## Props
+
+<TypeTable
+  type={{
+    control: {
+      type: 'object',
+      description: 'Control object returned by the useUploadFiles hook.',
+      required: true,
+    },
+    id: {
+      type: 'string',
+      description: 'The id of the paste area element.',
+    },
+    accept: {
+      type: 'string',
+      description: 'The file types that should be accepted from the clipboard.',
+    },
+    description: {
+      type: 'string | object',
+      description:
+        'The description to show in the paste area. Object for max files, max file size, and file types. You can also return a raw string.',
+    },
+    metadata: {
+      type: 'Record<string, unknown>',
+      description:
+        'Metadata to send to your server on upload. Needs to be JSON serializable.',
+    },
+    uploadOverride: {
+      type: 'function',
+      description:
+        'Override the default upload function. For example, set files in an array, and upload them after form submission.',
+    },
+  }}
+/>
+
+## Features
+
+- **File Preview**: Images are displayed with thumbnails, other files show type icons
+- **Multiple Files**: Paste multiple files at once or add more with subsequent pastes
+- **Individual Removal**: Remove specific files before uploading
+- **Clear All**: Remove all staged files at once
+- **Upload Button**: Explicit upload trigger - files are not uploaded until you click Upload
+- **Loading State**: Shows spinner during upload
+- **File Type Filtering**: Respects the `accept` prop to filter clipboard content
+- **Screenshot Support**: Handles both file paste and screenshot paste from clipboard

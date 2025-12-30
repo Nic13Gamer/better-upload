@@ -1,4 +1,9 @@
 {
   "title": "Components",
-  "pages": ["upload-button", "upload-dropzone", "upload-dropzone-progress"]
+  "pages": [
+    "upload-button",
+    "upload-dropzone",
+    "upload-dropzone-progress",
+    "upload-paste-area"
+  ]
 }
