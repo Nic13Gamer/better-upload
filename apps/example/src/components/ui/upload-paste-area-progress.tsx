@@ -4,9 +4,23 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import type { UploadHookControl } from '@better-upload/client';
-import { formatBytes } from '@better-upload/client/helpers';
 import { Clipboard, Dot, File, Loader2, Upload, X } from 'lucide-react';
 import { useCallback, useEffect, useId, useState } from 'react';
+
+function formatBytes(bytes: number) {
+  const threshold = 1000;
+  const units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB'];
+
+  if (bytes < threshold) {
+    return `${bytes} ${units[0]}`;
+  }
+
+  const exponent = Math.floor(Math.log(bytes) / Math.log(threshold));
+  const unit = units[exponent];
+  const value = (bytes / Math.pow(threshold, exponent)).toFixed(0);
+
+  return `${value} ${unit}`;
+}
 
 type PastedFile = {
   file: File;

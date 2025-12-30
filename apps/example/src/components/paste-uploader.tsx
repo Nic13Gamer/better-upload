@@ -8,10 +8,7 @@ export function PasteUploader() {
   const { control } = useUploadFiles({
     route: 'images',
     onUploadComplete: ({ files }) => {
-      toast.success(`Uploaded ${files.length} files`);
-    },
-    onUploadBegin: ({ files }) => {
-      toast.info(`Uploading ${files.length} files`);
+      toast.success(`${files.length} file${files.length !== 1 ? 's' : ''} uploaded successfully`);
     },
     onError: (error) => {
       toast.error(error.message);
@@ -22,11 +19,7 @@ export function PasteUploader() {
     <UploadPasteArea
       control={control}
       accept="image/*"
-      description={{
-        fileTypes: 'JPEG, PNG, GIF',
-        maxFileSize: '2MB',
-        maxFiles: 4,
-      }}
+      description="JPEG, PNG, GIF • Up to 2MB each • Max 4 files"
     />
   );
 }

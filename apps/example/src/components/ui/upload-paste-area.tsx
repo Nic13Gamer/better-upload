@@ -3,9 +3,23 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { UploadHookControl } from '@better-upload/client';
-import { formatBytes } from '@better-upload/client/helpers';
-import { Clipboard, Loader2, Upload, X } from 'lucide-react';
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { ImagePlus, Loader2, Upload, X } from 'lucide-react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
+
+function formatBytes(bytes: number) {
+  const threshold = 1000;
+  const units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB'];
+
+  if (bytes < threshold) {
+    return `${bytes} ${units[0]}`;
+  }
+
+  const exponent = Math.floor(Math.log(bytes) / Math.log(threshold));
+  const unit = units[exponent];
+  const value = (bytes / Math.pow(threshold, exponent)).toFixed(0);
+
+  return `${value} ${unit}`;
+}
 
 type PastedFile = {
   file: File;
@@ -17,284 +31,332 @@ type UploadPasteAreaProps = {
   id?: string;
   accept?: string;
   metadata?: Record<string, unknown>;
-  description?:
-    | {
-        fileTypes?: string;
-        maxFileSize?: string;
-        maxFiles?: number;
-      }
-    | string;
+  description?: string;
   uploadOverride?: (
     ...args: Parameters<UploadHookControl<true>['upload']>
   ) => void;
-
-  // Add any additional props you need.
 };
 
 export function UploadPasteArea({
-  control: { upload, isPending },
+  control: { upload, isPending, progresses },
   id: _id,
   accept,
   metadata,
-  description,
+  description = 'Images up to 2MB',
   uploadOverride,
 }: UploadPasteAreaProps) {
   const id = useId();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
-  const [pastedFiles, setPastedFiles] = useState<PastedFile[]>([]);
+  const [files, setFiles] = useState<PastedFile[]>([]);
+  const [isLoadingUrl, setIsLoadingUrl] = useState(false);
 
-  // Clean up object URLs on unmount or when files change
+  // Clean up object URLs
   useEffect(() => {
     return () => {
-      pastedFiles.forEach((pf) => {
-        if (pf.preview) {
-          URL.revokeObjectURL(pf.preview);
-        }
-      });
+      files.forEach((f) => f.preview && URL.revokeObjectURL(f.preview));
     };
-  }, [pastedFiles]);
+  }, [files]);
+
+  const addFiles = useCallback((newFiles: File[]) => {
+    const pastedFiles: PastedFile[] = newFiles
+      .filter((file) => !accept || matchesAccept(file, accept))
+      .map((file) => ({
+        file,
+        preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
+      }));
+    setFiles((prev) => [...prev, ...pastedFiles]);
+  }, [accept]);
 
   const handlePaste = useCallback(
     (event: React.ClipboardEvent) => {
       if (isPending) return;
-
       const clipboardData = event.clipboardData;
       if (!clipboardData) return;
 
-      const files: File[] = [];
+      const pastedFiles: File[] = [];
 
-      // Extract files from clipboard
+      // Check for files
       if (clipboardData.files.length > 0) {
         for (let i = 0; i < clipboardData.files.length; i++) {
           const file = clipboardData.files[i];
-          if (file) {
-            if (accept && !matchesAccept(file, accept)) {
-              continue;
-            }
-            files.push(file);
-          }
+          if (file) pastedFiles.push(file);
         }
       }
 
-      // Handle image data from clipboard items (e.g., screenshots)
-      if (files.length === 0 && clipboardData.items) {
+      // Check clipboard items (screenshots)
+      if (pastedFiles.length === 0 && clipboardData.items) {
         for (let i = 0; i < clipboardData.items.length; i++) {
           const item = clipboardData.items[i];
           if (item.kind === 'file') {
             const file = item.getAsFile();
-            if (file) {
-              if (accept && !matchesAccept(file, accept)) {
-                continue;
-              }
-              files.push(file);
-            }
+            if (file) pastedFiles.push(file);
           }
         }
       }
 
-      if (files.length > 0) {
+      // Check for pasted URLs
+      if (pastedFiles.length === 0) {
+        const text = clipboardData.getData('text');
+        if (text) {
+          const urls = text.split(/[\n,\s]+/).filter((u) => {
+            try {
+              const url = new URL(u.trim());
+              return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch {
+              return false;
+            }
+          });
+
+          if (urls.length > 0) {
+            event.preventDefault();
+            fetchUrls(urls);
+            return;
+          }
+        }
+      }
+
+      if (pastedFiles.length > 0) {
         event.preventDefault();
-
-        // Create previews for image files
-        const newPastedFiles: PastedFile[] = files.map((file) => ({
-          file,
-          preview: file.type.startsWith('image/')
-            ? URL.createObjectURL(file)
-            : null,
-        }));
-
-        setPastedFiles((prev) => [...prev, ...newPastedFiles]);
+        addFiles(pastedFiles);
       }
     },
-    [isPending, accept]
+    [isPending, addFiles]
   );
 
-  const handleUpload = useCallback(() => {
-    if (pastedFiles.length === 0 || isPending) return;
+  const fetchUrls = async (urls: string[]) => {
+    setIsLoadingUrl(true);
+    const results = await Promise.all(
+      urls.map(async (url): Promise<PastedFile | null> => {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) return null;
+          const blob = await response.blob();
+          const filename = url.split('/').pop()?.split('?')[0] || 'image';
+          const ext = blob.type.split('/')[1] || 'png';
+          const file = new File([blob], `${filename}.${ext}`, { type: blob.type });
+          if (accept && !matchesAccept(file, accept)) return null;
+          return {
+            file,
+            preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
+          };
+        } catch {
+          return null;
+        }
+      })
+    );
+    const valid = results.filter((r): r is PastedFile => r !== null);
+    if (valid.length > 0) setFiles((prev) => [...prev, ...valid]);
+    setIsLoadingUrl(false);
+  };
 
-    const files = pastedFiles.map((pf) => pf.file);
+  const handleFileInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selected = Array.from(e.target.files || []);
+      if (selected.length > 0) addFiles(selected);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    },
+    [addFiles]
+  );
 
-    if (uploadOverride) {
-      uploadOverride(files, { metadata });
-    } else {
-      upload(files, { metadata });
-    }
-
-    // Clear files after upload starts
-    pastedFiles.forEach((pf) => {
-      if (pf.preview) {
-        URL.revokeObjectURL(pf.preview);
-      }
-    });
-    setPastedFiles([]);
-  }, [pastedFiles, isPending, metadata, upload, uploadOverride]);
-
-  const handleClear = useCallback(() => {
-    pastedFiles.forEach((pf) => {
-      if (pf.preview) {
-        URL.revokeObjectURL(pf.preview);
-      }
-    });
-    setPastedFiles([]);
-  }, [pastedFiles]);
-
-  const handleRemoveFile = useCallback((index: number) => {
-    setPastedFiles((prev) => {
+  const removeFile = useCallback((index: number) => {
+    setFiles((prev) => {
       const file = prev[index];
-      if (file?.preview) {
-        URL.revokeObjectURL(file.preview);
-      }
+      if (file?.preview) URL.revokeObjectURL(file.preview);
       return prev.filter((_, i) => i !== index);
     });
   }, []);
 
-  const hasFiles = pastedFiles.length > 0;
+  const clearAll = useCallback(() => {
+    files.forEach((f) => f.preview && URL.revokeObjectURL(f.preview));
+    setFiles([]);
+  }, [files]);
+
+  const handleUpload = useCallback(() => {
+    if (files.length === 0 || isPending) return;
+    const toUpload = files.map((f) => f.file);
+    if (uploadOverride) {
+      uploadOverride(toUpload, { metadata });
+    } else {
+      upload(toUpload, { metadata });
+    }
+    clearAll();
+  }, [files, isPending, metadata, upload, uploadOverride, clearAll]);
+
+  const hasFiles = files.length > 0;
+
+  // Calculate upload progress stats
+  const uploadingCount = progresses.filter((p) => p.status === 'uploading').length;
+  const completedCount = progresses.filter((p) => p.status === 'complete').length;
+  const totalCount = progresses.length;
+  const overallProgress = totalCount > 0
+    ? Math.round(progresses.reduce((acc, p) => acc + p.progress, 0) / totalCount * 100)
+    : 0;
 
   return (
-    <div className="text-foreground flex flex-col gap-3">
-      {/* Paste Area */}
+    <div className="text-foreground w-full max-w-md space-y-3">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={accept}
+        multiple
+        onChange={handleFileInput}
+        className="hidden"
+      />
+
+      {/* Drop/Paste Zone */}
       <div
         className={cn(
-          'border-input relative rounded-lg border border-dashed transition-colors',
-          {
-            'border-primary/80': isFocused,
-          }
+          'border-input group relative rounded-xl border-2 border-dashed transition-all',
+          isFocused && 'border-primary bg-primary/5',
+          isPending && 'pointer-events-none opacity-60'
         )}
       >
         <div
-          className={cn(
-            'dark:bg-input/10 flex w-full min-w-72 cursor-text flex-col items-center justify-center rounded-lg bg-transparent px-2 py-6 transition-colors',
-            {
-              'text-muted-foreground cursor-not-allowed': isPending,
-              'hover:bg-accent dark:hover:bg-accent/40': !isPending,
-            }
-          )}
           tabIndex={0}
           id={_id || id}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           onPaste={handlePaste}
-          role="textbox"
-          aria-label="Paste area for file uploads"
+          onClick={() => !isPending && fileInputRef.current?.click()}
+          role="button"
+          aria-label="Upload area"
+          className="flex cursor-pointer flex-col items-center gap-2 px-4 py-8"
         >
-          <div className="my-2">
-            {isPending ? (
-              <Loader2 className="size-6 animate-spin" />
-            ) : (
-              <Clipboard className="size-6" />
-            )}
-          </div>
+          {isPending || isLoadingUrl ? (
+            <Loader2 className="text-muted-foreground size-8 animate-spin" />
+          ) : (
+            <div className="bg-primary/10 text-primary rounded-full p-3">
+              <ImagePlus className="size-6" />
+            </div>
+          )}
 
-          <div className="mt-3 space-y-1 text-center">
-            <p className="text-sm font-semibold">
-              {isFocused ? 'Paste files now' : 'Click here and paste files'}
+          <div className="text-center">
+            <p className="text-sm font-medium">
+              {isLoadingUrl
+                ? 'Loading from URL...'
+                : isFocused
+                  ? 'Press Ctrl+V to paste'
+                  : 'Click to browse or paste'}
             </p>
-
-            <p className="text-muted-foreground max-w-64 text-xs">
-              {typeof description === 'string' ? (
-                description
-              ) : (
-                <>
-                  {description?.maxFiles &&
-                    `You can upload ${description.maxFiles} file${description.maxFiles !== 1 ? 's' : ''}.`}{' '}
-                  {description?.maxFileSize &&
-                    `${description.maxFiles !== 1 ? 'Each u' : 'U'}p to ${description.maxFileSize}.`}{' '}
-                  {description?.fileTypes &&
-                    `Accepted ${description.fileTypes}.`}
-                </>
-              )}
-            </p>
-
-            <p className="text-muted-foreground text-xs">
-              {isFocused ? (
-                <kbd className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">
-                  Ctrl+V
-                </kbd>
-              ) : (
-                'Supports images and files from clipboard'
-              )}
+            <p className="text-muted-foreground mt-1 text-xs">
+              {description} • Paste files or image URLs
             </p>
           </div>
         </div>
       </div>
 
-      {/* File Previews */}
-      {hasFiles && (
-        <div className="grid gap-2">
-          {pastedFiles.map((pastedFile, index) => (
+      {/* Upload Progress */}
+      {isPending && totalCount > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-medium">
+              Uploading {completedCount + 1} of {totalCount}...
+            </span>
+            <span className="text-muted-foreground">{overallProgress}%</span>
+          </div>
+          <div className="bg-secondary h-2 overflow-hidden rounded-full">
             <div
-              key={`${pastedFile.file.name}-${index}`}
-              className="dark:bg-input/10 flex items-center gap-3 rounded-lg border bg-transparent p-3"
-            >
-              {/* Preview */}
-              {pastedFile.preview ? (
-                <img
-                  src={pastedFile.preview}
-                  alt={pastedFile.file.name}
-                  className="size-12 shrink-0 rounded object-cover"
-                />
-              ) : (
-                <div className="bg-muted flex size-12 shrink-0 items-center justify-center rounded">
-                  <FileTypeIcon type={pastedFile.file.type} />
-                </div>
-              )}
-
-              {/* File Info */}
-              <div className="grid min-w-0 grow gap-0.5">
-                <p className="truncate text-sm font-medium">
-                  {pastedFile.file.name}
-                </p>
-                <p className="text-muted-foreground text-xs">
-                  {formatBytes(pastedFile.file.size)}
-                </p>
-              </div>
-
-              {/* Remove Button */}
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => handleRemoveFile(index)}
-                disabled={isPending}
-                aria-label={`Remove ${pastedFile.file.name}`}
+              className="bg-primary h-full transition-all duration-300"
+              style={{ width: `${overallProgress}%` }}
+            />
+          </div>
+          <div className="grid grid-cols-4 gap-1.5">
+            {progresses.map((p) => (
+              <div
+                key={p.objectInfo.key}
+                className={cn(
+                  'relative aspect-square overflow-hidden rounded-md border',
+                  p.status === 'complete' && 'ring-2 ring-green-500',
+                  p.status === 'failed' && 'ring-2 ring-red-500'
+                )}
               >
-                <X className="size-4" />
-              </Button>
-            </div>
-          ))}
+                <div className="bg-muted flex size-full items-center justify-center">
+                  <span className="text-muted-foreground text-[10px] font-medium">
+                    {p.name.split('.').pop()?.toUpperCase()}
+                  </span>
+                </div>
+                {p.status === 'uploading' && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                    <span className="text-xs font-medium text-white">
+                      {Math.round(p.progress * 100)}%
+                    </span>
+                  </div>
+                )}
+                {p.status === 'complete' && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-green-500/20">
+                    <span className="text-xs">✓</span>
+                  </div>
+                )}
+                {p.status === 'failed' && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-red-500/20">
+                    <span className="text-xs">✗</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Action Buttons */}
-      {hasFiles && (
-        <div className="flex gap-2">
+      {/* File Grid */}
+      {hasFiles && !isPending && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground text-xs font-medium">
+              {files.length} file{files.length !== 1 && 's'} selected
+            </span>
+            <button
+              type="button"
+              onClick={clearAll}
+              className="text-muted-foreground hover:text-destructive text-xs transition-colors"
+            >
+              Clear all
+            </button>
+          </div>
+
+          <div className="grid grid-cols-4 gap-2">
+            {files.map((f, i) => (
+              <div
+                key={`${f.file.name}-${i}`}
+                className="group relative aspect-square overflow-hidden rounded-lg border"
+              >
+                {f.preview ? (
+                  <img
+                    src={f.preview}
+                    alt={f.file.name}
+                    className="size-full object-cover"
+                  />
+                ) : (
+                  <div className="bg-muted flex size-full items-center justify-center">
+                    <span className="text-muted-foreground text-xs font-medium">
+                      {f.file.name.split('.').pop()?.toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeFile(i)}
+                  className="absolute right-1 top-1 rounded-full bg-black/60 p-1 opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  <X className="size-3 text-white" />
+                </button>
+                <div className="absolute inset-x-0 bottom-0 bg-black/60 px-1 py-0.5">
+                  <p className="truncate text-[10px] text-white">{formatBytes(f.file.size)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Upload Button */}
           <Button
-            type="button"
             onClick={handleUpload}
             disabled={isPending}
-            className="grow"
+            className="w-full"
           >
-            {isPending ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                <Upload className="size-4" />
-                Upload {pastedFiles.length} file
-                {pastedFiles.length !== 1 ? 's' : ''}
-              </>
-            )}
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClear}
-            disabled={isPending}
-          >
-            Clear
+            <Upload className="size-4" />
+            Upload {files.length} file{files.length !== 1 && 's'}
           </Button>
         </div>
       )}
@@ -302,52 +364,17 @@ export function UploadPasteArea({
   );
 }
 
-function FileTypeIcon({ type }: { type: string }) {
-  const label = useMemo(() => {
-    const iconCaptions: Record<string, string> = {
-      'image/': 'IMG',
-      'video/': 'VID',
-      'audio/': 'AUD',
-      'application/pdf': 'PDF',
-      'application/zip': 'ZIP',
-      'text/': 'TXT',
-    };
-
-    return (
-      Object.entries(iconCaptions).find(([key]) => type.startsWith(key))?.[1] ||
-      'FILE'
-    );
-  }, [type]);
-
-  return (
-    <span className="text-muted-foreground text-xs font-semibold">{label}</span>
-  );
-}
-
-/**
- * Check if a file matches the accept string pattern
- */
 function matchesAccept(file: File, accept: string): boolean {
-  const acceptTypes = accept.split(',').map((type) => type.trim());
+  const acceptTypes = accept.split(',').map((t) => t.trim());
 
-  for (const acceptType of acceptTypes) {
-    // Handle wildcards like "image/*"
-    if (acceptType.endsWith('/*')) {
-      const prefix = acceptType.slice(0, -1);
-      if (file.type.startsWith(prefix)) {
-        return true;
-      }
-    }
-    // Handle exact MIME types like "image/png"
-    else if (file.type === acceptType) {
+  for (const type of acceptTypes) {
+    if (type.endsWith('/*')) {
+      if (file.type.startsWith(type.slice(0, -1))) return true;
+    } else if (file.type === type) {
       return true;
-    }
-    // Handle file extensions like ".png"
-    else if (acceptType.startsWith('.')) {
-      const extension = file.name.toLowerCase().split('.').pop();
-      if (extension && `.${extension}` === acceptType.toLowerCase()) {
-        return true;
-      }
+    } else if (type.startsWith('.')) {
+      const ext = file.name.toLowerCase().split('.').pop();
+      if (ext && `.${ext}` === type.toLowerCase()) return true;
     }
   }
 
