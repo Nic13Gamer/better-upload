@@ -1,5 +1,15 @@
 # @better-upload/server
 
+## 3.0.11
+
+### Patch Changes
+
+- [`7baf75f`](https://github.com/Nic13Gamer/better-upload/commit/7baf75fbee53f688f81d47dedd094e1eb967fb55) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Set object tagging in `onBeforeUpload`
+
+- [`7baf75f`](https://github.com/Nic13Gamer/better-upload/commit/7baf75fbee53f688f81d47dedd094e1eb967fb55) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Add S3 helpers for object tagging operations
+
+- [`d2676b0`](https://github.com/Nic13Gamer/better-upload/commit/d2676b09612085b13038d8a2dc3b35e057cf49ce) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Fix `deleteObjects` helper
+
 ## 3.0.10
 
 ### Patch Changes
