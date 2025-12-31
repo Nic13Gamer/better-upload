@@ -236,3 +236,50 @@ await abortMultipartUpload(s3, {
   uploadId: '...',
 });
 ```
+
+### Object tagging operations
+
+Helpers for managing object tags in S3-compatible storage services.
+
+#### Get object tagging
+
+Get the tags of an S3 object.
+
+```ts
+import { getObjectTagging } from '@better-upload/server/helpers';
+
+const { tags, tagsObject } = await getObjectTagging(s3, {
+  bucket: 'my-bucket',
+  key: 'example.png',
+});
+```
+
+#### Put object tagging
+
+Set the tags for an S3 object.
+
+```ts
+import { putObjectTagging } from '@better-upload/server/helpers';
+
+await putObjectTagging(s3, {
+  bucket: 'my-bucket',
+  key: 'example.png',
+  tagging: {
+    tag1: 'value1',
+    tag2: 'value2',
+  },
+});
+```
+
+#### Delete object tagging
+
+Delete all tags from an S3 object.
+
+```ts
+import { deleteObjectTagging } from '@better-upload/server/helpers';
+
+await deleteObjectTagging(s3, {
+  bucket: 'my-bucket',
+  key: 'example.png',
+});
+```
