@@ -1,6 +1,11 @@
 import type { Client } from '@/types/clients';
-import type { ObjectAcl, ObjectMetadata, StorageClass } from '@/types/s3';
-import { throwS3Error } from '@/utils/s3';
+import type {
+  ObjectAcl,
+  ObjectMetadata,
+  StorageClass,
+  Tagging,
+} from '@/types/s3';
+import { encodeTagging, throwS3Error } from '@/utils/s3';
 import { parseXml } from '@/utils/xml';
 
 /**
@@ -16,6 +21,7 @@ export async function createMultipartUpload(
     acl?: ObjectAcl;
     storageClass?: StorageClass;
     cacheControl?: string;
+    tagging?: Tagging;
   }
 ) {
   if (!params.key.trim()) {
@@ -42,6 +48,9 @@ export async function createMultipartUpload(
               value,
             ])
           ),
+          ...(params.tagging
+            ? { 'x-amz-tagging': encodeTagging(params.tagging) }
+            : {}),
         },
         aws: { signQuery: true, allHeaders: true },
       }

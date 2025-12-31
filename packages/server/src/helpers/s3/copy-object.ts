@@ -1,5 +1,6 @@
 import type { Client } from '@/types/clients';
-import { throwS3Error } from '@/utils/s3';
+import type { Tagging } from '@/types/s3';
+import { encodeTagging, throwS3Error } from '@/utils/s3';
 
 /**
  * Copy an object, within or between, S3 buckets.
@@ -15,6 +16,11 @@ export async function copyObject(
       bucket: string;
       key: string;
     };
+    taggingDirective?: 'COPY' | 'REPLACE';
+    /**
+     * Use only if `taggingDirective` is set to `REPLACE`.
+     */
+    tagging?: Tagging;
   }
 ) {
   await throwS3Error(
@@ -24,6 +30,12 @@ export async function copyObject(
         method: 'PUT',
         headers: {
           'x-amz-copy-source': `${params.source.bucket}/${params.source.key}`,
+          ...(params.taggingDirective
+            ? { 'x-amz-tagging-directive': params.taggingDirective }
+            : {}),
+          ...(params.tagging
+            ? { 'x-amz-tagging': encodeTagging(params.tagging) }
+            : {}),
         },
         aws: { signQuery: true, allHeaders: true },
       }

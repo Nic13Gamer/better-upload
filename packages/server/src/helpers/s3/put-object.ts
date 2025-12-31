@@ -1,6 +1,11 @@
 import type { Client } from '@/types/clients';
-import type { ObjectAcl, ObjectMetadata, StorageClass } from '@/types/s3';
-import { getBodyContentLength, throwS3Error } from '@/utils/s3';
+import type {
+  ObjectAcl,
+  ObjectMetadata,
+  StorageClass,
+  Tagging,
+} from '@/types/s3';
+import { encodeTagging, getBodyContentLength, throwS3Error } from '@/utils/s3';
 
 /**
  * Put an object into an S3 bucket. Do not use for files larger than 5GB (use multipart uploads instead).
@@ -18,6 +23,7 @@ export async function putObject(
     acl?: ObjectAcl;
     storageClass?: StorageClass;
     cacheControl?: string;
+    tagging?: Tagging;
   }
 ) {
   const contentLength = getBodyContentLength(params.body);
@@ -43,6 +49,9 @@ export async function putObject(
             value,
           ])
         ),
+        ...(params.tagging
+          ? { 'x-amz-tagging': encodeTagging(params.tagging) }
+          : {}),
       },
       body: params.body,
       aws: { signQuery: true, allHeaders: true },
