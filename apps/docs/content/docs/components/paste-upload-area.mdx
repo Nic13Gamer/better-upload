@@ -1,0 +1,94 @@
+---
+title: Paste Upload Area
+description: A wrapper component that enables file uploads via paste events.
+---
+
+import { PasteUploadAreaDemo } from '@/components/templates/paste-upload-area-demo';
+
+## Preview
+
+<Showcase>
+  <PasteUploadAreaDemo />
+</Showcase>
+
+## Installation
+
+<Tabs items={['CLI', 'Manual']}>
+
+<Tab value="CLI">
+
+```bash
+npx shadcn@latest add @better-upload/paste-upload-area
+```
+
+</Tab>
+
+<Tab value="Manual">
+<Steps>
+<Step>
+
+**Copy and paste the following code into your project.**
+
+<include cwd lang="tsx" meta="title='components/ui/paste-upload-area.tsx'">
+  ./components/templates/paste-upload-area.txt
+</include>
+
+</Step>
+
+<Step>
+
+**Update the import paths to match your project setup.**
+
+</Step>
+
+</Steps>
+</Tab>
+
+</Tabs>
+
+## Usage
+
+The `<PasteUploadArea />` component should be used with the `useUploadFiles` hook.
+
+```tsx
+'use client';
+
+import { useUploadFiles } from '@better-upload/client';
+import { PasteUploadArea } from '@/components/ui/paste-upload-area';
+
+export function Uploader() {
+  const { control, isPending } = useUploadFiles({
+    route: 'images',
+  });
+
+  return (
+    <PasteUploadArea control={control}>
+      <input placeholder="Paste to upload" disabled={isPending} />
+    </PasteUploadArea>
+  );
+}
+```
+
+Files pasted within any child element of the component will be uploaded to the desired route.
+
+## Props
+
+<TypeTable
+  type={{
+    control: {
+      type: 'object',
+      description: 'Control object returned by the useUploadFiles hook.',
+      required: true,
+    },
+    metadata: {
+      type: 'Record<string, unknown>',
+      description:
+        'Metadata to send to your server on upload. Needs to be JSON serializable.',
+    },
+    uploadOverride: {
+      type: 'function',
+      description:
+        'Override the default upload function. For example, set files in an array, and upload them after form submission.',
+    },
+  }}
+/>

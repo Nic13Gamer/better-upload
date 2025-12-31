@@ -21,6 +21,12 @@ const components = [
     dependencies: ['@better-upload/client', 'lucide-react', 'react-dropzone'],
     registryDependencies: ['progress'],
   },
+  {
+    name: 'paste-upload-area',
+    title: 'Paste Upload Area',
+    dependencies: ['@better-upload/client'],
+    registryDependencies: [],
+  },
 ];
 
 const REGISTRY_PATH = path.join(process.cwd(), 'public/r');
