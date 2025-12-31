@@ -1,4 +1,4 @@
-import type { ObjectAcl, ObjectMetadata, StorageClass } from '../s3';
+import type { ObjectAcl, ObjectMetadata, StorageClass, Tagging } from '../s3';
 import type { StandardSchemaV1 } from '../standard-schema';
 
 export type UnknownMetadata = Record<string, unknown>;
@@ -41,6 +41,7 @@ export type FileInfo<T extends boolean> = {
         acl?: ObjectAcl;
         storageClass?: StorageClass;
         cacheControl?: string;
+        tagging?: Tagging;
       };
     }
   : {});
@@ -285,6 +286,13 @@ export type BeforeUploadCallbackObjectInfo<Multiple extends boolean> = {
    * **WARNING:** If not set, the client is able to set it to any value (does not apply to multipart uploads).
    */
   cacheControl?: string;
+
+  /**
+   * Tagging to apply to the S3 object. Maximum of 10 tags.
+   *
+   * **WARNING:** All values here will be exposed to the client. Do not use this for sensitive data.
+   */
+  tagging?: Tagging;
 } & (Multiple extends true
   ? {
       /**

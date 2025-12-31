@@ -22,6 +22,7 @@ export type StorageClass =
   | 'STANDARD_IA';
 
 export type ObjectMetadata = Record<string, string>;
+export type Tagging = Record<string, string>;
 
 export type HeadObjectResult = {
   /**
@@ -47,6 +48,8 @@ export type HeadObjectResult = {
    * Keys **do not** include the `x-amz-meta-` prefix.
    */
   metadata: ObjectMetadata;
+
+  taggingCount: number;
 };
 
 export type GetObjectResult = HeadObjectResult & {

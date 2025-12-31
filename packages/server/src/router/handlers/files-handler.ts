@@ -3,7 +3,7 @@ import type { Client } from '@/types/clients';
 import type { Route } from '@/types/router/internal';
 import type { ObjectMetadata } from '@/types/s3';
 import { isFileTypeAllowed } from '@/utils/file-type';
-import { signPutObject } from '@/utils/s3';
+import { encodeTagging, signPutObject } from '@/utils/s3';
 import { createSlug } from '@/utils/slug';
 import type { UploadFileSchema } from '@/validations';
 import { RejectUpload } from '../route';
@@ -110,10 +110,11 @@ export async function handleFiles({
       files.map(async (file) => {
         let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
         let objectMetadata = {} as ObjectMetadata;
-        let objectAcl = undefined;
-        let objectStorageClass = undefined;
-        let objectCacheControl = undefined;
-        let skip = undefined;
+        let objectAcl,
+          objectStorageClass,
+          objectCacheControl,
+          objectTagging,
+          skip = undefined;
 
         if (generateObjectInfoCallback) {
           const objectInfo = await generateObjectInfoCallback({ file });
@@ -133,6 +134,7 @@ export async function handleFiles({
           objectAcl = objectInfo.acl;
           objectStorageClass = objectInfo.storageClass;
           objectCacheControl = objectInfo.cacheControl;
+          objectTagging = objectInfo.tagging;
           skip = objectInfo.skip;
         }
 
@@ -149,6 +151,7 @@ export async function handleFiles({
                 acl: objectAcl,
                 storageClass: objectStorageClass,
                 cacheControl: objectCacheControl,
+                tagging: objectTagging,
               },
             },
             skip: 'completed',
@@ -164,6 +167,7 @@ export async function handleFiles({
           acl: objectAcl,
           storageClass: objectStorageClass,
           cacheControl: objectCacheControl,
+          tagging: objectTagging,
           expiresIn: signedUrlExpiresIn,
         });
 
@@ -177,6 +181,7 @@ export async function handleFiles({
               acl: objectAcl,
               storageClass: objectStorageClass,
               cacheControl: objectCacheControl,
+              tagging: objectTagging,
             },
           },
         };
@@ -215,6 +220,11 @@ export async function handleFiles({
           : {}),
         ...(url.file.objectInfo.storageClass
           ? { 'x-amz-storage-class': url.file.objectInfo.storageClass }
+          : {}),
+        ...(url.file.objectInfo.tagging
+          ? {
+              'x-amz-tagging': encodeTagging(url.file.objectInfo.tagging),
+            }
           : {}),
       },
       skip: url.skip,

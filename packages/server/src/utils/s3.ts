@@ -5,6 +5,7 @@ import type {
   ObjectAcl,
   ObjectMetadata,
   StorageClass,
+  Tagging,
 } from '@/types/s3';
 import { parseXml } from './xml';
 
@@ -43,6 +44,7 @@ export function parseHeadObjectHeaders(headers: Headers): HeadObjectResult {
     contentLength: Number(headers.get('content-length') || 0),
     eTag: headers.get('etag') || '',
     metadata,
+    taggingCount: Number(headers.get('x-amz-tagging-count') || 0),
   };
 }
 
@@ -57,6 +59,7 @@ export async function signPutObject(
     acl?: ObjectAcl;
     storageClass?: StorageClass;
     cacheControl?: string;
+    tagging?: Tagging;
     expiresIn: number;
   }
 ) {
@@ -87,6 +90,9 @@ export async function signPutObject(
         ...(params.storageClass
           ? { 'x-amz-storage-class': params.storageClass }
           : {}),
+        ...(params.tagging
+          ? { 'x-amz-tagging': encodeTagging(params.tagging) }
+          : {}),
       },
       aws: { signQuery: true, allHeaders: true },
     })
@@ -103,6 +109,7 @@ export async function createMultipartUpload(
     acl?: ObjectAcl;
     storageClass?: StorageClass;
     cacheControl?: string;
+    tagging?: Tagging;
   }
 ) {
   const res = await throwS3Error(
@@ -125,6 +132,9 @@ export async function createMultipartUpload(
               value,
             ])
           ),
+          ...(params.tagging
+            ? { 'x-amz-tagging': encodeTagging(params.tagging) }
+            : {}),
         },
         aws: { signQuery: true, allHeaders: true },
       }
@@ -254,3 +264,11 @@ export function getBodyContentLength(body: BodyInit | null): number | null {
 
   return null;
 }
+
+export const encodeTagging = (tagging: Tagging) =>
+  Object.entries(tagging)
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+    )
+    .join('&');

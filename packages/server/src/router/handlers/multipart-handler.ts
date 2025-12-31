@@ -107,10 +107,11 @@ export async function handleMultipartFiles({
       files.map(async (file) => {
         let objectKey = `${crypto.randomUUID()}-${createSlug(file.name)}`;
         let objectMetadata = {} as ObjectMetadata;
-        let objectAcl = undefined;
-        let objectStorageClass = undefined;
-        let objectCacheControl = undefined;
-        let skip = undefined;
+        let objectAcl,
+          objectStorageClass,
+          objectCacheControl,
+          objectTagging,
+          skip = undefined;
 
         if (generateObjectInfoCallback) {
           const objectInfo = await generateObjectInfoCallback({ file });
@@ -130,6 +131,7 @@ export async function handleMultipartFiles({
           objectAcl = objectInfo.acl;
           objectStorageClass = objectInfo.storageClass;
           objectCacheControl = objectInfo.cacheControl;
+          objectTagging = objectInfo.tagging;
           skip = objectInfo.skip;
         }
 
@@ -145,6 +147,7 @@ export async function handleMultipartFiles({
                 acl: objectAcl,
                 storageClass: objectStorageClass,
                 cacheControl: objectCacheControl,
+                tagging: objectTagging,
               },
             },
             parts: [],
@@ -163,6 +166,7 @@ export async function handleMultipartFiles({
           acl: objectAcl,
           storageClass: objectStorageClass,
           cacheControl: objectCacheControl,
+          tagging: objectTagging,
         });
 
         const totalParts = Math.ceil(file.size / partSize);
@@ -212,6 +216,7 @@ export async function handleMultipartFiles({
               acl: objectAcl,
               storageClass: objectStorageClass,
               cacheControl: objectCacheControl,
+              tagging: objectTagging,
             },
           },
           parts: partSignedUrls,
