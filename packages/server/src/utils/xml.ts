@@ -4,12 +4,12 @@ export function parseXml<T = Record<string, any>>(
   xml: string,
   params?: {
     ignoreAttributes?: boolean;
-    array?: boolean;
+    arrayPath?: string[];
   }
 ): T {
   const parser = new XMLParser({
     ignoreAttributes: params?.ignoreAttributes ?? true,
-    isArray: () => params?.array ?? false,
+    isArray: (_, path) => params?.arrayPath?.includes(path) ?? false,
   });
   return parser.parse(xml) as T;
 }

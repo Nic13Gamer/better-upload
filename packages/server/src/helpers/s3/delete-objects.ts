@@ -80,7 +80,9 @@ export async function deleteObjects(
         VersionId?: string;
       }[];
     };
-  }>(await res.text(), { array: true });
+  }>(await res.text(), {
+    arrayPath: ['DeleteResult.Deleted', 'DeleteResult.Error'],
+  });
 
   return {
     deleted:
