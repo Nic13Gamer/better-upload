@@ -1,5 +1,11 @@
 # @better-upload/server
 
+## 3.0.12
+
+### Patch Changes
+
+- [#108](https://github.com/Nic13Gamer/better-upload/pull/108) [`0643eec`](https://github.com/Nic13Gamer/better-upload/commit/0643eec10b6ccb1f4310021ca02d0e1d0fa7ee35) Thanks [@wonu](https://github.com/wonu)! - Fix `tagging` in object info for single files
+
 ## 3.0.11
 
 ### Patch Changes
