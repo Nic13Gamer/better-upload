@@ -57,6 +57,7 @@ export function route<
                           acl: res.objectInfo!.acl,
                           storageClass: res.objectInfo!.storageClass,
                           cacheControl: res.objectInfo!.cacheControl,
+                          tagging: res.objectInfo!.tagging,
                         }) satisfies BeforeUploadCallbackObjectInfo<true>
                     : undefined;
 
