@@ -47,13 +47,13 @@ async function buildRegistry() {
     const entry = {
       name: component.name,
       title: component.title,
-      type: 'registry:component',
+      type: 'registry:ui',
       dependencies: component.dependencies,
       registryDependencies: component.registryDependencies,
       files: [
         {
-          path: `registry/better-upload/${component.name}.tsx`,
-          type: 'registry:component',
+          path: `ui/${component.name}.tsx`,
+          type: 'registry:ui',
           content: code,
         },
       ],
@@ -72,13 +72,13 @@ async function buildRegistry() {
     items: components.map((c) => ({
       name: c.name,
       title: c.title,
-      type: 'registry:component',
+      type: 'registry:ui',
       registryDependencies: c.registryDependencies,
       dependencies: c.dependencies,
       files: [
         {
-          path: `registry/better-upload/${c.name}.json`,
-          type: 'registry:component',
+          path: `ui/${c.name}.json`,
+          type: 'registry:ui',
         },
       ],
     })),
