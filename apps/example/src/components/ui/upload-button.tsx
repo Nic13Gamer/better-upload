@@ -29,6 +29,7 @@ export function UploadButton({
       <label htmlFor={_id || id} className="absolute inset-0 cursor-pointer">
         <input
           id={_id || id}
+          disabled={isPending}
           className="absolute inset-0 size-0 opacity-0"
           type="file"
           accept={accept}
