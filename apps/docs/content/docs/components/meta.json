@@ -3,7 +3,7 @@
   "pages": [
     "upload-button",
     "upload-dropzone",
-    "upload-dropzone-progress",
+    "upload-progress",
     "paste-upload-area"
   ]
 }

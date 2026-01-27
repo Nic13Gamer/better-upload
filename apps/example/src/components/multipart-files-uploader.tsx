@@ -2,7 +2,8 @@
 
 import { useUploadFiles } from '@better-upload/client';
 import { toast } from 'sonner';
-import { UploadDropzoneProgress } from './ui/upload-dropzone-progress';
+import { UploadDropzone } from './ui/upload-dropzone';
+import { UploadProgress } from './ui/upload-progress';
 
 export function MultipartFilesUploader() {
   const { control } = useUploadFiles({
@@ -19,12 +20,15 @@ export function MultipartFilesUploader() {
   });
 
   return (
-    <UploadDropzoneProgress
-      control={control}
-      description={{
-        maxFileSize: '80MB',
-        maxFiles: 5,
-      }}
-    />
+    <div className="flex flex-col gap-3">
+      <UploadDropzone
+        control={control}
+        description={{
+          maxFileSize: '80MB',
+          maxFiles: 5,
+        }}
+      />
+      <UploadProgress control={control} />
+    </div>
   );
 }

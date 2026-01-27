@@ -16,9 +16,9 @@ const components = [
     registryDependencies: [],
   },
   {
-    name: 'upload-dropzone-progress',
-    title: 'Upload Dropzone with Progress',
-    dependencies: ['@better-upload/client', 'lucide-react', 'react-dropzone'],
+    name: 'upload-progress',
+    title: 'Upload Progress',
+    dependencies: ['@better-upload/client', 'lucide-react'],
     registryDependencies: ['progress'],
   },
   {

@@ -1,0 +1,113 @@
+---
+title: Upload Progress
+description: A component to display upload progress for files being uploaded.
+---
+
+import { UploadProgressDemo } from '@/components/templates/upload-progress-demo';
+
+## Preview
+
+<Showcase>
+  <UploadProgressDemo />
+</Showcase>
+
+## Installation
+
+<Tabs items={['CLI', 'Manual']}>
+
+<Tab value="CLI">
+
+```bash
+npx shadcn@latest add @better-upload/upload-progress
+```
+
+</Tab>
+
+<Tab value="Manual">
+<Steps>
+<Step>
+
+**Install the following dependencies:**
+
+```npm
+npm i lucide-react react-dropzone
+```
+
+Make sure to have [shadcn/ui](https://ui.shadcn.com/docs/installation) set up in your project, with the [progress](https://ui.shadcn.com/docs/components/progress) component installed.
+
+</Step>
+
+<Step>
+
+**Copy and paste the following code into your project.**
+
+<include cwd lang="tsx" meta="title='components/ui/upload-progress.tsx'">
+  ./components/templates/upload-progress.txt
+</include>
+
+</Step>
+
+<Step>
+
+**Update the import paths to match your project setup.**
+
+</Step>
+
+</Steps>
+</Tab>
+
+</Tabs>
+
+## Usage
+
+The `<UploadProgress />` component should be used with the `useUploadFiles` hook.
+
+```tsx
+'use client';
+
+import { useUploadFiles } from '@better-upload/client';
+import { UploadProgress } from '@/components/ui/upload-progress';
+
+export function Uploader() {
+  const { control } = useUploadFiles({
+    route: 'images',
+  });
+
+  return <UploadProgress control={control} />;
+}
+```
+
+This component should probably be used alongside another component, such as [`<UploadDropzone />`](/docs/components/upload-dropzone), to trigger the file uploads.
+
+```tsx
+'use client';
+
+import { useUploadFiles } from '@better-upload/client';
+import { UploadDropzone } from '@/components/ui/upload-dropzone';
+import { UploadProgress } from '@/components/ui/upload-progress';
+
+export function Uploader() {
+  const { control } = useUploadFiles({
+    route: 'images',
+  });
+
+  return (
+    <div className="flex flex-col gap-4">
+      <UploadDropzone control={control} accept="image/*" />
+      <UploadProgress control={control} />
+    </div>
+  );
+}
+```
+
+## Props
+
+<TypeTable
+  type={{
+    control: {
+      type: 'object',
+      description: 'Control object returned by the useUploadFiles hook.',
+      required: true,
+    },
+  }}
+/>
