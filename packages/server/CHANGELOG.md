@@ -1,5 +1,11 @@
 # @better-upload/server
 
+## 3.0.13
+
+### Patch Changes
+
+- [`9158602`](https://github.com/Nic13Gamer/better-upload/commit/91586024d117bb180643f806b2323b4c484eeb4c) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Fix Node adapter for Fastify
+
 ## 3.0.12
 
 ### Patch Changes
