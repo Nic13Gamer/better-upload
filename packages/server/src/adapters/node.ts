@@ -46,12 +46,21 @@ export function toNodeHandler(router: Router) {
 
       nodeRes.statusCode = response.status;
       response.headers.forEach((v, k) => nodeRes.setHeader(k, v));
-      nodeRes.end(response.body ? await response.text() : undefined);
+
+      if (!req.raw) {
+        nodeRes.end(response.body ? await response.text() : undefined);
+      } else {
+        res.send(response.body ? await response.text() : undefined);
+      }
     } catch (error) {
       const nodeRes: ServerResponse = res.raw ?? res;
       nodeRes.statusCode = 500;
       nodeRes.setHeader('content-type', 'text/plain');
-      nodeRes.end('Internal Server Error');
+      if (!req.raw) {
+        nodeRes.end('Internal Server Error');
+      } else {
+        res.send('Internal Server Error');
+      }
     }
   };
 }

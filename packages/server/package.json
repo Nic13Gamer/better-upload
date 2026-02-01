@@ -41,12 +41,12 @@
   },
   "dependencies": {
     "aws4fetch": "^1.0.20",
-    "fast-xml-parser": "^5.3.0",
-    "zod": "^4.1.12"
+    "fast-xml-parser": "^5.3.4",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^24",
     "@repo/tsconfig": "workspace:*",
+    "@types/node": "^24",
     "tsdown": "^0.15.12",
     "typescript": "^5.9.3",
     "vitest": "^4.0.5"
