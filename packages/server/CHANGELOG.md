@@ -1,5 +1,11 @@
 # @better-upload/server
 
+## 3.0.14
+
+### Patch Changes
+
+- [`57736e9`](https://github.com/Nic13Gamer/better-upload/commit/57736e956c3f0431e5f378365311a87535c6cc4c) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Add `listObjectsV2` S3 helper
+
 ## 3.0.13
 
 ### Patch Changes
