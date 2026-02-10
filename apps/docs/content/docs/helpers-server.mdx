@@ -81,6 +81,18 @@ const object = await headObject(s3, {
 });
 ```
 
+### List objects V2
+
+List objects in an S3 bucket, using the [ListObjectsV2 command](https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html).
+
+```ts
+import { listObjectsV2 } from '@better-upload/server/helpers';
+
+const { contents } = await listObjectsV2(s3, {
+  bucket: 'my-bucket',
+});
+```
+
 ### Move object (rename)
 
 Move an object from one key to another, within or between, S3 buckets. Also known as renaming.
