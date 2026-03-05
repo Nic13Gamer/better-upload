@@ -13,12 +13,9 @@ import {
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-
-
 export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const params = await props.params;
   const page = source.getPage(params.slug);
-  const githubRepo = baseOptions.githubUrl
   if (!page) notFound();
 
   const MDX = page.data.body;
@@ -29,13 +26,13 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       full={page.data.full}
       tableOfContent={{ footer: <TocFooter /> }}
     >
-      <div className="flex justify-between items-center gap-2 border-b pb-6 pt-2">
+      <div className="flex items-center justify-between gap-2">
         <DocsTitle>{page.data.title}</DocsTitle>
         <div className="flex flex-row items-center gap-2">
           <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
           <ViewOptions
             markdownUrl={`${page.url}.mdx`}
-            githubUrl={`${githubRepo}/blob/main/apps/docs/content/docs/${page.path}`}
+            githubUrl={`${baseOptions.githubUrl}/blob/main/apps/docs/content/docs/${page.path}`}
           />
         </div>
       </div>
