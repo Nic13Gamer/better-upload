@@ -28,14 +28,16 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       full={page.data.full}
       tableOfContent={{ footer: <TocFooter /> }}
     >
-      <div className="flex flex-row items-center gap-2 border-b pb-6 pt-2">
-        <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
-        <ViewOptions
-          markdownUrl={`${page.url}.mdx`}
-          githubUrl={`https://github.com/${owner}/${repo}/blob/main/apps/docs/content/docs/${page.path}`}
-        />
+      <div className="flex justify-between items-center gap-2 border-b pb-6 pt-2">
+        <DocsTitle>{page.data.title}</DocsTitle>
+        <div className="flex flex-row items-center gap-2">
+          <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
+          <ViewOptions
+            markdownUrl={`${page.url}.mdx`}
+            githubUrl={`https://github.com/${owner}/${repo}/blob/main/apps/docs/content/docs/${page.path}`}
+          />
+        </div>
       </div>
-      <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
         <MDX
