@@ -1,3 +1,4 @@
+import { baseOptions } from '@/app/layout.config';
 import { LLMCopyButton, ViewOptions } from '@/components/page-actions';
 import { TocFooter } from '@/components/toc-footer';
 import { source } from '@/lib/source';
@@ -12,12 +13,12 @@ import {
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-const owner = 'Nic13Gamer';
-const repo = 'better-upload';
+
 
 export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const params = await props.params;
   const page = source.getPage(params.slug);
+  const githubRepo = baseOptions.githubUrl
   if (!page) notFound();
 
   const MDX = page.data.body;
@@ -34,7 +35,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
           <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
           <ViewOptions
             markdownUrl={`${page.url}.mdx`}
-            githubUrl={`https://github.com/${owner}/${repo}/blob/main/apps/docs/content/docs/${page.path}`}
+            githubUrl={`${githubRepo}/blob/main/apps/docs/content/docs/${page.path}`}
           />
         </div>
       </div>
