@@ -10,8 +10,8 @@
     "release": "pnpm run build --filter \"./packages/*\" && changeset publish"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.5.1",
-    "@changesets/cli": "^2.29.8",
+    "@changesets/changelog-github": "^0.6.0",
+    "@changesets/cli": "^2.30.0",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.6.6",
     "turbo": "^2.5.4",

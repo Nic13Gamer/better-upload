@@ -33,7 +33,7 @@
     "@repo/tsconfig": "workspace:*",
     "@types/react": "^19.2.7",
     "react": "^19.2.3",
-    "tsdown": "^0.15.12",
+    "tsdown": "^0.21.6",
     "typescript": "^5.9.3"
   },
   "keywords": [
