@@ -8,8 +8,9 @@ export function parseXml<T = Record<string, any>>(
   }
 ): T {
   const parser = new XMLParser({
+    jPath: true,
     ignoreAttributes: params?.ignoreAttributes ?? true,
-    isArray: (_, path) => params?.arrayPath?.includes(path) ?? false,
+    isArray: (_, path) => params?.arrayPath?.includes(path as string) ?? false,
   });
   return parser.parse(xml) as T;
 }
