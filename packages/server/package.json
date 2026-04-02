@@ -49,7 +49,7 @@
     "@types/node": "^24",
     "tsdown": "^0.21.6",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.5"
+    "vitest": "^4.1.2"
   },
   "keywords": [
     "react",
