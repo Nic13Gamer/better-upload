@@ -1,5 +1,11 @@
 # @better-upload/server
 
+## 3.0.15
+
+### Patch Changes
+
+- [#120](https://github.com/Nic13Gamer/better-upload/pull/120) [`5f2d8c1`](https://github.com/Nic13Gamer/better-upload/commit/5f2d8c125996ceb1e63315e174d872aae73c1229) Thanks [@apocist](https://github.com/apocist)! - Add `contentLength` param to `putObject` helper
+
 ## 3.0.14
 
 ### Patch Changes
