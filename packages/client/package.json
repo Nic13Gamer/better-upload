@@ -14,16 +14,16 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
     },
     "./helpers": {
-      "import": "./dist/helpers/index.js",
-      "types": "./dist/helpers/index.d.ts"
+      "import": "./dist/helpers/index.mjs",
+      "types": "./dist/helpers/index.d.mts"
     },
     "./internal": {
-      "import": "./dist/internal-export.js",
-      "types": "./dist/internal-export.d.ts"
+      "import": "./dist/internal-export.mjs",
+      "types": "./dist/internal-export.d.mts"
     }
   },
   "peerDependencies": {

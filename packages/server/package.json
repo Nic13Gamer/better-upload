@@ -15,28 +15,28 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
     },
     "./clients": {
-      "import": "./dist/clients/index.js",
-      "types": "./dist/clients/index.d.ts"
+      "import": "./dist/clients/index.mjs",
+      "types": "./dist/clients/index.d.mts"
     },
     "./helpers": {
-      "import": "./dist/helpers/index.js",
-      "types": "./dist/helpers/index.d.ts"
+      "import": "./dist/helpers/index.mjs",
+      "types": "./dist/helpers/index.d.mts"
     },
     "./adapters/next": {
-      "import": "./dist/adapters/next.js",
-      "types": "./dist/adapters/next.d.ts"
+      "import": "./dist/adapters/next.mjs",
+      "types": "./dist/adapters/next.d.mts"
     },
     "./adapters/node": {
-      "import": "./dist/adapters/node.js",
-      "types": "./dist/adapters/node.d.ts"
+      "import": "./dist/adapters/node.mjs",
+      "types": "./dist/adapters/node.d.mts"
     },
     "./internal": {
-      "import": "./dist/internal-export.js",
-      "types": "./dist/internal-export.d.ts"
+      "import": "./dist/internal-export.mjs",
+      "types": "./dist/internal-export.d.mts"
     }
   },
   "dependencies": {
