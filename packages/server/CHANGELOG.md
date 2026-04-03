@@ -1,5 +1,11 @@
 # @better-upload/server
 
+## 3.0.16
+
+### Patch Changes
+
+- [`63e34aa`](https://github.com/Nic13Gamer/better-upload/commit/63e34aa4111602c0b6dfa7e7f03064b732349f42) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Fix exports
+
 ## 3.0.15
 
 ### Patch Changes
