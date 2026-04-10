@@ -53,10 +53,10 @@ const url = await presignGetObject(s3, {
 Get an object (including its content) from an S3 bucket.
 
 ```ts
-import { getObject, getObjectStream } from '@better-upload/server/helpers';
+import { getObjectBlob, getObjectStream } from '@better-upload/server/helpers';
 
 // as a Blob
-const object = await getObject(s3, {
+const objectBlob = await getObjectBlob(s3, {
   bucket: 'my-bucket',
   key: 'example.png',
 });

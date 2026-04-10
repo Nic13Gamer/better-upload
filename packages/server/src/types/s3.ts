@@ -52,7 +52,7 @@ export type HeadObjectResult = {
   taggingCount: number;
 };
 
-export type GetObjectResult = HeadObjectResult & {
+export type GetObjectBlobResult = HeadObjectResult & {
   /**
    * The object data as a Blob.
    *
