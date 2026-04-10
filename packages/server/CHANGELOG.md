@@ -1,5 +1,11 @@
 # @better-upload/server
 
+## 3.0.17
+
+### Patch Changes
+
+- [`1b5b05e`](https://github.com/Nic13Gamer/better-upload/commit/1b5b05e73ac5589fc7e985f97db7394949fb92af) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Add `getObjectBlob` helper and deprecate `getObject`
+
 ## 3.0.16
 
 ### Patch Changes
