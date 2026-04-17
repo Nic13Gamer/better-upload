@@ -13,6 +13,7 @@ export * from './s3/put-object-tagging';
 export * from './s3/abort-multipart-upload';
 export * from './s3/complete-multipart-upload';
 export * from './s3/create-multipart-upload';
+export * from './s3/list-parts';
 export * from './s3/upload-part';
 
 export * from './s3/presign/get-object';

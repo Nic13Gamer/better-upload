@@ -75,6 +75,7 @@ export async function uploadFileToS3(params: {
 export async function uploadMultipartFileToS3(params: {
   file: File;
   parts: { signedUrl: string; partNumber: number; size: number }[];
+  completedParts?: { partNumber: number; eTag: string; size: number }[];
   partSize: number;
   uploadId: string;
   completeSignedUrl: string;
@@ -84,8 +85,15 @@ export async function uploadMultipartFileToS3(params: {
   retry?: number;
   retryDelay?: number;
 }) {
-  const uploadedParts: { etag: string; number: number }[] = [];
+  const completedPartCount = params.completedParts?.length || 0;
+  const uploadedParts: { etag: string; number: number }[] = (
+    params.completedParts || []
+  ).map((part) => ({
+    etag: part.eTag.replace(/"/g, ''),
+    number: part.partNumber,
+  }));
   const progresses: { [part: number]: number } = {};
+  const totalPartCount = params.parts.length + completedPartCount;
 
   const uploadPromises = params.parts.map((part) => async () => {
     const xhr = new XMLHttpRequest();
@@ -124,9 +132,12 @@ export async function uploadMultipartFileToS3(params: {
             if (event.lengthComputable) {
               progresses[part.partNumber] = event.loaded / event.total;
 
+              const liveSum = Object.values(progresses).reduce(
+                (acc, curr) => acc + curr,
+                0
+              );
               const totalProgress =
-                Object.values(progresses).reduce((acc, curr) => acc + curr, 0) /
-                params.parts.length;
+                (liveSum + completedPartCount) / totalPartCount;
 
               params.onProgress?.(Math.min(totalProgress, 0.99));
             }

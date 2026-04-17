@@ -249,6 +249,24 @@ await abortMultipartUpload(s3, {
 });
 ```
 
+#### List parts
+
+List the parts already uploaded for an in-progress multipart upload. Useful when implementing custom resume flows.
+
+A single call returns up to `maxParts` parts (1000 max, per the S3 API). Paginate by passing `partNumberMarker` from the previous `nextPartNumberMarker` until `isTruncated` is `false`.
+
+```ts
+import { listParts } from '@better-upload/server/helpers';
+
+const { parts, isTruncated, nextPartNumberMarker } = await listParts(s3, {
+  bucket: 'my-bucket',
+  key: 'large-file.zip',
+  uploadId: '...',
+  maxParts: 1000, // optional
+  partNumberMarker: undefined, // optional
+});
+```
+
 ### Object tagging operations
 
 Helpers for managing object tags in S3-compatible storage services.

@@ -21,6 +21,18 @@ export type FileInfo<T extends boolean> = {
    * The MIME type of the file.
    */
   type: string;
+
+  /**
+   * If the client is asking to resume a previous multipart upload, the
+   * `uploadId` and `key` it persisted. Only ever present on multipart routes.
+   *
+   * Use this in `onBeforeUpload` to validate (e.g. ensure the key belongs to
+   * the current user) — throw `RejectUpload` to refuse the resume.
+   */
+  resume?: {
+    uploadId: string;
+    key: string;
+  };
 } & (T extends true
   ? {
       /**

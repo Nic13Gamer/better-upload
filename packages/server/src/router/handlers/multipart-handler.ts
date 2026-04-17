@@ -1,4 +1,6 @@
 import { config } from '@/config';
+import { S3Error } from '@/error';
+import { listParts } from '@/helpers/s3/list-parts';
 import type { Client } from '@/types/clients';
 import type { Route } from '@/types/router/internal';
 import type { ObjectMetadata } from '@/types/s3';
@@ -113,7 +115,11 @@ export async function handleMultipartFiles({
           objectTagging,
           skip = undefined;
 
-        if (generateObjectInfoCallback) {
+        const resume = file.resume;
+
+        if (resume) {
+          objectKey = resume.key;
+        } else if (generateObjectInfoCallback) {
           const objectInfo = await generateObjectInfoCallback({ file });
 
           if (objectInfo.key) {
@@ -158,7 +164,7 @@ export async function handleMultipartFiles({
           };
         }
 
-        const { uploadId: s3UploadId } = await createMultipartUpload(client, {
+        const createParams = {
           bucket: bucketName,
           key: objectKey,
           contentType: file.type,
@@ -167,30 +173,81 @@ export async function handleMultipartFiles({
           storageClass: objectStorageClass,
           cacheControl: objectCacheControl,
           tagging: objectTagging,
-        });
+        };
+
+        let s3UploadId: string;
+        const completedPartsMap = new Map<
+          number,
+          { partNumber: number; eTag: string; size: number }
+        >();
+
+        if (resume) {
+          s3UploadId = resume.uploadId;
+          try {
+            let partNumberMarker: number | undefined;
+            do {
+              const page = await listParts(client, {
+                bucket: bucketName,
+                key: objectKey,
+                uploadId: s3UploadId,
+                partNumberMarker,
+              });
+              for (const part of page.parts) {
+                completedPartsMap.set(part.partNumber, {
+                  partNumber: part.partNumber,
+                  eTag: part.eTag,
+                  size: part.size,
+                });
+              }
+              partNumberMarker = page.isTruncated
+                ? page.nextPartNumberMarker
+                : undefined;
+            } while (partNumberMarker);
+          } catch (error) {
+            if (
+              error instanceof S3Error &&
+              error.message.includes('NoSuchUpload')
+            ) {
+              // The multipart upload expired or was aborted on S3. Start fresh.
+              completedPartsMap.clear();
+              s3UploadId = (await createMultipartUpload(client, createParams))
+                .uploadId;
+            } else {
+              throw error;
+            }
+          }
+        } else {
+          s3UploadId = (await createMultipartUpload(client, createParams))
+            .uploadId;
+        }
 
         const totalParts = Math.ceil(file.size / partSize);
 
-        const partSignedUrls = await Promise.all(
-          Array.from({ length: totalParts }, async (_, index) => {
-            const size = Math.min(partSize, file.size - index * partSize);
+        const partSignedUrls = (
+          await Promise.all(
+            Array.from({ length: totalParts }, async (_, index) => {
+              const partNumber = index + 1;
+              if (completedPartsMap.has(partNumber)) return null;
 
-            const url = await signUploadPart(client, {
-              bucket: bucketName,
-              key: objectKey,
-              uploadId: s3UploadId,
-              partNumber: index + 1,
-              contentLength: size,
-              expiresIn: partSignedUrlExpiresIn,
-            });
+              const size = Math.min(partSize, file.size - index * partSize);
 
-            return {
-              signedUrl: url,
-              partNumber: index + 1,
-              size,
-            };
-          })
-        );
+              const url = await signUploadPart(client, {
+                bucket: bucketName,
+                key: objectKey,
+                uploadId: s3UploadId,
+                partNumber,
+                contentLength: size,
+                expiresIn: partSignedUrlExpiresIn,
+              });
+
+              return {
+                signedUrl: url,
+                partNumber,
+                size,
+              };
+            })
+          )
+        ).filter((p) => p !== null);
 
         const [completeSignedUrl, abortSignedUrl] = await Promise.all([
           signCompleteMultipartUpload(client, {
@@ -220,6 +277,13 @@ export async function handleMultipartFiles({
             },
           },
           parts: partSignedUrls,
+          ...(completedPartsMap.size > 0
+            ? {
+                completedParts: Array.from(completedPartsMap.values()).sort(
+                  (a, b) => a.partNumber - b.partNumber
+                ),
+              }
+            : {}),
           uploadId: s3UploadId!,
           completeSignedUrl,
           abortSignedUrl,

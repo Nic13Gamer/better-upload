@@ -227,6 +227,48 @@ You can now also modify the following options:
   process. Empty files (0 bytes) will fail to upload with multipart uploads.
 </Callout>
 
+### Resume
+
+A multipart upload can be resumed after a page reload or browser crash. The client persists the S3 `uploadId` and object `key`, then passes them back via the `getResumeState` hook prop on the next attempt. The server queries S3 [`ListParts`](https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html) and only signs URLs for the parts that are still missing.
+
+```tsx
+const { upload } = useUploadFile({
+  route: 'videos',
+  getResumeState: (file) => {
+    const raw = localStorage.getItem(`upload:${file.name}:${file.size}`);
+    return raw ? JSON.parse(raw) : undefined;
+  },
+  onUploadBegin: ({ file }) => {
+    if (file.uploadId) {
+      localStorage.setItem(
+        `upload:${file.name}:${file.size}`,
+        JSON.stringify({ uploadId: file.uploadId, key: file.objectInfo.key })
+      );
+    }
+  },
+  onUploadComplete: ({ file }) => {
+    localStorage.removeItem(`upload:${file.name}:${file.size}`);
+  },
+});
+```
+
+The `file.uploadId` is exposed on `FileUploadInfo` only for multipart routes. Persisting it (and the matching `key`) is the application's responsibility — `localStorage`, `IndexedDB`, or a database all work. Identify the file with whatever fingerprint suits your UX (`name + size + lastModified`, a content hash, etc.).
+
+If the persisted multipart upload no longer exists on S3 (lifecycle rule expiration or a manual abort), the server falls back to a fresh upload automatically — the client receives a new `uploadId` and starts from scratch.
+
+To reject a resume in `onBeforeUpload` (e.g. ensure the key belongs to the current user), inspect `file.resume`:
+
+```ts
+route({
+  multipart: true,
+  onBeforeUpload({ file }) {
+    if (file.resume && !file.resume.key.startsWith(`users/${userId}/`)) {
+      throw new RejectUpload('Cannot resume an upload that is not yours.');
+    }
+  },
+});
+```
+
 ## Router
 
 The router is where all upload routes are defined. To define a router, create an object with the `Router` type.

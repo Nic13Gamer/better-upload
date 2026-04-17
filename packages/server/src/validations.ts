@@ -8,6 +8,12 @@ export const uploadFileSchema = z.object({
         name: z.string().check(z.minLength(1)),
         size: z.union([z.literal(0), z.int().check(z.positive())]),
         type: z.string(),
+        resume: z.optional(
+          z.object({
+            uploadId: z.string().check(z.minLength(1)),
+            key: z.string().check(z.minLength(1)),
+          })
+        ),
       })
     )
     .check(z.minLength(1)),

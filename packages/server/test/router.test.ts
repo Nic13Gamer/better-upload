@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as z from 'zod/mini';
 import {
   createTestRouter,
@@ -13,7 +13,23 @@ vi.mock('@/utils/s3', async (importOriginal) => ({
   })),
 }));
 
+vi.mock('@/helpers/s3/list-parts', () => ({
+  listParts: vi.fn(async () => ({
+    bucket: 'my-default-bucket',
+    key: 'mock-key',
+    uploadId: 'mock-upload-id',
+    partNumberMarker: undefined,
+    nextPartNumberMarker: undefined,
+    maxParts: 1000,
+    isTruncated: false,
+    parts: [],
+  })),
+}));
+
+import { S3Error } from '@/error';
+import { listParts } from '@/helpers/s3/list-parts';
 import { handleRequest, RejectUpload, route } from '@/router';
+import { createMultipartUpload } from '@/utils/s3';
 
 describe('request handler', () => {
   const { router } = createTestRouter({
@@ -600,5 +616,262 @@ describe('multipart handler', () => {
       file.abortSignedUrl = 'abort-signed-url-placeholder';
     });
     expect(json).toMatchSnapshot();
+  });
+});
+
+describe('multipart resume', () => {
+  const partSize = 1024 * 1024 * 50; // 50MB, matches default
+  const fileSize = partSize * 4; // 4 parts total
+
+  const { router } = createTestRouter({
+    routes: {
+      videos: route({
+        multipart: true,
+        maxFileSize: fileSize * 2,
+        onBeforeUpload({ file }) {
+          return {
+            objectInfo: { key: `videos/${file.name}` },
+          };
+        },
+      }),
+    },
+  });
+
+  beforeEach(() => {
+    vi.mocked(createMultipartUpload).mockClear();
+    vi.mocked(listParts).mockReset();
+    vi.mocked(listParts).mockResolvedValue({
+      bucket: 'my-default-bucket',
+      key: 'videos/file.mp4',
+      uploadId: 'existing-upload-id',
+      partNumberMarker: undefined,
+      nextPartNumberMarker: undefined,
+      maxParts: 1000,
+      isTruncated: false,
+      parts: [],
+    });
+  });
+
+  it('reuses uploadId and key from request, skips createMultipartUpload', async () => {
+    vi.mocked(listParts).mockResolvedValueOnce({
+      bucket: 'my-default-bucket',
+      key: 'videos/file.mp4',
+      uploadId: 'existing-upload-id',
+      partNumberMarker: undefined,
+      nextPartNumberMarker: undefined,
+      maxParts: 1000,
+      isTruncated: false,
+      parts: [
+        {
+          partNumber: 1,
+          eTag: '"etag-1"',
+          size: partSize,
+          lastModified: new Date(),
+        },
+        {
+          partNumber: 2,
+          eTag: '"etag-2"',
+          size: partSize,
+          lastModified: new Date(),
+        },
+      ],
+    });
+
+    const res = await handleRequest(
+      routerRequest({
+        method: 'POST',
+        body: routerUploadBody({
+          route: 'videos',
+          files: [
+            {
+              name: 'file.mp4',
+              size: fileSize,
+              type: 'video/mp4',
+              resume: {
+                uploadId: 'existing-upload-id',
+                key: 'videos/file.mp4',
+              },
+            },
+          ],
+        }),
+      }),
+      router
+    );
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(createMultipartUpload).not.toHaveBeenCalled();
+    expect(listParts).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        uploadId: 'existing-upload-id',
+        key: 'videos/file.mp4',
+      })
+    );
+
+    const file = json.multipart.files[0];
+    expect(file.uploadId).toBe('existing-upload-id');
+    expect(file.file.objectInfo.key).toBe('videos/file.mp4');
+    expect(file.parts.map((p: any) => p.partNumber)).toEqual([3, 4]);
+    expect(file.completedParts).toEqual([
+      { partNumber: 1, eTag: '"etag-1"', size: partSize },
+      { partNumber: 2, eTag: '"etag-2"', size: partSize },
+    ]);
+  });
+
+  it('non-resume request still calls createMultipartUpload, omits completedParts work', async () => {
+    const res = await handleRequest(
+      routerRequest({
+        method: 'POST',
+        body: routerUploadBody({
+          route: 'videos',
+          files: [{ name: 'fresh.mp4', size: fileSize, type: 'video/mp4' }],
+        }),
+      }),
+      router
+    );
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(createMultipartUpload).toHaveBeenCalledOnce();
+    expect(listParts).not.toHaveBeenCalled();
+
+    const file = json.multipart.files[0];
+    expect(file.uploadId).toBe('mock-upload-id');
+    expect(file.parts.map((p: any) => p.partNumber)).toEqual([1, 2, 3, 4]);
+    expect(file.completedParts).toBeUndefined();
+  });
+
+  it('falls back to a fresh upload when listParts returns NoSuchUpload', async () => {
+    vi.mocked(listParts).mockRejectedValueOnce(
+      new S3Error('NoSuchUpload - The specified upload does not exist.')
+    );
+
+    const res = await handleRequest(
+      routerRequest({
+        method: 'POST',
+        body: routerUploadBody({
+          route: 'videos',
+          files: [
+            {
+              name: 'file.mp4',
+              size: fileSize,
+              type: 'video/mp4',
+              resume: {
+                uploadId: 'expired-upload-id',
+                key: 'videos/file.mp4',
+              },
+            },
+          ],
+        }),
+      }),
+      router
+    );
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(createMultipartUpload).toHaveBeenCalledOnce();
+
+    const file = json.multipart.files[0];
+    expect(file.uploadId).toBe('mock-upload-id');
+    expect(file.file.objectInfo.key).toBe('videos/file.mp4');
+    expect(file.parts.map((p: any) => p.partNumber)).toEqual([1, 2, 3, 4]);
+    expect(file.completedParts).toBeUndefined();
+  });
+
+  it('rethrows non-NoSuchUpload S3 errors from listParts', async () => {
+    vi.mocked(listParts).mockRejectedValueOnce(
+      new S3Error('AccessDenied - Permission denied.')
+    );
+
+    await expect(
+      handleRequest(
+        routerRequest({
+          method: 'POST',
+          body: routerUploadBody({
+            route: 'videos',
+            files: [
+              {
+                name: 'file.mp4',
+                size: fileSize,
+                type: 'video/mp4',
+                resume: {
+                  uploadId: 'some-upload-id',
+                  key: 'videos/file.mp4',
+                },
+              },
+            ],
+          }),
+        }),
+        router
+      )
+    ).rejects.toThrow('AccessDenied');
+  });
+
+  it('paginates listParts when isTruncated', async () => {
+    vi.mocked(listParts)
+      .mockResolvedValueOnce({
+        bucket: 'my-default-bucket',
+        key: 'videos/file.mp4',
+        uploadId: 'existing-upload-id',
+        partNumberMarker: undefined,
+        nextPartNumberMarker: 1,
+        maxParts: 1,
+        isTruncated: true,
+        parts: [
+          {
+            partNumber: 1,
+            eTag: '"etag-1"',
+            size: partSize,
+            lastModified: new Date(),
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        bucket: 'my-default-bucket',
+        key: 'videos/file.mp4',
+        uploadId: 'existing-upload-id',
+        partNumberMarker: 1,
+        nextPartNumberMarker: undefined,
+        maxParts: 1,
+        isTruncated: false,
+        parts: [
+          {
+            partNumber: 2,
+            eTag: '"etag-2"',
+            size: partSize,
+            lastModified: new Date(),
+          },
+        ],
+      });
+
+    const res = await handleRequest(
+      routerRequest({
+        method: 'POST',
+        body: routerUploadBody({
+          route: 'videos',
+          files: [
+            {
+              name: 'file.mp4',
+              size: fileSize,
+              type: 'video/mp4',
+              resume: {
+                uploadId: 'existing-upload-id',
+                key: 'videos/file.mp4',
+              },
+            },
+          ],
+        }),
+      }),
+      router
+    );
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(listParts).toHaveBeenCalledTimes(2);
+
+    const file = json.multipart.files[0];
+    expect(file.parts.map((p: any) => p.partNumber)).toEqual([3, 4]);
+    expect(file.completedParts.map((p: any) => p.partNumber)).toEqual([1, 2]);
   });
 });

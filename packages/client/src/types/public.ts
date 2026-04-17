@@ -82,6 +82,14 @@ export type FileUploadInfo<T extends UploadStatus> = {
    * If the upload was skipped because the server indicated it was already completed.
    */
   skip: 'completed' | undefined;
+
+  /**
+   * The S3 multipart upload id, only set for multipart uploads.
+   *
+   * Persist this (paired with `objectInfo.key`) to resume the upload via
+   * `getResumeState` if the page reloads or the browser crashes.
+   */
+  uploadId?: string;
 } & (T extends 'failed'
   ? {
       error: ClientUploadError;

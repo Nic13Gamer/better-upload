@@ -29,6 +29,15 @@ export type SignedUrlsSuccessResponse = {
             partNumber: number;
             size: number;
           }[];
+          /**
+           * Parts already uploaded to S3 (populated on resume).
+           * Their ETags are merged into the final CompleteMultipartUpload call.
+           */
+          completedParts?: {
+            partNumber: number;
+            eTag: string;
+            size: number;
+          }[];
           uploadId: string;
           completeSignedUrl: string;
           abortSignedUrl: string;
@@ -176,6 +185,20 @@ export type UploadHookProps<T extends boolean> = {
    * @default 0
    */
   retryDelay?: number;
+
+  /**
+   * Resolve a persisted multipart upload state for a file so the server can
+   * resume the upload instead of starting a new one. Return `undefined` to
+   * start fresh.
+   *
+   * **Only applies to multipart routes.**
+   */
+  getResumeState?: (
+    file: File
+  ) =>
+    | { uploadId: string; key: string }
+    | undefined
+    | Promise<{ uploadId: string; key: string } | undefined>;
 } & (T extends true
   ? {
       /**

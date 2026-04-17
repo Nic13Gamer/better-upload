@@ -29,6 +29,7 @@ export function useUploadFile(
     signal: props.signal,
     retry: props.retry,
     retryDelay: props.retryDelay,
+    getResumeState: props.getResumeState,
     onError: props.onError,
     onUploadProgress: props.onUploadProgress,
     onBeforeUpload: props.onBeforeUpload

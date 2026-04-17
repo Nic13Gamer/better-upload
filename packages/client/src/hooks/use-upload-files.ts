@@ -22,6 +22,7 @@ export function useUploadFiles({
   signal,
   retry,
   retryDelay,
+  getResumeState,
   onError,
   onBeforeUpload,
   onUploadBegin,
@@ -131,6 +132,7 @@ export function useUploadFiles({
           signal,
           retry,
           retryDelay,
+          getResumeState,
           onUploadBegin,
           onFileStateChange: ({ file }) => {
             setUploads((prev) => new Map(prev).set(file.objectInfo.key, file));

@@ -122,6 +122,12 @@ The `useUploadFile` hook accepts the following options:
       default: '0',
       required: false,
     },
+    getResumeState: {
+      description:
+        'Resolve a persisted multipart upload state for a file so the server can resume the upload instead of starting a new one. Return undefined to start fresh. Only applies to multipart routes.',
+      type: '(file: File) => { uploadId: string; key: string } | undefined | Promise<...>',
+      required: false,
+    },
   }}
 />
 

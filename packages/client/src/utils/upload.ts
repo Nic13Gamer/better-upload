@@ -26,6 +26,20 @@ export async function uploadFiles(params: {
   retry?: number;
   retryDelay?: number;
 
+  /**
+   * Resolve a persisted multipart upload state for a file so the server can
+   * resume the upload instead of starting a new one. Return `undefined` to
+   * start fresh.
+   *
+   * **Only applies to multipart routes.**
+   */
+  getResumeState?: (
+    file: File
+  ) =>
+    | { uploadId: string; key: string }
+    | undefined
+    | Promise<{ uploadId: string; key: string } | undefined>;
+
   onUploadBegin?: (data: {
     files: FileUploadInfo<'pending'>[];
     metadata: ServerMetadata;
@@ -45,6 +59,10 @@ export async function uploadFiles(params: {
     const headers = new Headers(params.headers);
     headers.set('Content-Type', 'application/json');
 
+    const resumeStates = params.getResumeState
+      ? await Promise.all(files.map((file) => params.getResumeState!(file)))
+      : files.map(() => undefined);
+
     const signedUrlRes = await withRetries(
       () =>
         fetch(params.api || '/api/upload', {
@@ -52,10 +70,11 @@ export async function uploadFiles(params: {
           body: JSON.stringify({
             route: params.route,
             metadata: params.metadata,
-            files: files.map((file) => ({
+            files: files.map((file, index) => ({
               name: file.name,
               size: file.size,
               type: file.type,
+              ...(resumeStates[index] ? { resume: resumeStates[index] } : {}),
             })),
           }),
           headers,
@@ -102,6 +121,7 @@ export async function uploadFiles(params: {
               file.size === url.file.size &&
               file.type === url.file.type
           )!,
+          uploadId: 'uploadId' in url ? url.uploadId : undefined,
           ...url.file,
         },
       ])
@@ -136,6 +156,7 @@ export async function uploadFiles(params: {
           await uploadMultipartFileToS3({
             file,
             parts: url.parts,
+            completedParts: url.completedParts,
             partSize,
             uploadId: url.uploadId,
             completeSignedUrl: url.completeSignedUrl,
@@ -274,6 +295,19 @@ export async function uploadFile(params: {
   retry?: number;
   retryDelay?: number;
 
+  /**
+   * Resolve a persisted multipart upload state so the server can resume the
+   * upload instead of starting a new one. Return `undefined` to start fresh.
+   *
+   * **Only applies to multipart routes.**
+   */
+  getResumeState?: (
+    file: File
+  ) =>
+    | { uploadId: string; key: string }
+    | undefined
+    | Promise<{ uploadId: string; key: string } | undefined>;
+
   onUploadBegin?: (data: {
     file: FileUploadInfo<'pending'>;
     metadata: ServerMetadata;
@@ -291,6 +325,7 @@ export async function uploadFile(params: {
     credentials: params.credentials,
     retry: params.retry,
     retryDelay: params.retryDelay,
+    getResumeState: params.getResumeState,
     onUploadBegin: (data) => {
       params.onUploadBegin?.({
         file: data.files[0]!,
