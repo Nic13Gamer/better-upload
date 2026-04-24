@@ -1,0 +1,27 @@
+name: pkg.pr.new
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  publish:
+    if: ${{ github.repository_owner == 'Nic13Gamer' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build --filter "./packages/*"
+
+      - name: Publish to pkg.pr.new
+        run: pnpm exec pkg-pr-new publish "./packages/client" "./packages/server"
