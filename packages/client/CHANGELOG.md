@@ -1,5 +1,11 @@
 # @better-upload/client
 
+## 3.0.19
+
+### Patch Changes
+
+- [`0609b09`](https://github.com/Nic13Gamer/better-upload/commit/0609b09b7079a455ff18a82835c1e8ab95e04c6f) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Treat all `2xx` status codes returned from S3 as successful
+
 ## 3.0.18
 
 ### Patch Changes
