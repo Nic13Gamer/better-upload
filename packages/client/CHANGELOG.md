@@ -1,5 +1,11 @@
 # @better-upload/client
 
+## 3.0.18
+
+### Patch Changes
+
+- [`61aecaf`](https://github.com/Nic13Gamer/better-upload/commit/61aecaf08bf4438fed8204c7316ceeffea0e0ccb) Thanks [@Nic13Gamer](https://github.com/Nic13Gamer)! - Change package exports to `default`
+
 ## 3.0.17
 
 ## 3.0.16
