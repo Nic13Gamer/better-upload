@@ -15,33 +15,33 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs",
       "types": "./dist/index.d.mts"
     },
     "./clients": {
-      "import": "./dist/clients/index.mjs",
+      "default": "./dist/clients/index.mjs",
       "types": "./dist/clients/index.d.mts"
     },
     "./helpers": {
-      "import": "./dist/helpers/index.mjs",
+      "default": "./dist/helpers/index.mjs",
       "types": "./dist/helpers/index.d.mts"
     },
     "./adapters/next": {
-      "import": "./dist/adapters/next.mjs",
+      "default": "./dist/adapters/next.mjs",
       "types": "./dist/adapters/next.d.mts"
     },
     "./adapters/node": {
-      "import": "./dist/adapters/node.mjs",
+      "default": "./dist/adapters/node.mjs",
       "types": "./dist/adapters/node.d.mts"
     },
     "./internal": {
-      "import": "./dist/internal-export.mjs",
+      "default": "./dist/internal-export.mjs",
       "types": "./dist/internal-export.d.mts"
     }
   },
   "dependencies": {
     "aws4fetch": "^1.0.20",
-    "fast-xml-parser": "^5.5.9",
+    "fast-xml-parser": "^5.7.2",
     "zod": "^4.3.6"
   },
   "devDependencies": {

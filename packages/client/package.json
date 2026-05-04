@@ -14,15 +14,15 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs",
       "types": "./dist/index.d.mts"
     },
     "./helpers": {
-      "import": "./dist/helpers/index.mjs",
+      "default": "./dist/helpers/index.mjs",
       "types": "./dist/helpers/index.d.mts"
     },
     "./internal": {
-      "import": "./dist/internal-export.mjs",
+      "default": "./dist/internal-export.mjs",
       "types": "./dist/internal-export.d.mts"
     }
   },
