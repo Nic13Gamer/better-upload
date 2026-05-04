@@ -28,7 +28,7 @@ export async function uploadFileToS3(params: {
         xhr.onloadend = () => {
           params.signal?.removeEventListener('abort', abortHandler);
 
-          if (xhr.readyState === 4 && xhr.status === 200) {
+          if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 300) {
             params.onProgress?.(1);
 
             resolve();
@@ -108,7 +108,7 @@ export async function uploadMultipartFileToS3(params: {
           xhr.onloadend = () => {
             params.signal?.removeEventListener('abort', abortHandler);
 
-            if (xhr.readyState === 4 && xhr.status === 200) {
+            if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 300) {
               uploadedParts.push({
                 etag: xhr.getResponseHeader('ETag')!.replace(/"/g, ''),
                 number: part.partNumber,
