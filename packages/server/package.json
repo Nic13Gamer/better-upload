@@ -47,8 +47,8 @@
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
     "@types/node": "^24",
-    "tsdown": "^0.21.6",
-    "typescript": "^5.9.3",
+    "tsdown": "^0.22.0",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.2"
   },
   "keywords": [
