@@ -1,5 +1,21 @@
-import type { DigitalOceanClientParams } from '@/types/clients';
-import { custom } from './custom';
+import { custom } from '../custom';
+
+type Params = {
+  /**
+   * DigitalOcean Spaces region.
+   */
+  region: string;
+
+  /**
+   * DigitalOcean Spaces key.
+   */
+  key: string;
+
+  /**
+   * DigitalOcean Spaces secret.
+   */
+  secret: string;
+};
 
 /**
  * Create a DigitalOcean Spaces client.
@@ -9,7 +25,7 @@ import { custom } from './custom';
  * - `SPACES_KEY`
  * - `SPACES_SECRET`
  */
-export function digitalOcean(params?: DigitalOceanClientParams) {
+export function digitalOcean(params?: Params) {
   const {
     region = process.env.AWS_REGION || process.env.SPACES_REGION,
     key = process.env.AWS_ACCESS_KEY_ID || process.env.SPACES_KEY,

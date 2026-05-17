@@ -1,5 +1,23 @@
-import type { TigrisClientParams } from '@/types/clients';
-import { custom } from './custom';
+import { custom } from '../custom';
+
+type Params = {
+  /**
+   * Tigris access key ID.
+   */
+  accessKeyId: string;
+
+  /**
+   * Tigris secret access key.
+   */
+  secretAccessKey: string;
+
+  /**
+   * Tigris endpoint.
+   *
+   * @default 'https://t3.storage.dev'
+   */
+  endpoint: string;
+};
 
 /**
  * Create a Tigris client.
@@ -9,7 +27,7 @@ import { custom } from './custom';
  * - `AWS_SECRET_ACCESS_KEY`
  * - `TIGRIS_ENDPOINT`
  */
-export function tigris(params?: TigrisClientParams) {
+export function tigris(params?: Params) {
   const {
     accessKeyId = process.env.AWS_ACCESS_KEY_ID ||
       process.env.TIGRIS_ACCESS_KEY_ID ||

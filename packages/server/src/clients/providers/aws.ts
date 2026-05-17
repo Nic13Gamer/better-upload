@@ -1,5 +1,26 @@
-import type { AwsClientParams } from '@/types/clients';
-import { custom } from './custom';
+import { custom } from '../custom';
+
+type Params = {
+  /**
+   * AWS access key ID.
+   */
+  accessKeyId: string;
+
+  /**
+   * AWS secret access key.
+   */
+  secretAccessKey: string;
+
+  /**
+   * AWS region.
+   */
+  region: string;
+
+  /**
+   * AWS session token for temporary credentials.
+   */
+  sessionToken?: string;
+};
 
 /**
  * Create an AWS S3 client.
@@ -10,7 +31,7 @@ import { custom } from './custom';
  * - `AWS_REGION`
  * - `AWS_SESSION_TOKEN` (optional)
  */
-export function aws(params?: AwsClientParams) {
+export function aws(params?: Params) {
   const {
     accessKeyId = process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY,

@@ -1,5 +1,26 @@
-import type { MinioClientParams } from '@/types/clients';
-import { custom } from './custom';
+import { custom } from '../custom';
+
+type Params = {
+  /**
+   * MinIO region.
+   */
+  region: string;
+
+  /**
+   * MinIO access key ID.
+   */
+  accessKeyId: string;
+
+  /**
+   * MinIO secret access key.
+   */
+  secretAccessKey: string;
+
+  /**
+   * MinIO endpoint.
+   */
+  endpoint: string;
+};
 
 /**
  * Create a MinIO client.
@@ -10,7 +31,7 @@ import { custom } from './custom';
  * - `AWS_SECRET_ACCESS_KEY`
  * - `MINIO_ENDPOINT`
  */
-export function minio(params?: MinioClientParams) {
+export function minio(params?: Params) {
   const {
     region = process.env.AWS_REGION || process.env.MINIO_REGION,
     accessKeyId = process.env.AWS_ACCESS_KEY_ID ||
@@ -26,12 +47,14 @@ export function minio(params?: MinioClientParams) {
     throw new Error('Missing required parameters for MinIO client.');
   }
 
+  const url = new URL(endpoint);
+
   return custom({
-    host: new URL(endpoint).host,
+    host: url.host,
     accessKeyId,
     secretAccessKey,
     region,
     forcePathStyle: true,
-    secure: endpoint.startsWith('https:'),
+    secure: url.protocol === 'https:',
   });
 }

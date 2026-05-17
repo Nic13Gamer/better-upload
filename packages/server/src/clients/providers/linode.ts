@@ -1,5 +1,21 @@
-import type { LinodeClientParams } from '@/types/clients';
-import { custom } from './custom';
+import { custom } from '../custom';
+
+type Params = {
+  /**
+   * Linode Object Storage region.
+   */
+  region: string;
+
+  /**
+   * Linode Object Storage access key.
+   */
+  accessKey: string;
+
+  /**
+   * Linode Object Storage secret key.
+   */
+  secretKey: string;
+};
 
 /**
  * Create a Linode Object Storage client.
@@ -9,7 +25,7 @@ import { custom } from './custom';
  * - `AWS_ACCESS_KEY_ID`
  * - `AWS_SECRET_ACCESS_KEY`
  */
-export function linode(params?: LinodeClientParams) {
+export function linode(params?: Params) {
   const {
     region = process.env.LINODE_REGION,
     accessKey = process.env.AWS_ACCESS_KEY_ID || process.env.LINODE_ACCESS_KEY,

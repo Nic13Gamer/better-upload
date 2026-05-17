@@ -1,5 +1,21 @@
-import type { WasabiClientParams } from '@/types/clients';
-import { custom } from './custom';
+import { custom } from '../custom';
+
+type Params = {
+  /**
+   * Wasabi region.
+   */
+  region: string;
+
+  /**
+   * Wasabi access key ID.
+   */
+  accessKeyId: string;
+
+  /**
+   * Wasabi secret access key.
+   */
+  secretAccessKey: string;
+};
 
 /**
  * Create a Wasabi client.
@@ -9,7 +25,7 @@ import { custom } from './custom';
  * - `AWS_ACCESS_KEY_ID`
  * - `AWS_SECRET_ACCESS_KEY`
  */
-export function wasabi(params?: WasabiClientParams) {
+export function wasabi(params?: Params) {
   const {
     region = process.env.AWS_REGION || process.env.WASABI_REGION,
     accessKeyId = process.env.AWS_ACCESS_KEY_ID ||

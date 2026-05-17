@@ -27,7 +27,8 @@ export async function putObject(
     tagging?: Tagging;
   }
 ) {
-  const contentLength = params.contentLength ?? getBodyContentLength(params.body);
+  const contentLength =
+    params.contentLength ?? getBodyContentLength(params.body);
 
   await throwS3Error(
     client.s3.fetch(`${client.buildBucketUrl(params.bucket)}/${params.key}`, {

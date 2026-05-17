@@ -1,5 +1,21 @@
-import type { BackblazeClientParams } from '@/types/clients';
-import { custom } from './custom';
+import { custom } from '../custom';
+
+type Params = {
+  /**
+   * Backblaze B2 region.
+   */
+  region: string;
+
+  /**
+   * Backblaze B2 application key ID.
+   */
+  applicationKeyId: string;
+
+  /**
+   * Backblaze B2 application key.
+   */
+  applicationKey: string;
+};
 
 /**
  * Create a Backblaze B2 client.
@@ -9,7 +25,7 @@ import { custom } from './custom';
  * - `B2_APP_KEY_ID`
  * - `B2_APP_KEY`
  */
-export function backblaze(params?: BackblazeClientParams) {
+export function backblaze(params?: Params) {
   const {
     region = process.env.AWS_REGION ||
       process.env.B2_REGION ||

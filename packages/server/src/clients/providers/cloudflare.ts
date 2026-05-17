@@ -1,5 +1,28 @@
-import type { CloudflareClientParams } from '@/types/clients';
-import { custom } from './custom';
+import { custom } from '../custom';
+
+type Params = {
+  /**
+   * Cloudflare account ID.
+   */
+  accountId: string;
+
+  /**
+   * Cloudflare R2 access key ID.
+   */
+  accessKeyId: string;
+
+  /**
+   * Cloudflare R2 secret access key.
+   */
+  secretAccessKey: string;
+
+  /**
+   * The jurisdiction where the data is stored.
+   *
+   * Only use this if you created your R2 bucket using a jurisdiction.
+   */
+  jurisdiction?: 'eu' | 'fedramp';
+};
 
 /**
  * Create a Cloudflare R2 client.
@@ -10,7 +33,7 @@ import { custom } from './custom';
  * - `AWS_SECRET_ACCESS_KEY`
  * - `CLOUDFLARE_JURISDICTION`
  */
-export function cloudflare(params?: CloudflareClientParams) {
+export function cloudflare(params?: Params) {
   const {
     accountId = process.env.CLOUDFLARE_ACCOUNT_ID,
     accessKeyId = process.env.AWS_ACCESS_KEY_ID ||
