@@ -1,6 +1,10 @@
 import type { Client } from '@/types/clients';
-import { getBodyContentLength, throwS3Error } from '@/utils/s3';
-import { parseXml } from '@/utils/xml';
+import {
+  encodeObjectKey,
+  getBodyContentLength,
+  throwS3Error,
+} from '@/utils/s3';
+import { parseXml, xml } from '@/utils/xml';
 
 /**
  * Complete a multipart upload in an S3 bucket.
@@ -14,26 +18,23 @@ export async function completeMultipartUpload(
     parts: { partNumber: number; eTag: string }[];
   }
 ) {
-  if (!params.key.trim()) {
-    throw new Error('The object key cannot be empty.');
-  }
-
-  const url = new URL(`${client.buildBucketUrl(params.bucket)}/${params.key}`);
+  const url = new URL(
+    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}`
+  );
   url.searchParams.set('uploadId', params.uploadId);
 
-  const body = `
+  const body = xml`
 <CompleteMultipartUpload>
   ${params.parts
     .sort((a, b) => a.partNumber - b.partNumber)
     .map(
-      (part) => `<Part>
+      (part) => xml`<Part>
     <PartNumber>${part.partNumber}</PartNumber>
     <ETag>${part.eTag}</ETag>
   </Part>`
-    )
-    .join('')}
+    )}
 </CompleteMultipartUpload>
-`;
+`.toString();
 
   const res = await throwS3Error(
     client.s3.fetch(url.toString(), {
@@ -42,9 +43,10 @@ export async function completeMultipartUpload(
         'content-type': 'application/xml',
         'content-length': getBodyContentLength(body)!.toString(),
       },
-      body,
+      body: body,
       aws: { signQuery: true, allHeaders: true },
-    })
+    }),
+    { checkOk: true }
   );
 
   const parsed = parseXml<{

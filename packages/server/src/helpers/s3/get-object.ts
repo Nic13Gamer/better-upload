@@ -1,6 +1,7 @@
 import type { Client } from '@/types/clients';
 import type { GetObjectBlobResult, GetObjectStreamResult } from '@/types/s3';
 import { parseHeadObjectHeaders, throwS3Error } from '@/utils/s3';
+import { presignGetObject } from './presign/get-object';
 
 type GetObjectParams = {
   bucket: string;
@@ -23,29 +24,10 @@ type GetObjectParams = {
   range?: string;
 };
 
-async function fetchObject(client: Client, params: GetObjectParams) {
-  if (!params.key.trim()) {
-    throw new Error('The object key cannot be empty.');
-  }
-
-  const url = new URL(`${client.buildBucketUrl(params.bucket)}/${params.key}`);
-
-  if (params.versionId) {
-    url.searchParams.set('versionId', params.versionId);
-  }
-  if (params.range) {
-    url.searchParams.set('range', params.range);
-  }
-
-  const res = await throwS3Error(
-    client.s3.fetch(url.toString(), {
-      method: 'GET',
-      aws: { signQuery: true, allHeaders: true },
-    })
+const fetchObject = async (client: Client, params: GetObjectParams) =>
+  await throwS3Error(
+    fetch(await presignGetObject(client, params), { method: 'GET' })
   );
-
-  return res;
-}
 
 /**
  * Get an object from an S3 bucket.
@@ -83,14 +65,4 @@ export async function getObjectStream(
     stream: res.body,
     ...parseHeadObjectHeaders(res.headers),
   };
-}
-
-/**
- * @deprecated Use `getObjectBlob` instead. This function will be removed in a future release.
- */
-export function getObject(
-  client: Client,
-  params: GetObjectParams
-): Promise<GetObjectBlobResult> {
-  return getObjectBlob(client, params);
 }

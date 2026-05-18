@@ -5,7 +5,7 @@ import type {
   StorageClass,
   Tagging,
 } from '@/types/s3';
-import { encodeTagging, throwS3Error } from '@/utils/s3';
+import { encodeObjectKey, encodeTagging, throwS3Error } from '@/utils/s3';
 import { parseXml } from '@/utils/xml';
 
 /**
@@ -24,37 +24,34 @@ export async function createMultipartUpload(
     tagging?: Tagging;
   }
 ) {
-  if (!params.key.trim()) {
-    throw new Error('The object key cannot be empty.');
-  }
+  const url = new URL(
+    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}?uploads`
+  );
 
   const res = await throwS3Error(
-    client.s3.fetch(
-      `${client.buildBucketUrl(params.bucket)}/${params.key}?uploads`,
-      {
-        method: 'POST',
-        headers: {
-          'content-type': params.contentType,
-          ...(params.acl ? { 'x-amz-acl': params.acl } : {}),
-          ...(params.storageClass
-            ? { 'x-amz-storage-class': params.storageClass }
-            : {}),
-          ...(params.cacheControl
-            ? { 'cache-control': params.cacheControl }
-            : {}),
-          ...Object.fromEntries(
-            Object.entries(params.metadata || {}).map(([key, value]) => [
-              `x-amz-meta-${key.toLowerCase()}`,
-              value,
-            ])
-          ),
-          ...(params.tagging
-            ? { 'x-amz-tagging': encodeTagging(params.tagging) }
-            : {}),
-        },
-        aws: { signQuery: true, allHeaders: true },
-      }
-    )
+    client.s3.fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        'content-type': params.contentType,
+        ...(params.acl ? { 'x-amz-acl': params.acl } : {}),
+        ...(params.storageClass
+          ? { 'x-amz-storage-class': params.storageClass }
+          : {}),
+        ...(params.cacheControl
+          ? { 'cache-control': params.cacheControl }
+          : {}),
+        ...Object.fromEntries(
+          Object.entries(params.metadata || {}).map(([key, value]) => [
+            `x-amz-meta-${key.toLowerCase()}`,
+            value,
+          ])
+        ),
+        ...(params.tagging
+          ? { 'x-amz-tagging': encodeTagging(params.tagging) }
+          : {}),
+      },
+      aws: { signQuery: true, allHeaders: true },
+    })
   );
 
   const parsed = parseXml<{

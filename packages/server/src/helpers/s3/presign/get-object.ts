@@ -1,5 +1,5 @@
 import type { Client } from '@/types/clients';
-import { baseSignedUrl } from '@/utils/s3';
+import { baseSignedUrl, encodeObjectKey } from '@/utils/s3';
 
 /**
  * Generate a pre-signed URL to get (download) an object from an S3 bucket.
@@ -34,12 +34,8 @@ export async function presignGetObject(
     expiresIn?: number;
   }
 ) {
-  if (!params.key.trim()) {
-    throw new Error('The object key cannot be empty.');
-  }
-
   const url = baseSignedUrl(
-    `${client.buildBucketUrl(params.bucket)}/${params.key}`,
+    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}`,
     {
       expiresIn: params.expiresIn ?? 900,
     }

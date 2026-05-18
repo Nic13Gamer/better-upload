@@ -20,10 +20,6 @@ export async function moveObject(
     };
   }
 ) {
-  if (!params.source.key.trim()) {
-    throw new Error('The source object key cannot be empty.');
-  }
-
   await copyObject(client, params);
   await deleteObject(client, {
     bucket: params.source.bucket,

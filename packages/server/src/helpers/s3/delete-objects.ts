@@ -1,6 +1,11 @@
 import type { Client } from '@/types/clients';
-import { getBodyContentLength, throwS3Error } from '@/utils/s3';
-import { parseXml } from '@/utils/xml';
+import {
+  encodeObjectKey,
+  getBodyContentLength,
+  sha256,
+  throwS3Error,
+} from '@/utils/s3';
+import { parseXml, xml } from '@/utils/xml';
 
 /**
  * Delete multiple objects from an S3 bucket.
@@ -35,22 +40,16 @@ export async function deleteObjects(
     );
   }
 
-  if (params.objects.some((obj) => !obj.key.trim())) {
-    throw new Error('Object keys cannot be empty.');
-  }
-
-  const body = `<Delete>
-  ${params.objects
-    .map(
-      (obj) => `<Object>
-    <Key>${obj.key}</Key>
-    ${obj.versionId ? `<VersionId>${obj.versionId}</VersionId>` : ''}
-    ${obj.eTag ? `<ETag>${obj.eTag}</ETag>` : ''}
+  const body = xml`<Delete>
+  ${params.objects.map(
+    (obj) => xml`<Object>
+    <Key>${encodeObjectKey(obj.key)}</Key>
+    ${obj.versionId ? xml`<VersionId>${obj.versionId}</VersionId>` : ''}
+    ${obj.eTag ? xml`<ETag>${obj.eTag}</ETag>` : ''}
   </Object>`
-    )
-    .join('')}
-  ${params.quiet ? '<Quiet>true</Quiet>' : ''}
-</Delete>`;
+  )}
+  ${params.quiet ? xml`<Quiet>true</Quiet>` : ''}
+</Delete>`.toString();
 
   const res = await throwS3Error(
     client.s3.fetch(`${client.buildBucketUrl(params.bucket)}/?delete`, {
@@ -100,12 +99,4 @@ export async function deleteObjects(
         versionId: i.VersionId,
       })) || [],
   };
-}
-
-async function sha256(input: string) {
-  const hashBuffer = await crypto.subtle.digest(
-    'SHA-256',
-    new TextEncoder().encode(input)
-  );
-  return btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
 }

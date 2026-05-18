@@ -5,7 +5,12 @@ import type {
   StorageClass,
   Tagging,
 } from '@/types/s3';
-import { encodeTagging, getBodyContentLength, throwS3Error } from '@/utils/s3';
+import {
+  encodeObjectKey,
+  encodeTagging,
+  getBodyContentLength,
+  throwS3Error,
+} from '@/utils/s3';
 
 /**
  * Put an object into an S3 bucket. Do not use for files larger than 5GB (use multipart uploads instead).
@@ -27,11 +32,15 @@ export async function putObject(
     tagging?: Tagging;
   }
 ) {
+  const url = new URL(
+    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}`
+  );
+
   const contentLength =
     params.contentLength ?? getBodyContentLength(params.body);
 
   await throwS3Error(
-    client.s3.fetch(`${client.buildBucketUrl(params.bucket)}/${params.key}`, {
+    client.s3.fetch(url.toString(), {
       method: 'PUT',
       headers: {
         'content-type': params.contentType,

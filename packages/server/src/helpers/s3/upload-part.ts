@@ -1,5 +1,9 @@
 import type { Client } from '@/types/clients';
-import { getBodyContentLength, throwS3Error } from '@/utils/s3';
+import {
+  encodeObjectKey,
+  getBodyContentLength,
+  throwS3Error,
+} from '@/utils/s3';
 
 /**
  * Upload a part in a multipart upload to an S3 bucket.
@@ -12,17 +16,17 @@ export async function uploadPart(
     uploadId: string;
     partNumber: number;
     body: BodyInit;
+    contentLength?: number;
   }
 ) {
-  if (!params.key.trim()) {
-    throw new Error('The object key cannot be empty.');
-  }
-
-  const url = new URL(`${client.buildBucketUrl(params.bucket)}/${params.key}`);
+  const url = new URL(
+    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}`
+  );
   url.searchParams.set('partNumber', params.partNumber.toString());
   url.searchParams.set('uploadId', params.uploadId);
 
-  const contentLength = getBodyContentLength(params.body);
+  const contentLength =
+    params.contentLength ?? getBodyContentLength(params.body);
 
   const res = await throwS3Error(
     client.s3.fetch(url.toString(), {

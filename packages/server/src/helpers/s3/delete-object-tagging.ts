@@ -1,5 +1,5 @@
 import type { Client } from '@/types/clients';
-import { throwS3Error } from '@/utils/s3';
+import { encodeObjectKey, throwS3Error } from '@/utils/s3';
 
 /**
  * Delete the tags of an object from an S3 bucket.
@@ -16,12 +16,8 @@ export async function deleteObjectTagging(
     versionId?: string;
   }
 ) {
-  if (!params.key.trim()) {
-    throw new Error('The object key cannot be empty.');
-  }
-
   const url = new URL(
-    `${client.buildBucketUrl(params.bucket)}/${params.key}?tagging`
+    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}?tagging`
   );
 
   if (params.versionId) {

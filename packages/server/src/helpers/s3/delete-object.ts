@@ -1,5 +1,5 @@
 import type { Client } from '@/types/clients';
-import { throwS3Error } from '@/utils/s3';
+import { encodeObjectKey, throwS3Error } from '@/utils/s3';
 
 /**
  * Delete an object from an S3 bucket.
@@ -16,11 +16,9 @@ export async function deleteObject(
     versionId?: string;
   }
 ) {
-  if (!params.key.trim()) {
-    throw new Error('The object key cannot be empty.');
-  }
-
-  const url = new URL(`${client.buildBucketUrl(params.bucket)}/${params.key}`);
+  const url = new URL(
+    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}`
+  );
 
   if (params.versionId) {
     url.searchParams.set('versionId', params.versionId);
