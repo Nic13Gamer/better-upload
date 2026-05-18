@@ -15,7 +15,17 @@ export const baseSignedUrl = (base: string, params: { expiresIn: number }) => {
   return url;
 };
 
-export async function throwS3Error(fn: Promise<Response>) {
+export function encodeObjectKey(key: string) {
+  if (!key.trim()) throw new Error('Object key cannot be empty.');
+  return key.split('/').map(encodeURIComponent).join('/');
+}
+
+export async function throwS3Error(
+  fn: Promise<Response>,
+  opts?: {
+    checkOk?: boolean;
+  }
+) {
   const res = await fn;
 
   if (!res.ok) {
@@ -25,6 +35,19 @@ export async function throwS3Error(fn: Promise<Response>) {
     }>(text);
 
     throw new S3Error(`${parsed.Error.Code} - ${parsed.Error.Message}`);
+  }
+
+  if (opts?.checkOk) {
+    const cloned = res.clone();
+
+    const text = await cloned.text();
+    const parsed = parseXml<{
+      Error?: { Code: string; Message: string };
+    }>(text);
+
+    if ('Error' in parsed && parsed.Error) {
+      throw new S3Error(`${parsed.Error.Code} - ${parsed.Error.Message}`);
+    }
   }
 
   return res;
@@ -46,6 +69,14 @@ export function parseHeadObjectHeaders(headers: Headers): HeadObjectResult {
     metadata,
     taggingCount: Number(headers.get('x-amz-tagging-count') || 0),
   };
+}
+
+export async function sha256(input: string) {
+  const hashBuffer = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(input)
+  );
+  return btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
 }
 
 export async function signPutObject(
