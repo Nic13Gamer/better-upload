@@ -5,7 +5,12 @@ import type {
   StorageClass,
   Tagging,
 } from '@/types/s3';
-import { encodeObjectKey, encodeTagging, throwS3Error } from '@/utils/s3';
+import {
+  cleanUndefined,
+  encodeObjectKey,
+  encodeTagging,
+  throwS3Error,
+} from '@/utils/s3';
 import { parseXml } from '@/utils/xml';
 
 /**
@@ -31,25 +36,21 @@ export async function createMultipartUpload(
   const res = await throwS3Error(
     client.s3.fetch(url.toString(), {
       method: 'POST',
-      headers: {
+      headers: cleanUndefined({
         'content-type': params.contentType,
-        ...(params.acl ? { 'x-amz-acl': params.acl } : {}),
-        ...(params.storageClass
-          ? { 'x-amz-storage-class': params.storageClass }
-          : {}),
-        ...(params.cacheControl
-          ? { 'cache-control': params.cacheControl }
-          : {}),
+        'x-amz-acl': params.acl,
+        'x-amz-storage-class': params.storageClass,
+        'cache-control': params.cacheControl,
+        'x-amz-tagging': params.tagging
+          ? encodeTagging(params.tagging)
+          : undefined,
         ...Object.fromEntries(
           Object.entries(params.metadata || {}).map(([key, value]) => [
             `x-amz-meta-${key.toLowerCase()}`,
             value,
           ])
         ),
-        ...(params.tagging
-          ? { 'x-amz-tagging': encodeTagging(params.tagging) }
-          : {}),
-      },
+      }),
       aws: { signQuery: true, allHeaders: true },
     })
   );

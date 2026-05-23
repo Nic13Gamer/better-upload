@@ -1,9 +1,5 @@
 import type { Client } from '@/types/clients';
-import {
-  encodeObjectKey,
-  parseHeadObjectHeaders,
-  throwS3Error,
-} from '@/utils/s3';
+import { encodeObjectKey, parseObjectHeaders, throwS3Error } from '@/utils/s3';
 
 /**
  * Head (retrieve metadata of) an object from an S3 bucket.
@@ -37,5 +33,5 @@ export async function headObject(
     })
   );
 
-  return parseHeadObjectHeaders(res.headers);
+  return parseObjectHeaders(res.headers);
 }

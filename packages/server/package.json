@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
+    "@repo/shared": "workspace:*",
     "@types/node": "^24",
     "tsdown": "^0.22.0",
     "typescript": "^6.0.3",

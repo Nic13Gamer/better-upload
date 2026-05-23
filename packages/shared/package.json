@@ -1,0 +1,14 @@
+{
+  "name": "@repo/shared",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "devDependencies": {
+    "@repo/tsconfig": "workspace:*",
+    "typescript": "^6.0.3"
+  },
+  "exports": {
+    "./types/router": "./src/types/router.ts",
+    "./types/s3": "./src/types/s3.ts"
+  }
+}

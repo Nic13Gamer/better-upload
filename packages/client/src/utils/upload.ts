@@ -50,13 +50,16 @@ export async function uploadFiles(params: {
         fetch(params.api || '/api/upload', {
           method: 'POST',
           body: JSON.stringify({
-            route: params.route,
-            metadata: params.metadata,
-            files: files.map((file) => ({
-              name: file.name,
-              size: file.size,
-              type: file.type,
-            })),
+            upload: {
+              route: params.route,
+              metadata: params.metadata,
+              files: files.map((file, idx) => ({
+                _id: idx,
+                name: file.name,
+                size: file.size,
+                type: file.type,
+              })),
+            },
           }),
           headers,
           credentials: params.credentials,

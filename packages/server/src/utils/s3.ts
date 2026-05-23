@@ -1,12 +1,5 @@
 import { S3Error } from '@/error';
-import type { Client } from '@/types/clients';
-import type {
-  HeadObjectResult,
-  ObjectAcl,
-  ObjectMetadata,
-  StorageClass,
-  Tagging,
-} from '@/types/s3';
+import type { HeadObjectResult, Tagging } from '@/types/s3';
 import { parseXml } from './xml';
 
 export const baseSignedUrl = (base: string, params: { expiresIn: number }) => {
@@ -53,7 +46,7 @@ export async function throwS3Error(
   return res;
 }
 
-export function parseHeadObjectHeaders(headers: Headers): HeadObjectResult {
+export function parseObjectHeaders(headers: Headers): HeadObjectResult {
   const metadata: Record<string, string> = {};
 
   headers.forEach((value, key) => {
@@ -77,189 +70,6 @@ export async function sha256(input: string) {
     new TextEncoder().encode(input)
   );
   return btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
-}
-
-export async function signPutObject(
-  client: Client,
-  params: {
-    bucket: string;
-    key: string;
-    contentType: string;
-    contentLength: number;
-    metadata?: ObjectMetadata;
-    acl?: ObjectAcl;
-    storageClass?: StorageClass;
-    cacheControl?: string;
-    tagging?: Tagging;
-    expiresIn: number;
-  }
-) {
-  const url = baseSignedUrl(
-    `${client.buildBucketUrl(params.bucket)}/${params.key}`,
-    {
-      expiresIn: params.expiresIn,
-    }
-  );
-  url.searchParams.set('X-Amz-Content-Sha256', 'UNSIGNED-PAYLOAD');
-
-  return (
-    await client.s3.sign(url.toString(), {
-      method: 'PUT',
-      headers: {
-        'content-length': params.contentLength.toString(),
-        'content-type': params.contentType,
-        ...(params.cacheControl
-          ? { 'cache-control': params.cacheControl }
-          : {}),
-        ...Object.fromEntries(
-          Object.entries(params.metadata || {}).map(([key, value]) => [
-            `x-amz-meta-${key.toLowerCase()}`,
-            value,
-          ])
-        ),
-        ...(params.acl ? { 'x-amz-acl': params.acl } : {}),
-        ...(params.storageClass
-          ? { 'x-amz-storage-class': params.storageClass }
-          : {}),
-        ...(params.tagging
-          ? { 'x-amz-tagging': encodeTagging(params.tagging) }
-          : {}),
-      },
-      aws: { signQuery: true, allHeaders: true },
-    })
-  ).url;
-}
-
-export async function createMultipartUpload(
-  client: Client,
-  params: {
-    bucket: string;
-    key: string;
-    contentType: string;
-    metadata?: ObjectMetadata;
-    acl?: ObjectAcl;
-    storageClass?: StorageClass;
-    cacheControl?: string;
-    tagging?: Tagging;
-  }
-) {
-  const res = await throwS3Error(
-    client.s3.fetch(
-      `${client.buildBucketUrl(params.bucket)}/${params.key}?uploads`,
-      {
-        method: 'POST',
-        headers: {
-          'content-type': params.contentType,
-          ...(params.acl ? { 'x-amz-acl': params.acl } : {}),
-          ...(params.storageClass
-            ? { 'x-amz-storage-class': params.storageClass }
-            : {}),
-          ...(params.cacheControl
-            ? { 'cache-control': params.cacheControl }
-            : {}),
-          ...Object.fromEntries(
-            Object.entries(params.metadata || {}).map(([key, value]) => [
-              `x-amz-meta-${key.toLowerCase()}`,
-              value,
-            ])
-          ),
-          ...(params.tagging
-            ? { 'x-amz-tagging': encodeTagging(params.tagging) }
-            : {}),
-        },
-        aws: { signQuery: true, allHeaders: true },
-      }
-    )
-  );
-
-  const parsed = parseXml<{
-    InitiateMultipartUploadResult: { UploadId: string };
-  }>(await res.text());
-
-  return {
-    uploadId: parsed.InitiateMultipartUploadResult.UploadId,
-  };
-}
-
-export async function signUploadPart(
-  client: Client,
-  params: {
-    bucket: string;
-    key: string;
-    uploadId: string;
-    partNumber: number;
-    contentLength: number;
-    expiresIn: number;
-  }
-) {
-  const url = baseSignedUrl(
-    `${client.buildBucketUrl(params.bucket)}/${params.key}`,
-    {
-      expiresIn: params.expiresIn,
-    }
-  );
-  url.searchParams.set('partNumber', params.partNumber.toString());
-  url.searchParams.set('uploadId', params.uploadId);
-
-  return (
-    await client.s3.sign(url.toString(), {
-      method: 'PUT',
-      headers: {
-        'content-length': params.contentLength.toString(),
-      },
-      aws: { signQuery: true, allHeaders: true },
-    })
-  ).url;
-}
-
-export async function signCompleteMultipartUpload(
-  client: Client,
-  params: {
-    bucket: string;
-    key: string;
-    uploadId: string;
-    expiresIn: number;
-  }
-) {
-  const url = baseSignedUrl(
-    `${client.buildBucketUrl(params.bucket)}/${params.key}`,
-    {
-      expiresIn: params.expiresIn,
-    }
-  );
-  url.searchParams.set('uploadId', params.uploadId);
-
-  return (
-    await client.s3.sign(url.toString(), {
-      method: 'POST',
-      aws: { signQuery: true, allHeaders: true },
-    })
-  ).url;
-}
-
-export async function signAbortMultipartUpload(
-  client: Client,
-  params: {
-    bucket: string;
-    key: string;
-    uploadId: string;
-    expiresIn: number;
-  }
-) {
-  const url = baseSignedUrl(
-    `${client.buildBucketUrl(params.bucket)}/${params.key}`,
-    {
-      expiresIn: params.expiresIn,
-    }
-  );
-  url.searchParams.set('uploadId', params.uploadId);
-
-  return (
-    await client.s3.sign(url.toString(), {
-      method: 'DELETE',
-      aws: { signQuery: true, allHeaders: true },
-    })
-  ).url;
 }
 
 export function getBodyContentLength(body: BodyInit | null): number | null {
@@ -303,3 +113,8 @@ export const encodeTagging = (tagging: Tagging) =>
         `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
     )
     .join('&');
+
+export const cleanUndefined = (obj: object) =>
+  Object.fromEntries(
+    Object.entries(obj).filter(([_, value]) => value !== undefined)
+  );

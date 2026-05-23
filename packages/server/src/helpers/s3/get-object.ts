@@ -1,6 +1,6 @@
 import type { Client } from '@/types/clients';
 import type { GetObjectBlobResult, GetObjectStreamResult } from '@/types/s3';
-import { parseHeadObjectHeaders, throwS3Error } from '@/utils/s3';
+import { parseObjectHeaders, throwS3Error } from '@/utils/s3';
 import { presignGetObject } from './presign/get-object';
 
 type GetObjectParams = {
@@ -42,7 +42,7 @@ export async function getObjectBlob(
 
   return {
     blob: await res.blob(),
-    ...parseHeadObjectHeaders(res.headers),
+    ...parseObjectHeaders(res.headers),
   };
 }
 
@@ -63,6 +63,6 @@ export async function getObjectStream(
 
   return {
     stream: res.body,
-    ...parseHeadObjectHeaders(res.headers),
+    ...parseObjectHeaders(res.headers),
   };
 }

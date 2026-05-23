@@ -15,4 +15,8 @@ export * from './s3/complete-multipart-upload';
 export * from './s3/create-multipart-upload';
 export * from './s3/upload-part';
 
+export * from './s3/presign/abort-multipart-upload';
+export * from './s3/presign/complete-multipart-upload';
 export * from './s3/presign/get-object';
+export * from './s3/presign/put-object';
+export * from './s3/presign/upload-part';

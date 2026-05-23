@@ -233,6 +233,9 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
     devDependencies:
+      '@repo/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@repo/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
@@ -248,6 +251,15 @@ importers:
       vitest:
         specifier: ^4.1.2
         version: 4.1.2(@types/node@24.9.2)(vite@7.1.12(@types/node@24.9.2)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.20.3))
+
+  packages/shared:
+    devDependencies:
+      '@repo/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
 
   packages/tsconfig: {}
 

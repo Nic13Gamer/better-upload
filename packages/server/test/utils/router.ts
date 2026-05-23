@@ -1,6 +1,6 @@
 import { aws } from '@/clients';
 import type { Router } from '@/types';
-import type { UploadFileSchema } from '@/validations';
+import type { ClientRequestSchema } from '@/validations';
 import { generateMockCredentials } from './s3';
 
 export const createTestRouter = ({ routes }: { routes: Router['routes'] }) => {
@@ -22,5 +22,5 @@ export const createTestRouter = ({ routes }: { routes: Router['routes'] }) => {
 export const routerRequest = (opts: RequestInit) =>
   new Request('http://localhost:3000/api/upload', opts);
 
-export const routerUploadBody = (body: UploadFileSchema) =>
+export const routerUploadBody = (body: ClientRequestSchema) =>
   JSON.stringify(body);

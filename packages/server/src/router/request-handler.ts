@@ -1,8 +1,6 @@
 import type { Router } from '@/types/router/public';
-import { standardValidate } from '@/utils/standard-schema';
-import { uploadFileSchema } from '@/validations';
-import { handleFiles } from './handlers/files-handler';
-import { handleMultipartFiles } from './handlers/multipart-handler';
+import { clientRequestSchema } from '@/validations';
+import { handleUploadRequest } from './handlers/upload-handler';
 
 /**
  * Handle a request to a Better Upload router.
@@ -35,85 +33,20 @@ export async function handleRequest(req: Request, router: Router) {
     );
   }
 
-  const parsed = uploadFileSchema.safeParse(body);
+  const parsed = clientRequestSchema.safeParse(body);
   if (!parsed.success) {
     return Response.json(
       {
         error: {
           type: 'invalid_request',
-          message: 'Invalid file upload schema.',
+          message: 'Invalid request body schema.',
         },
       },
       { status: 400 }
     );
   }
 
-  if (!(parsed.data.route in router.routes)) {
-    return Response.json(
-      {
-        error: {
-          type: 'invalid_request',
-          message: 'Upload route not found.',
-        },
-      },
-      { status: 404 }
-    );
+  if ('upload' in parsed.data) {
+    return handleUploadRequest({ req, router, uploadData: parsed.data.upload });
   }
-
-  const route = router.routes[parsed.data.route]!();
-
-  if (route.maxFiles === 1 && parsed.data.files.length > 1) {
-    return Response.json(
-      {
-        error: {
-          type: 'too_many_files',
-          message: 'Multiple files are not allowed.',
-        },
-      },
-      { status: 400 }
-    );
-  }
-
-  let clientMetadata = parsed.data.metadata;
-  if (route.clientMetadataSchema) {
-    const validation = await standardValidate(
-      route.clientMetadataSchema,
-      clientMetadata
-    );
-
-    if (validation.issues) {
-      return Response.json(
-        {
-          error: {
-            type: 'invalid_request',
-            message: 'Invalid metadata.',
-          },
-        },
-        { status: 400 }
-      );
-    }
-  }
-
-  const data = {
-    ...parsed.data,
-    metadata: clientMetadata,
-  };
-
-  if (route.multipart) {
-    return handleMultipartFiles({
-      req,
-      client: router.client,
-      defaultBucketName: router.bucketName,
-      route,
-      data,
-    });
-  }
-
-  return handleFiles({
-    req,
-    client: router.client,
-    defaultBucketName: router.bucketName,
-    route,
-    data,
-  });
 }
