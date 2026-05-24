@@ -1,11 +1,11 @@
-import type { Client } from '@/types/clients';
-import type { Tagging } from '@/types/s3';
+import type { Client } from '@/types/router/internal';
 import {
   encodeObjectKey,
   getBodyContentLength,
   throwS3Error,
 } from '@/utils/s3';
 import { xml } from '@/utils/xml';
+import type { Tagging } from '@repo/shared/types/s3';
 
 /**
  * Put tags on an object in an S3 bucket.

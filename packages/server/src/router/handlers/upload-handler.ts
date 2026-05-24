@@ -10,7 +10,10 @@ import { isFileTypeAllowed } from '@/utils/file-type';
 import { createSlug } from '@/utils/slug';
 import { standardValidate } from '@/utils/standard-schema';
 import type { ClientRequestSchema } from '@/validations';
-import type { UploadRequestSuccessResponse } from '@repo/shared/types/router';
+import type {
+  UploadRequestErrorResponse,
+  UploadRequestSuccessResponse,
+} from '@repo/shared/types/router';
 import { RejectUpload } from '../route';
 
 export async function handleUploadRequest({
@@ -29,7 +32,7 @@ export async function handleUploadRequest({
           type: 'invalid_request',
           message: 'Upload route not found.',
         },
-      },
+      } satisfies UploadRequestErrorResponse,
       { status: 404 }
     );
   }
@@ -43,7 +46,7 @@ export async function handleUploadRequest({
           type: 'too_many_files',
           message: 'Multiple files are not allowed.',
         },
-      },
+      } satisfies UploadRequestErrorResponse,
       { status: 400 }
     );
   }
@@ -62,7 +65,7 @@ export async function handleUploadRequest({
             type: 'invalid_request',
             message: 'Invalid metadata.',
           },
-        },
+        } satisfies UploadRequestErrorResponse,
         { status: 400 }
       );
     }
@@ -82,7 +85,7 @@ export async function handleUploadRequest({
           type: 'too_many_files',
           message: 'Too many files.',
         },
-      },
+      } satisfies UploadRequestErrorResponse,
       { status: 400 }
     );
   }
@@ -95,7 +98,7 @@ export async function handleUploadRequest({
             type: 'invalid_request',
             message: 'Duplicate file IDs are not allowed.',
           },
-        },
+        } satisfies UploadRequestErrorResponse,
         { status: 400 }
       );
     }
@@ -108,7 +111,7 @@ export async function handleUploadRequest({
             message:
               'One or more files exceed the S3 limit of 5GB. Use multipart upload for larger files.',
           },
-        },
+        } satisfies UploadRequestErrorResponse,
         { status: 400 }
       );
     } else if (route.multipart && Math.ceil(file.size / partSize) > 10000) {
@@ -118,7 +121,7 @@ export async function handleUploadRequest({
             type: 'file_too_large',
             message: `One or more files are too large, exceeding the S3 maximum limit of 10,000 parts.`,
           },
-        },
+        } satisfies UploadRequestErrorResponse,
         { status: 400 }
       );
     }
@@ -130,7 +133,7 @@ export async function handleUploadRequest({
             type: 'file_too_large',
             message: 'One or more files are too large.',
           },
-        },
+        } satisfies UploadRequestErrorResponse,
         { status: 400 }
       );
     }
@@ -146,7 +149,7 @@ export async function handleUploadRequest({
             type: 'invalid_file_type',
             message: 'One or more files have an invalid file type.',
           },
-        },
+        } satisfies UploadRequestErrorResponse,
         { status: 400 }
       );
     }
@@ -167,7 +170,9 @@ export async function handleUploadRequest({
   } catch (error) {
     if (error instanceof RejectUpload) {
       return Response.json(
-        { error: { type: 'rejected', message: error.message } },
+        {
+          error: { type: 'rejected', message: error.message },
+        } satisfies UploadRequestErrorResponse,
         { status: 400 }
       );
     }
@@ -229,9 +234,9 @@ export async function handleUploadRequest({
           );
 
           return {
+            file: { ...file, objectInfo },
             signedUrl,
             headers,
-            file: { ...file, objectInfo },
           };
         }
 
@@ -312,15 +317,30 @@ export async function handleUploadRequest({
     throw error;
   }
 
+  if (route.multipart) {
+    return Response.json({
+      metadata: responseMetadata,
+      multipart: {
+        partSize,
+        uploads: signedUrls.map((u) => {
+          if ('signedUrl' in u) {
+            throw new Error(
+              'Unreachable: non-multipart upload in multipart route'
+            );
+          }
+          return u;
+        }),
+      },
+    } satisfies UploadRequestSuccessResponse);
+  }
+
   return Response.json({
     metadata: responseMetadata,
-    ...(route.multipart
-      ? {
-          multipart: {
-            files: signedUrls,
-            partSize,
-          },
-        }
-      : { signedUrls }),
+    uploads: signedUrls.map((u) => {
+      if ('parts' in u) {
+        throw new Error('Unreachable: multipart upload in non-multipart route');
+      }
+      return u;
+    }),
   } satisfies UploadRequestSuccessResponse);
 }

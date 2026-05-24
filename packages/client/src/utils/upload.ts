@@ -1,10 +1,10 @@
 import { ClientUploadErrorClass } from '@/types/error';
 import type {
   DirectUploadResult,
-  ServerMetadata,
   SignedUrlsSuccessResponse,
 } from '@/types/internal';
 import type { FileUploadInfo, UploadStatus } from '@/types/public';
+import type { UnknownMetadata } from '@repo/shared/types/router';
 import { withRetries } from './internal/retry';
 import { uploadFileToS3, uploadMultipartFileToS3 } from './internal/s3-upload';
 
@@ -17,7 +17,7 @@ export async function uploadFiles(params: {
   api?: string;
   route: string;
   files: File[] | FileList;
-  metadata?: ServerMetadata;
+  metadata?: UnknownMetadata;
   multipartBatchSize?: number;
   uploadBatchSize?: number;
   signal?: AbortSignal;
@@ -28,7 +28,7 @@ export async function uploadFiles(params: {
 
   onUploadBegin?: (data: {
     files: FileUploadInfo<'pending'>[];
-    metadata: ServerMetadata;
+    metadata: UnknownMetadata;
   }) => void;
   onFileStateChange?: (data: { file: FileUploadInfo<UploadStatus> }) => void;
 }): Promise<DirectUploadResult<true>> {
@@ -269,7 +269,7 @@ export async function uploadFile(params: {
   api?: string;
   route: string;
   file: File;
-  metadata?: ServerMetadata;
+  metadata?: UnknownMetadata;
   multipartBatchSize?: number;
   signal?: AbortSignal;
   headers?: HeadersInit;
@@ -279,7 +279,7 @@ export async function uploadFile(params: {
 
   onUploadBegin?: (data: {
     file: FileUploadInfo<'pending'>;
-    metadata: ServerMetadata;
+    metadata: UnknownMetadata;
   }) => void;
   onFileStateChange?: (data: { file: FileUploadInfo<UploadStatus> }) => void;
 }): Promise<DirectUploadResult<false>> {

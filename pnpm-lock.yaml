@@ -205,6 +205,9 @@ importers:
 
   packages/client:
     devDependencies:
+      '@repo/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@repo/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig

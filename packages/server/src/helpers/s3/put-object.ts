@@ -1,16 +1,16 @@
-import type { Client } from '@/types/clients';
-import type {
-  ObjectAcl,
-  ObjectMetadata,
-  StorageClass,
-  Tagging,
-} from '@/types/s3';
+import type { Client } from '@/types/router/internal';
 import {
   encodeObjectKey,
   encodeTagging,
   getBodyContentLength,
   throwS3Error,
 } from '@/utils/s3';
+import type {
+  ObjectAcl,
+  ObjectMetadata,
+  StorageClass,
+  Tagging,
+} from '@repo/shared/types/s3';
 
 /**
  * Put an object into an S3 bucket. Do not use for files larger than 5GB (use multipart uploads instead).

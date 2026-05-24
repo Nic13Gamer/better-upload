@@ -1,7 +1,18 @@
-import type { ObjectAcl, ObjectMetadata, StorageClass, Tagging } from '../s3';
+import type { UnknownMetadata } from '@repo/shared/types/router';
+import type {
+  ObjectAcl,
+  ObjectInfo,
+  ObjectMetadata,
+  StorageClass,
+  Tagging,
+} from '@repo/shared/types/s3';
+import type { AwsClient } from 'aws4fetch';
 import type { StandardSchemaV1 } from '../standard-schema';
 
-export type UnknownMetadata = Record<string, unknown>;
+export type Client = {
+  buildBucketUrl: (bucketName: string) => string;
+  s3: AwsClient;
+};
 
 type ClientMetadata<T extends StandardSchemaV1 | undefined = undefined> =
   T extends StandardSchemaV1 ? StandardSchemaV1.InferOutput<T> : unknown;
@@ -26,23 +37,7 @@ export type FileInfo<T extends boolean> = {
       /**
        * Information about the S3 object.
        */
-      objectInfo: {
-        /**
-         * The S3 object key.
-         */
-        key: string;
-
-        /**
-         * Custom S3 object metadata.
-         *
-         * All keys are lower cased.
-         */
-        metadata: ObjectMetadata;
-        acl?: ObjectAcl;
-        storageClass?: StorageClass;
-        cacheControl?: string;
-        tagging?: Tagging;
-      };
+      objectInfo: ObjectInfo;
     }
   : {});
 

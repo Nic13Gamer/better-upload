@@ -1,4 +1,4 @@
-import type { Client } from '@/types/clients';
+import type { Client } from '@/types/router/internal';
 import type { GetObjectBlobResult, GetObjectStreamResult } from '@/types/s3';
 import { parseObjectHeaders, throwS3Error } from '@/utils/s3';
 import { presignGetObject } from './presign/get-object';
@@ -26,7 +26,7 @@ type GetObjectParams = {
 
 const fetchObject = async (client: Client, params: GetObjectParams) =>
   await throwS3Error(
-    fetch(await presignGetObject(client, params), { method: 'GET' })
+    fetch((await presignGetObject(client, params)).url, { method: 'GET' })
   );
 
 /**

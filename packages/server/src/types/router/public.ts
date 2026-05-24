@@ -1,5 +1,4 @@
-import type { Client } from '../clients';
-import type { ExecRoute } from './internal';
+import type { Client, ExecRoute } from './internal';
 
 export type Router = {
   /**

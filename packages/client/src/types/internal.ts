@@ -1,60 +1,10 @@
+import type { UnknownMetadata } from '@repo/shared/types/router';
 import type {
   ClientUploadError,
   FileUploadInfo,
   UploadHookControl,
   UploadStatus,
 } from './public';
-
-export type ObjectMetadata = Record<string, string>;
-export type ServerMetadata = Record<string, unknown>;
-
-export type SignedUrlsSuccessResponse = {
-  metadata: ServerMetadata;
-} & (
-  | {
-      multipart: {
-        files: {
-          file: {
-            name: string;
-            size: number;
-            type: string;
-            objectInfo: {
-              key: string;
-              metadata: ObjectMetadata;
-              cacheControl?: string;
-            };
-          };
-          parts: {
-            signedUrl: string;
-            partNumber: number;
-            size: number;
-          }[];
-          uploadId: string;
-          completeSignedUrl: string;
-          abortSignedUrl: string;
-          skip?: 'completed';
-        }[];
-        partSize: number;
-      };
-    }
-  | {
-      files: {
-        signedUrl: string;
-        file: {
-          name: string;
-          size: number;
-          type: string;
-          objectInfo: {
-            key: string;
-            metadata: ObjectMetadata;
-            cacheControl?: string;
-          };
-        };
-        headers: Record<string, string>;
-        skip?: 'completed';
-      }[];
-    }
-);
 
 export type UploadHookProps<T extends boolean> = {
   /**
@@ -99,7 +49,7 @@ export type UploadHookProps<T extends boolean> = {
       /**
        * Metadata sent from the server.
        */
-      metadata: ServerMetadata;
+      metadata: UnknownMetadata;
     } & (T extends true
       ? { files: FileUploadInfo<'pending'>[] }
       : { file: FileUploadInfo<'pending'> })
@@ -120,7 +70,7 @@ export type UploadHookProps<T extends boolean> = {
       /**
        * Metadata sent back from the server.
        */
-      metadata: ServerMetadata;
+      metadata: UnknownMetadata;
     } & (T extends true
       ? {
           files: FileUploadInfo<'complete'>[];
@@ -137,7 +87,7 @@ export type UploadHookProps<T extends boolean> = {
       /**
        * Metadata sent back from the server.
        */
-      metadata: ServerMetadata;
+      metadata: UnknownMetadata;
     } & (T extends true
       ? {
           files: FileUploadInfo<'complete'>[];
@@ -194,7 +144,7 @@ export type UploadHookProps<T extends boolean> = {
         /**
          * Metadata sent back from the server.
          */
-        metadata: ServerMetadata;
+        metadata: UnknownMetadata;
 
         succeededFiles: FileUploadInfo<'complete'>[];
         failedFiles: FileUploadInfo<'failed'>[];
@@ -224,7 +174,7 @@ export type DirectUploadResult<T extends boolean> = {
   /**
    * Metadata sent back from the server.
    */
-  metadata: ServerMetadata;
+  metadata: UnknownMetadata;
 } & (T extends true
   ? {
       /**

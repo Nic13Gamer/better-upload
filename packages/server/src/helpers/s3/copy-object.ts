@@ -1,6 +1,6 @@
-import type { Client } from '@/types/clients';
-import type { Tagging } from '@/types/s3';
+import type { Client } from '@/types/router/internal';
 import { encodeObjectKey, encodeTagging, throwS3Error } from '@/utils/s3';
+import type { Tagging } from '@repo/shared/types/s3';
 
 /**
  * Copy an object, within or between, S3 buckets.

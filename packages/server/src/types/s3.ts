@@ -1,30 +1,6 @@
-export type ObjectAcl =
-  | 'authenticated-read'
-  | 'aws-exec-read'
-  | 'bucket-owner-full-control'
-  | 'bucket-owner-read'
-  | 'private'
-  | 'public-read'
-  | 'public-read-write';
+import type { ObjectMetadata } from '@repo/shared/types/s3';
 
-export type StorageClass =
-  | 'DEEP_ARCHIVE'
-  | 'EXPRESS_ONEZONE'
-  | 'FSX_OPENZFS'
-  | 'GLACIER'
-  | 'GLACIER_IR'
-  | 'INTELLIGENT_TIERING'
-  | 'ONEZONE_IA'
-  | 'OUTPOSTS'
-  | 'REDUCED_REDUNDANCY'
-  | 'SNOW'
-  | 'STANDARD'
-  | 'STANDARD_IA';
-
-export type ObjectMetadata = Record<string, string>;
-export type Tagging = Record<string, string>;
-
-export type HeadObjectResult = {
+export type ObjectHeaders = {
   /**
    * The content type of the object.
    */
@@ -52,7 +28,7 @@ export type HeadObjectResult = {
   taggingCount: number;
 };
 
-export type GetObjectBlobResult = HeadObjectResult & {
+export type GetObjectBlobResult = ObjectHeaders & {
   /**
    * The object data as a Blob.
    *
@@ -65,7 +41,7 @@ export type GetObjectBlobResult = HeadObjectResult & {
   blob: Blob;
 };
 
-export type GetObjectStreamResult = HeadObjectResult & {
+export type GetObjectStreamResult = ObjectHeaders & {
   /**
    * The object data as a ReadableStream.
    */

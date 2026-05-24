@@ -1,4 +1,4 @@
-import type { Client } from '@/types/clients';
+import type { Client } from '@/types/router/internal';
 import { copyObject } from './copy-object';
 import { deleteObject } from './delete-object';
 

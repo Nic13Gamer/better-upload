@@ -1,7 +1,7 @@
-import type { Client } from '@/types/clients';
-import type { StorageClass } from '@/types/s3';
+import type { Client } from '@/types/router/internal';
 import { throwS3Error } from '@/utils/s3';
 import { parseXml } from '@/utils/xml';
+import type { StorageClass } from '@repo/shared/types/s3';
 
 /**
  * List the objects in an S3 bucket using the ListObjectsV2 command.

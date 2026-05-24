@@ -1,22 +1,11 @@
 import type {
-  DirectUploadResult,
-  ObjectMetadata,
-  ServerMetadata,
-} from './internal';
+  UnknownMetadata,
+  UploadRequestErrorResponse,
+} from '@repo/shared/types/router';
+import type { ObjectInfo } from '@repo/shared/types/s3';
+import type { DirectUploadResult } from './internal';
 
-export type ClientUploadError = {
-  type:
-    | 'unknown'
-    | 'invalid_request'
-    | 'no_files'
-    | 's3_upload'
-    | 'file_too_large'
-    | 'invalid_file_type'
-    | 'rejected'
-    | 'too_many_files'
-    | 'aborted';
-  message: string;
-};
+export type ClientUploadError = UploadRequestErrorResponse['error'];
 
 export type UploadStatus = 'pending' | 'uploading' | 'complete' | 'failed';
 
@@ -61,22 +50,7 @@ export type FileUploadInfo<T extends UploadStatus> = {
   /**
    * Information about the S3 object.
    */
-  objectInfo: {
-    /**
-     * The key of the S3 object.
-     */
-    key: string;
-
-    /**
-     * The metadata of the S3 object.
-     */
-    metadata: ObjectMetadata;
-
-    /**
-     * The Cache-Control header of the S3 object.
-     */
-    cacheControl?: string;
-  };
+  objectInfo: ObjectInfo;
 
   /**
    * If the upload was skipped because the server indicated it was already completed.
@@ -92,7 +66,7 @@ export type UploadHookControl<T extends boolean> = {
   /**
    * Metadata sent back from the server.
    */
-  metadata: ServerMetadata;
+  metadata: UnknownMetadata;
 
   /**
    * If a critical error occurred during the upload, and no files were able to be uploaded. For example, if your server is unreachable.
@@ -135,7 +109,7 @@ export type UploadHookControl<T extends boolean> = {
    */
   uploadAsync: (
     input: T extends true ? File[] | FileList : File,
-    options?: { metadata?: ServerMetadata }
+    options?: { metadata?: UnknownMetadata }
   ) => Promise<DirectUploadResult<T>>;
 
   /**
@@ -145,7 +119,7 @@ export type UploadHookControl<T extends boolean> = {
    */
   upload: (
     input: T extends true ? File[] | FileList : File,
-    options?: { metadata?: ServerMetadata }
+    options?: { metadata?: UnknownMetadata }
   ) => Promise<DirectUploadResult<T>>;
 } & (T extends true
   ? {

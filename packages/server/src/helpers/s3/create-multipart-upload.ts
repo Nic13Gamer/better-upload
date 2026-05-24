@@ -1,10 +1,4 @@
-import type { Client } from '@/types/clients';
-import type {
-  ObjectAcl,
-  ObjectMetadata,
-  StorageClass,
-  Tagging,
-} from '@/types/s3';
+import type { Client } from '@/types/router/internal';
 import {
   cleanUndefined,
   encodeObjectKey,
@@ -12,6 +6,12 @@ import {
   throwS3Error,
 } from '@/utils/s3';
 import { parseXml } from '@/utils/xml';
+import type {
+  ObjectAcl,
+  ObjectMetadata,
+  StorageClass,
+  Tagging,
+} from '@repo/shared/types/s3';
 
 /**
  * Create a multipart upload in an S3 bucket.

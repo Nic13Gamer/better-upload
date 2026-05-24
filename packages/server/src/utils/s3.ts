@@ -1,5 +1,6 @@
 import { S3Error } from '@/error';
-import type { HeadObjectResult, Tagging } from '@/types/s3';
+import type { ObjectHeaders } from '@/types/s3';
+import type { Tagging } from '@repo/shared/types/s3';
 import { parseXml } from './xml';
 
 export const baseSignedUrl = (base: string, params: { expiresIn: number }) => {
@@ -46,7 +47,7 @@ export async function throwS3Error(
   return res;
 }
 
-export function parseObjectHeaders(headers: Headers): HeadObjectResult {
+export function parseObjectHeaders(headers: Headers): ObjectHeaders {
   const metadata: Record<string, string> = {};
 
   headers.forEach((value, key) => {

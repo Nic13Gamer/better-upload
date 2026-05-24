@@ -1,4 +1,4 @@
-import type { Client } from '@/types/clients';
+import type { Client } from '@/types/router/internal';
 import { encodeObjectKey, throwS3Error } from '@/utils/s3';
 
 /**
