@@ -1,15 +1,12 @@
 import { ClientUploadErrorClass } from '@/types/error';
-import type {
-  ServerMetadata,
-  UploadHookProps,
-  UploadHookReturn,
-} from '@/types/internal';
+import type { UploadHookProps, UploadHookReturn } from '@/types/internal';
 import type {
   ClientUploadError,
   FileUploadInfo,
   UploadStatus,
 } from '@/types/public';
 import { uploadFiles } from '@/utils';
+import type { UnknownMetadata } from '@repo/shared/types/router';
 import { useCallback, useMemo, useState } from 'react';
 
 export function useUploadFiles({
@@ -33,7 +30,7 @@ export function useUploadFiles({
   const [uploads, setUploads] = useState(
     () => new Map<string, FileUploadInfo<UploadStatus>>()
   );
-  const [serverMetadata, setServerMetadata] = useState<ServerMetadata>({});
+  const [serverMetadata, setServerMetadata] = useState<UnknownMetadata>({});
 
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<ClientUploadError | null>(null);

@@ -3,9 +3,9 @@ import type {
   ExecRoute,
   Route,
   RouteConfig,
-  UnknownMetadata,
 } from '@/types/router/internal';
 import type { StandardSchemaV1 } from '@/types/standard-schema';
+import type { UnknownMetadata } from '@repo/shared/types/router';
 
 /**
  * Define a route for file uploads.

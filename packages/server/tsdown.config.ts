@@ -9,7 +9,7 @@ export default defineConfig({
     'src/adapters/*.ts',
   ],
   format: ['esm'],
-  dts: true,
+  dts: { eager: true },
   outDir: 'dist',
   clean: true,
 });

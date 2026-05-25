@@ -31,9 +31,7 @@ const helper = defineHelper<
     'x-amz-acl': params.acl,
     'x-amz-storage-class': params.storageClass,
     'cache-control': params.cacheControl,
-    'x-amz-tagging': params.tagging
-      ? encodeTagging(params.tagging)
-      : undefined,
+    'x-amz-tagging': params.tagging ? encodeTagging(params.tagging) : undefined,
     ...Object.fromEntries(
       Object.entries(params.metadata || {}).map(([key, value]) => [
         `x-amz-meta-${key.toLowerCase()}`,

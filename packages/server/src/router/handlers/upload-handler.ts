@@ -236,7 +236,14 @@ export async function handleUploadRequest({
           return {
             file: { ...file, objectInfo },
             signedUrl,
-            headers,
+            headers: Object.fromEntries(
+              Object.entries(headers).filter(
+                ([key]) =>
+                  !['content-type', 'content-length'].includes(
+                    key.toLowerCase()
+                  )
+              )
+            ),
           };
         }
 

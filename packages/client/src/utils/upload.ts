@@ -1,10 +1,10 @@
 import { ClientUploadErrorClass } from '@/types/error';
-import type {
-  DirectUploadResult,
-  SignedUrlsSuccessResponse,
-} from '@/types/internal';
+import type { DirectUploadResult } from '@/types/internal';
 import type { FileUploadInfo, UploadStatus } from '@/types/public';
-import type { UnknownMetadata } from '@repo/shared/types/router';
+import type {
+  UnknownMetadata,
+  UploadRequestSuccessResponse,
+} from '@repo/shared/types/router';
 import { withRetries } from './internal/retry';
 import { uploadFileToS3, uploadMultipartFileToS3 } from './internal/s3-upload';
 
@@ -77,10 +77,10 @@ export async function uploadFiles(params: {
       });
     }
 
-    const payload = (await signedUrlRes.json()) as SignedUrlsSuccessResponse;
+    const payload = (await signedUrlRes.json()) as UploadRequestSuccessResponse;
 
     const signedUrls =
-      'multipart' in payload ? payload.multipart.files : payload.files;
+      'multipart' in payload ? payload.multipart.uploads : payload.uploads;
     const serverMetadata = payload.metadata;
     const partSize = 'multipart' in payload ? payload.multipart.partSize : 0;
 

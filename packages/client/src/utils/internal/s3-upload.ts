@@ -1,4 +1,4 @@
-import type { ObjectMetadata } from '@/types/internal';
+import type { ObjectMetadata } from '@repo/shared/types/s3';
 import { withRetries } from './retry';
 
 export async function uploadFileToS3(params: {
