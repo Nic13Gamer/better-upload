@@ -1,14 +1,9 @@
-import type { Client } from '@/types/router/internal';
-import { encodeObjectKey, parseObjectHeaders, throwS3Error } from '@/utils/s3';
+import type { ObjectHeaders } from '@/types/s3';
+import { defineHelper } from '@/utils/define-helper';
+import { encodeObjectKey, parseObjectHeaders } from '@/utils/s3';
 
-/**
- * Head (retrieve metadata of) an object from an S3 bucket.
- *
- * Does not retrieve the object data itself.
- */
-export async function headObject(
-  client: Client,
-  params: {
+const helper = defineHelper<
+  {
     bucket: string;
     key: string;
 
@@ -16,22 +11,32 @@ export async function headObject(
      * The version ID of the object to head (if versioning is enabled).
      */
     versionId?: string;
-  }
-) {
-  const url = new URL(
-    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}`
-  );
+  },
+  {},
+  ObjectHeaders
+>({
+  method: 'HEAD',
+  url: (params) => ({
+    url: `/${encodeObjectKey(params.key)}`,
+    searchParams: {
+      versionId: params.versionId,
+    },
+  }),
+  execute: {
+    parseData: async (res) => parseObjectHeaders(res.headers),
+  },
+});
 
-  if (params.versionId) {
-    url.searchParams.set('versionId', params.versionId);
-  }
+/**
+ * Generate a pre-signed URL for retrieving metadata of an object in an S3 bucket.
+ *
+ * Does not retrieve the object data itself.
+ */
+export const presignHeadObject = helper.presign;
 
-  const res = await throwS3Error(
-    client.s3.fetch(url.toString(), {
-      method: 'HEAD',
-      aws: { signQuery: true, allHeaders: true },
-    })
-  );
-
-  return parseObjectHeaders(res.headers);
-}
+/**
+ * Head (retrieve metadata of) an object from an S3 bucket.
+ *
+ * Does not retrieve the object data itself.
+ */
+export const headObject = helper.execute;

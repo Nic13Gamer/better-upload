@@ -1,10 +1,5 @@
-import type { Client } from '@/types/router/internal';
-import {
-  cleanUndefined,
-  encodeObjectKey,
-  encodeTagging,
-  throwS3Error,
-} from '@/utils/s3';
+import { defineHelper } from '@/utils/define-helper';
+import { encodeObjectKey, encodeTagging } from '@/utils/s3';
 import { parseXml } from '@/utils/xml';
 import type {
   ObjectAcl,
@@ -13,12 +8,8 @@ import type {
   Tagging,
 } from '@repo/shared/types/s3';
 
-/**
- * Create a multipart upload in an S3 bucket.
- */
-export async function createMultipartUpload(
-  client: Client,
-  params: {
+const helper = defineHelper<
+  {
     bucket: string;
     key: string;
     contentType: string;
@@ -27,45 +18,52 @@ export async function createMultipartUpload(
     storageClass?: StorageClass;
     cacheControl?: string;
     tagging?: Tagging;
-  }
-) {
-  const url = new URL(
-    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}?uploads`
-  );
+  },
+  {},
+  { bucket: string; key: string; uploadId: string }
+>({
+  method: 'POST',
+  url: (params) => ({
+    url: `/${encodeObjectKey(params.key)}?uploads`,
+  }),
+  headers: (params) => ({
+    'content-type': params.contentType,
+    'x-amz-acl': params.acl,
+    'x-amz-storage-class': params.storageClass,
+    'cache-control': params.cacheControl,
+    'x-amz-tagging': params.tagging ? encodeTagging(params.tagging) : undefined,
+    ...Object.fromEntries(
+      Object.entries(params.metadata || {}).map(([key, value]) => [
+        `x-amz-meta-${key.toLowerCase()}`,
+        value,
+      ])
+    ),
+  }),
+  execute: {
+    parseData: async (res) => {
+      const parsed = parseXml<{
+        InitiateMultipartUploadResult: {
+          Bucket: string;
+          Key: string;
+          UploadId: string;
+        };
+      }>(await res.text());
 
-  const res = await throwS3Error(
-    client.s3.fetch(url.toString(), {
-      method: 'POST',
-      headers: cleanUndefined({
-        'content-type': params.contentType,
-        'x-amz-acl': params.acl,
-        'x-amz-storage-class': params.storageClass,
-        'cache-control': params.cacheControl,
-        'x-amz-tagging': params.tagging
-          ? encodeTagging(params.tagging)
-          : undefined,
-        ...Object.fromEntries(
-          Object.entries(params.metadata || {}).map(([key, value]) => [
-            `x-amz-meta-${key.toLowerCase()}`,
-            value,
-          ])
-        ),
-      }),
-      aws: { signQuery: true, allHeaders: true },
-    })
-  );
+      return {
+        bucket: parsed.InitiateMultipartUploadResult.Bucket,
+        key: parsed.InitiateMultipartUploadResult.Key,
+        uploadId: parsed.InitiateMultipartUploadResult.UploadId,
+      };
+    },
+  },
+});
 
-  const parsed = parseXml<{
-    InitiateMultipartUploadResult: {
-      Bucket: string;
-      Key: string;
-      UploadId: string;
-    };
-  }>(await res.text());
+/**
+ * Generate a pre-signed URL for creating a multipart upload in an S3 bucket.
+ */
+export const presignCreateMultipartUpload = helper.presign;
 
-  return {
-    bucket: parsed.InitiateMultipartUploadResult.Bucket,
-    key: parsed.InitiateMultipartUploadResult.Key,
-    uploadId: parsed.InitiateMultipartUploadResult.UploadId,
-  };
-}
+/**
+ * Create a multipart upload in an S3 bucket.
+ */
+export const createMultipartUpload = helper.execute;

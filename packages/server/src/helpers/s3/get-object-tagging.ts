@@ -1,13 +1,9 @@
-import type { Client } from '@/types/router/internal';
-import { encodeObjectKey, throwS3Error } from '@/utils/s3';
+import { defineHelper } from '@/utils/define-helper';
+import { encodeObjectKey } from '@/utils/s3';
 import { parseXml } from '@/utils/xml';
 
-/**
- * Get the tags of an object from an S3 bucket.
- */
-export async function getObjectTagging(
-  client: Client,
-  params: {
+const helper = defineHelper<
+  {
     bucket: string;
     key: string;
 
@@ -15,39 +11,50 @@ export async function getObjectTagging(
      * The version ID of the object to get tags for (if versioning is enabled).
      */
     versionId?: string;
+  },
+  {},
+  {
+    tags: { key: string; value: string }[];
+    tagsObject: Record<string, string>;
   }
-) {
-  const url = new URL(
-    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}?tagging`
-  );
+>({
+  method: 'GET',
+  url: (params) => ({
+    url: `/${encodeObjectKey(params.key)}?tagging`,
+    searchParams: {
+      versionId: params.versionId,
+    },
+  }),
+  execute: {
+    parseData: async (res) => {
+      const parsed = parseXml<{
+        Tagging: {
+          TagSet: { Tag?: { Key: string; Value: string }[] };
+        };
+      }>(await res.text(), {
+        arrayPath: ['Tagging.TagSet.Tag'],
+      });
 
-  if (params.versionId) {
-    url.searchParams.set('versionId', params.versionId);
-  }
+      return {
+        tags:
+          parsed.Tagging.TagSet.Tag?.map((tag) => ({
+            key: tag.Key,
+            value: tag.Value,
+          })) || [],
+        tagsObject: Object.fromEntries(
+          parsed.Tagging.TagSet.Tag?.map((tag) => [tag.Key, tag.Value]) || []
+        ),
+      };
+    },
+  },
+});
 
-  const res = await throwS3Error(
-    client.s3.fetch(url.toString(), {
-      method: 'GET',
-      aws: { signQuery: true, allHeaders: true },
-    })
-  );
+/**
+ * Generate a pre-signed URL for getting the tags of an object in an S3 bucket.
+ */
+export const presignGetObjectTagging = helper.presign;
 
-  const parsed = parseXml<{
-    Tagging: {
-      TagSet: { Tag?: { Key: string; Value: string }[] };
-    };
-  }>(await res.text(), {
-    arrayPath: ['Tagging.TagSet.Tag'],
-  });
-
-  return {
-    tags:
-      parsed.Tagging.TagSet.Tag?.map((tag) => ({
-        key: tag.Key,
-        value: tag.Value,
-      })) || [],
-    tagsObject: Object.fromEntries(
-      parsed.Tagging.TagSet.Tag?.map((tag) => [tag.Key, tag.Value]) || []
-    ),
-  };
-}
+/**
+ * Get the tags of an object from an S3 bucket.
+ */
+export const getObjectTagging = helper.execute;

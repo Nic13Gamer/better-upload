@@ -1,10 +1,5 @@
-import type { Client } from '@/types/router/internal';
-import {
-  encodeObjectKey,
-  encodeTagging,
-  getBodyContentLength,
-  throwS3Error,
-} from '@/utils/s3';
+import { defineHelper } from '@/utils/define-helper';
+import { encodeObjectKey, encodeTagging } from '@/utils/s3';
 import type {
   ObjectAcl,
   ObjectMetadata,
@@ -12,17 +7,10 @@ import type {
   Tagging,
 } from '@repo/shared/types/s3';
 
-/**
- * Put an object into an S3 bucket. Do not use for files larger than 5GB (use multipart uploads instead).
- *
- * Do not use this for client-side uploads, use the standard Better Upload router insted.
- */
-export async function putObject(
-  client: Client,
-  params: {
+const helper = defineHelper<
+  {
     bucket: string;
     key: string;
-    body: BodyInit;
     contentType: string;
     contentLength?: number;
     metadata?: ObjectMetadata;
@@ -30,42 +18,44 @@ export async function putObject(
     storageClass?: StorageClass;
     cacheControl?: string;
     tagging?: Tagging;
-  }
-) {
-  const url = new URL(
-    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}`
-  );
+  },
+  { body: BodyInit }
+>({
+  method: 'PUT',
+  url: (params) => ({
+    url: `/${encodeObjectKey(params.key)}`,
+  }),
+  headers: (params) => ({
+    'content-type': params.contentType,
+    'content-length': params.contentLength?.toString(),
+    'x-amz-acl': params.acl,
+    'x-amz-storage-class': params.storageClass,
+    'cache-control': params.cacheControl,
+    'x-amz-tagging': params.tagging
+      ? encodeTagging(params.tagging)
+      : undefined,
+    ...Object.fromEntries(
+      Object.entries(params.metadata || {}).map(([key, value]) => [
+        `x-amz-meta-${key.toLowerCase()}`,
+        value,
+      ])
+    ),
+  }),
+  execute: {
+    buildBody: (params) => params.body,
+  },
+});
 
-  const contentLength =
-    params.contentLength ?? getBodyContentLength(params.body);
+/**
+ * Generate a pre-signed URL for putting an object into an S3 bucket. Do not use for files larger than 5GB.
+ *
+ * Do not use this for client-side uploads, use the standard Better Upload router insted.
+ */
+export const presignPutObject = helper.presign;
 
-  await throwS3Error(
-    client.s3.fetch(url.toString(), {
-      method: 'PUT',
-      headers: {
-        'content-type': params.contentType,
-        ...(contentLength !== null
-          ? { 'content-length': contentLength.toString() }
-          : {}),
-        ...(params.acl ? { 'x-amz-acl': params.acl } : {}),
-        ...(params.storageClass
-          ? { 'x-amz-storage-class': params.storageClass }
-          : {}),
-        ...(params.cacheControl
-          ? { 'cache-control': params.cacheControl }
-          : {}),
-        ...Object.fromEntries(
-          Object.entries(params.metadata || {}).map(([key, value]) => [
-            `x-amz-meta-${key.toLowerCase()}`,
-            value,
-          ])
-        ),
-        ...(params.tagging
-          ? { 'x-amz-tagging': encodeTagging(params.tagging) }
-          : {}),
-      },
-      body: params.body,
-      aws: { signQuery: true, allHeaders: true },
-    })
-  );
-}
+/**
+ * Put an object into an S3 bucket. Do not use for files larger than 5GB (use multipart uploads instead).
+ *
+ * Do not use this for client-side uploads, use the standard Better Upload router insted.
+ */
+export const putObject = helper.execute;

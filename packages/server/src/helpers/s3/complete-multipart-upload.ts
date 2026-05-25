@@ -1,29 +1,24 @@
-import type { Client } from '@/types/router/internal';
-import {
-  encodeObjectKey,
-  getBodyContentLength,
-  throwS3Error,
-} from '@/utils/s3';
+import { defineHelper } from '@/utils/define-helper';
+import { encodeObjectKey } from '@/utils/s3';
 import { parseXml, xml } from '@/utils/xml';
 
-/**
- * Complete a multipart upload in an S3 bucket.
- */
-export async function completeMultipartUpload(
-  client: Client,
-  params: {
-    bucket: string;
-    key: string;
-    uploadId: string;
-    parts: { partNumber: number; eTag: string }[];
-  }
-) {
-  const url = new URL(
-    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}`
-  );
-  url.searchParams.set('uploadId', params.uploadId);
-
-  const body = xml`
+const helper = defineHelper<
+  { bucket: string; key: string; uploadId: string },
+  { parts: { partNumber: number; eTag: string }[] },
+  { location: string; bucket: string; key: string; eTag: string }
+>({
+  method: 'POST',
+  url: (params) => ({
+    url: `/${encodeObjectKey(params.key)}`,
+    searchParams: {
+      uploadId: params.uploadId,
+    },
+  }),
+  headers: () => ({
+    'content-type': 'application/xml',
+  }),
+  execute: {
+    buildBody: (params) => xml`
 <CompleteMultipartUpload>
   ${params.parts
     .sort((a, b) => a.partNumber - b.partNumber)
@@ -34,34 +29,34 @@ export async function completeMultipartUpload(
   </Part>`
     )}
 </CompleteMultipartUpload>
-`.toString();
+`,
+    checkOkResponse: true,
+    parseData: async (res) => {
+      const parsed = parseXml<{
+        CompleteMultipartUploadResult: {
+          Location: string;
+          Bucket: string;
+          Key: string;
+          ETag: string;
+        };
+      }>(await res.text());
 
-  const res = await throwS3Error(
-    client.s3.fetch(url.toString(), {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/xml',
-        'content-length': getBodyContentLength(body)!.toString(),
-      },
-      body: body,
-      aws: { signQuery: true, allHeaders: true },
-    }),
-    { checkOk: true }
-  );
+      return {
+        location: parsed.CompleteMultipartUploadResult.Location,
+        bucket: parsed.CompleteMultipartUploadResult.Bucket,
+        key: parsed.CompleteMultipartUploadResult.Key,
+        eTag: parsed.CompleteMultipartUploadResult.ETag,
+      };
+    },
+  },
+});
 
-  const parsed = parseXml<{
-    CompleteMultipartUploadResult: {
-      Location: string;
-      Bucket: string;
-      Key: string;
-      ETag: string;
-    };
-  }>(await res.text());
+/**
+ * Generate a pre-signed URL for completing a multipart upload in an S3 bucket.
+ */
+export const presignCompleteMultipartUpload = helper.presign;
 
-  return {
-    location: parsed.CompleteMultipartUploadResult.Location,
-    bucket: parsed.CompleteMultipartUploadResult.Bucket,
-    key: parsed.CompleteMultipartUploadResult.Key,
-    eTag: parsed.CompleteMultipartUploadResult.ETag,
-  };
-}
+/**
+ * Complete a multipart upload in an S3 bucket.
+ */
+export const completeMultipartUpload = helper.execute;

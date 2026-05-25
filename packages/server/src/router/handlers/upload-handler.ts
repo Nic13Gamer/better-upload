@@ -1,9 +1,9 @@
 import { config } from '@/config';
+import { presignAbortMultipartUpload } from '@/helpers/s3/abort-multipart-upload';
+import { presignCompleteMultipartUpload } from '@/helpers/s3/complete-multipart-upload';
 import { createMultipartUpload } from '@/helpers/s3/create-multipart-upload';
-import { presignAbortMultipartUpload } from '@/helpers/s3/presign/abort-multipart-upload';
-import { presignCompleteMultipartUpload } from '@/helpers/s3/presign/complete-multipart-upload';
-import { presignPutObject } from '@/helpers/s3/presign/put-object';
-import { presignUploadPart } from '@/helpers/s3/presign/upload-part';
+import { presignPutObject } from '@/helpers/s3/put-object';
+import { presignUploadPart } from '@/helpers/s3/upload-part';
 import type { Router } from '@/types';
 import type { FileInfo } from '@/types/router/internal';
 import { isFileTypeAllowed } from '@/utils/file-type';

@@ -27,23 +27,3 @@ export type ObjectHeaders = {
 
   taggingCount: number;
 };
-
-export type GetObjectBlobResult = ObjectHeaders & {
-  /**
-   * The object data as a Blob.
-   *
-   * @example
-   *
-   * ```ts
-   * const text = await blob.text();
-   * ```
-   */
-  blob: Blob;
-};
-
-export type GetObjectStreamResult = ObjectHeaders & {
-  /**
-   * The object data as a ReadableStream.
-   */
-  stream: ReadableStream<Uint8Array<ArrayBufferLike>>;
-};

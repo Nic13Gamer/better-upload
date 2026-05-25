@@ -3,12 +3,6 @@ import type { ObjectHeaders } from '@/types/s3';
 import type { Tagging } from '@repo/shared/types/s3';
 import { parseXml } from './xml';
 
-export const baseSignedUrl = (base: string, params: { expiresIn: number }) => {
-  const url = new URL(base);
-  url.searchParams.set('X-Amz-Expires', params.expiresIn.toString());
-  return url;
-};
-
 export function encodeObjectKey(key: string) {
   if (!key.trim()) throw new Error('Object key cannot be empty.');
   return key.split('/').map(encodeURIComponent).join('/');
@@ -114,8 +108,3 @@ export const encodeTagging = (tagging: Tagging) =>
         `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
     )
     .join('&');
-
-export const cleanUndefined = (obj: object) =>
-  Object.fromEntries(
-    Object.entries(obj).filter(([_, value]) => value !== undefined)
-  );

@@ -1,47 +1,42 @@
-import type { Client } from '@/types/router/internal';
-import {
-  encodeObjectKey,
-  getBodyContentLength,
-  throwS3Error,
-} from '@/utils/s3';
+import { defineHelper } from '@/utils/define-helper';
+import { encodeObjectKey } from '@/utils/s3';
 
-/**
- * Upload a part in a multipart upload to an S3 bucket.
- */
-export async function uploadPart(
-  client: Client,
-  params: {
+const helper = defineHelper<
+  {
     bucket: string;
     key: string;
     uploadId: string;
     partNumber: number;
-    body: BodyInit;
     contentLength?: number;
-  }
-) {
-  const url = new URL(
-    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}`
-  );
-  url.searchParams.set('partNumber', params.partNumber.toString());
-  url.searchParams.set('uploadId', params.uploadId);
+  },
+  { body: BodyInit },
+  { eTag: string }
+>({
+  method: 'PUT',
+  url: (params) => ({
+    url: `/${encodeObjectKey(params.key)}`,
+    searchParams: {
+      partNumber: params.partNumber,
+      uploadId: params.uploadId,
+    },
+  }),
+  headers: (params) => ({
+    'content-length': params.contentLength?.toString(),
+  }),
+  execute: {
+    buildBody: (params) => params.body,
+    parseData: async (res) => ({
+      eTag: res.headers.get('etag') || '',
+    }),
+  },
+});
 
-  const contentLength =
-    params.contentLength ?? getBodyContentLength(params.body);
+/**
+ * Generate a pre-signed URL to upload a part in a multipart upload to an S3 bucket.
+ */
+export const presignUploadPart = helper.presign;
 
-  const res = await throwS3Error(
-    client.s3.fetch(url.toString(), {
-      method: 'PUT',
-      headers: {
-        ...(contentLength !== null
-          ? { 'content-length': contentLength.toString() }
-          : {}),
-      },
-      body: params.body,
-      aws: { signQuery: true, allHeaders: true },
-    })
-  );
-
-  return {
-    eTag: res.headers.get('etag') || '',
-  };
-}
+/**
+ * Upload a part in a multipart upload to an S3 bucket.
+ */
+export const uploadPart = helper.execute;

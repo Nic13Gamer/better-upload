@@ -1,26 +1,26 @@
-import type { Client } from '@/types/router/internal';
-import { encodeObjectKey, throwS3Error } from '@/utils/s3';
+import { defineHelper } from '@/utils/define-helper';
+import { encodeObjectKey } from '@/utils/s3';
+
+const helper = defineHelper<{
+  bucket: string;
+  key: string;
+  uploadId: string;
+}>({
+  method: 'DELETE',
+  url: (params) => ({
+    url: `/${encodeObjectKey(params.key)}`,
+    searchParams: {
+      uploadId: params.uploadId,
+    },
+  }),
+});
+
+/**
+ * Generate a pre-signed URL for aborting a multipart upload in an S3 bucket.
+ */
+export const presignAbortMultipartUpload = helper.presign;
 
 /**
  * Abort a multipart upload in an S3 bucket.
  */
-export async function abortMultipartUpload(
-  client: Client,
-  params: {
-    bucket: string;
-    key: string;
-    uploadId: string;
-  }
-) {
-  const url = new URL(
-    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}`
-  );
-  url.searchParams.set('uploadId', params.uploadId);
-
-  await throwS3Error(
-    client.s3.fetch(url.toString(), {
-      method: 'DELETE',
-      aws: { signQuery: true, allHeaders: true },
-    })
-  );
-}
+export const abortMultipartUpload = helper.execute;

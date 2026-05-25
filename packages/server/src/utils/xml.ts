@@ -8,7 +8,7 @@ const XML_ESCAPE: Record<string, string> = {
   "'": '&apos;',
 };
 
-class SafeXml {
+export class SafeXml {
   constructor(readonly value: string) {}
   toString() {
     return this.value;

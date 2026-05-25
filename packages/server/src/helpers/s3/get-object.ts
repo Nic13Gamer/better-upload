@@ -1,7 +1,6 @@
-import type { Client } from '@/types/router/internal';
-import type { GetObjectBlobResult, GetObjectStreamResult } from '@/types/s3';
-import { parseObjectHeaders, throwS3Error } from '@/utils/s3';
-import { presignGetObject } from './presign/get-object';
+import type { ObjectHeaders } from '@/types/s3';
+import { defineHelper } from '@/utils/define-helper';
+import { encodeObjectKey, parseObjectHeaders } from '@/utils/s3';
 
 type GetObjectParams = {
   bucket: string;
@@ -24,45 +23,84 @@ type GetObjectParams = {
   range?: string;
 };
 
-const fetchObject = async (client: Client, params: GetObjectParams) =>
-  await throwS3Error(
-    fetch((await presignGetObject(client, params)).url, { method: 'GET' })
-  );
+const sharedOpts = {
+  method: 'GET',
+  url: (params: GetObjectParams) => ({
+    url: `/${encodeObjectKey(params.key)}`,
+    searchParams: {
+      versionId: params.versionId,
+    },
+  }),
+  headers: (params: GetObjectParams) => ({
+    range: params.range,
+  }),
+};
+
+const blobHelper = defineHelper<
+  GetObjectParams,
+  {},
+  ObjectHeaders & {
+    /**
+     * The object data as a Blob.
+     *
+     * @example
+     *
+     * ```ts
+     * const text = await blob.text();
+     * ```
+     */
+    blob: Blob;
+  }
+>({
+  ...sharedOpts,
+  execute: {
+    parseData: async (res) => ({
+      blob: await res.blob(),
+      ...parseObjectHeaders(res.headers),
+    }),
+  },
+});
+
+const streamHelper = defineHelper<
+  GetObjectParams,
+  {},
+  ObjectHeaders & {
+    /**
+     * The object data as a ReadableStream.
+     */
+    stream: ReadableStream<Uint8Array<ArrayBufferLike>>;
+  }
+>({
+  ...sharedOpts,
+  execute: {
+    parseData: async (res) => {
+      if (!res.body) {
+        throw new Error('S3 object response body is null.');
+      }
+
+      return {
+        stream: res.body,
+        ...parseObjectHeaders(res.headers),
+      };
+    },
+  },
+});
+
+/**
+ * Generate a pre-signed URL to get (download) an object from an S3 bucket.
+ */
+export const presignGetObject = blobHelper.presign;
 
 /**
  * Get an object from an S3 bucket.
  *
  * This gets the entire object data, as a blob. To generate a pre-signed URL for getting an object on the client, use `presignGetObject`.
  */
-export async function getObjectBlob(
-  client: Client,
-  params: GetObjectParams
-): Promise<GetObjectBlobResult> {
-  const res = await fetchObject(client, params);
-
-  return {
-    blob: await res.blob(),
-    ...parseObjectHeaders(res.headers),
-  };
-}
+export const getObjectBlob = blobHelper.execute;
 
 /**
  * Get an object from an S3 bucket.
  *
  * This gets the entire object data, as a stream. To generate a pre-signed URL for getting an object on the client, use `presignGetObject`.
  */
-export async function getObjectStream(
-  client: Client,
-  params: GetObjectParams
-): Promise<GetObjectStreamResult> {
-  const res = await fetchObject(client, params);
-
-  if (!res.body) {
-    throw new Error('S3 object response body is null.');
-  }
-
-  return {
-    stream: res.body,
-    ...parseObjectHeaders(res.headers),
-  };
-}
+export const getObjectStream = streamHelper.execute;

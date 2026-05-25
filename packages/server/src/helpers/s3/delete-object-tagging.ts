@@ -1,33 +1,30 @@
-import type { Client } from '@/types/router/internal';
-import { encodeObjectKey, throwS3Error } from '@/utils/s3';
+import { defineHelper } from '@/utils/define-helper';
+import { encodeObjectKey } from '@/utils/s3';
+
+const helper = defineHelper<{
+  bucket: string;
+  key: string;
+
+  /**
+   * The version ID of the object to delete tags for (if versioning is enabled).
+   */
+  versionId?: string;
+}>({
+  method: 'DELETE',
+  url: (params) => ({
+    url: `/${encodeObjectKey(params.key)}?tagging`,
+    searchParams: {
+      versionId: params.versionId,
+    },
+  }),
+});
+
+/**
+ * Generate a pre-signed URL for deleting object tags from an S3 bucket.
+ */
+export const presignDeleteObjectTagging = helper.presign;
 
 /**
  * Delete the tags of an object from an S3 bucket.
  */
-export async function deleteObjectTagging(
-  client: Client,
-  params: {
-    bucket: string;
-    key: string;
-
-    /**
-     * The version ID of the object to delete tags for (if versioning is enabled).
-     */
-    versionId?: string;
-  }
-) {
-  const url = new URL(
-    `${client.buildBucketUrl(params.bucket)}/${encodeObjectKey(params.key)}?tagging`
-  );
-
-  if (params.versionId) {
-    url.searchParams.set('versionId', params.versionId);
-  }
-
-  await throwS3Error(
-    client.s3.fetch(url.toString(), {
-      method: 'DELETE',
-      aws: { signQuery: true, allHeaders: true },
-    })
-  );
-}
+export const deleteObjectTagging = helper.execute;
