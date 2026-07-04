@@ -202,7 +202,7 @@ export async function handleUploadRequest({
             key: result.key || objectInfo.key,
             metadata: result.metadata
               ? Object.fromEntries(
-                  Object.entries(objectInfo.metadata).map(([key, value]) => [
+                  Object.entries(result.metadata).map(([key, value]) => [
                     key.toLowerCase(),
                     value,
                   ])
@@ -312,14 +312,14 @@ export async function handleUploadRequest({
 
   let responseMetadata;
   try {
-    const onAfterSignedUrlResult = await route.onAfterSignedUrl?.({
+    const onAfterPresignResult = await route.onAfterPresign?.({
       req,
       files: signedUrls.map(({ file }) => file),
       clientMetadata,
       metadata: interMetadata,
     });
 
-    responseMetadata = onAfterSignedUrlResult?.metadata || {};
+    responseMetadata = onAfterPresignResult?.metadata || {};
   } catch (error) {
     throw error;
   }

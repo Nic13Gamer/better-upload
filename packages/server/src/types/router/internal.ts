@@ -150,7 +150,7 @@ export type RouteConfig<
    *
    * You can return additional metadata to be sent back to the client, needs to be JSON serializable.
    */
-  onAfterSignedUrl?: (
+  onAfterPresign?: (
     data: {
       /**
        * The incoming request.
@@ -180,9 +180,9 @@ export type RouteConfig<
           files: FileInfo<true>[];
         })
   ) =>
-    | AfterSignedUrlCallbackResult
+    | AfterPresignCallbackResult
     | void
-    | Promise<AfterSignedUrlCallbackResult | void>;
+    | Promise<AfterPresignCallbackResult | void>;
 } & (Multiple extends true
   ? {
       /**
@@ -293,8 +293,8 @@ export type BeforeUploadCallbackObjectInfo<Multiple extends boolean> = {
       /**
        * Skip upload of this specific file.
        *
-       * - `ignore`: Completely ignore this file and remove it from the rest of the upload flow (`onAfterSignedUrl` and client).
-       * - `completed`: Skip upload (won't generate pre-signed URL) but include it on the rest of the upload flow (`onAfterSignedUrl` and client). Will run completed events on client-side.
+       * - `ignore`: Completely ignore this file and remove it from the rest of the upload flow (`onAfterPresign` and client).
+       * - `completed`: Skip upload (won't generate pre-signed URL) but include it on the rest of the upload flow (`onAfterPresign` and client). Will run completed events on client-side.
        */
       skip?: 'ignore' | 'completed';
     }
@@ -305,7 +305,7 @@ type BeforeUploadCallbackResult<
   InterMetadata extends UnknownMetadata,
 > = {
   /**
-   * Metadata sent to `onAfterSignedUrl`.
+   * Metadata sent to `onAfterPresign`.
    */
   metadata?: InterMetadata;
 
@@ -326,6 +326,7 @@ type BeforeUploadCallbackResult<
        * - `acl`: ACL to apply to the S3 object.
        * - `storageClass`: Storage class to apply to the S3 object.
        * - `cacheControl`: Cache-Control header to apply to the S3 object.
+       * - `tagging`: Tagging to apply to the S3 object.
        */
       objectInfo?: BeforeUploadCallbackObjectInfo<false>;
     }
@@ -339,6 +340,7 @@ type BeforeUploadCallbackResult<
        * - `acl`: ACL to apply to the S3 object.
        * - `storageClass`: Storage class to apply to the S3 object.
        * - `cacheControl`: Cache-Control header to apply to the S3 object.
+       * - `tagging`: Tagging to apply to the S3 object.
        * - `skip`: `ignore` or `completed` to skip upload of a specific file.
        */
       generateObjectInfo?: (data: {
@@ -351,7 +353,7 @@ type BeforeUploadCallbackResult<
         | Promise<BeforeUploadCallbackObjectInfo<true>>;
     });
 
-type AfterSignedUrlCallbackResult = {
+type AfterPresignCallbackResult = {
   /**
    * Metadata sent back to the client.
    *
@@ -388,7 +390,7 @@ export type Route = {
       | Promise<BeforeUploadCallbackObjectInfo<true>>;
   } | void>;
 
-  onAfterSignedUrl?: (data: {
+  onAfterPresign?: (data: {
     req: Request;
     metadata: UnknownMetadata;
     clientMetadata: unknown;

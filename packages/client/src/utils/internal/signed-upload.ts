@@ -1,12 +1,9 @@
-import type { ObjectMetadata } from '@repo/shared/types/s3';
 import { withRetries } from './retry';
 
-export async function uploadFileToS3(params: {
+export async function uploadToSignedUrl(params: {
   signedUrl: string;
   file: File;
   headers: Record<string, string>;
-  objectMetadata: ObjectMetadata;
-  objectCacheControl?: string;
   onProgress?: (progress: number) => void;
   signal?: AbortSignal;
   retry?: number;
@@ -21,6 +18,7 @@ export async function uploadFileToS3(params: {
 
         if (params.signal?.aborted) {
           abortHandler();
+          return;
         }
 
         params.signal?.addEventListener('abort', abortHandler);
@@ -46,14 +44,6 @@ export async function uploadFileToS3(params: {
         xhr.open('PUT', params.signedUrl, true);
         xhr.setRequestHeader('Content-Type', params.file.type);
 
-        if (params.objectCacheControl) {
-          xhr.setRequestHeader('Cache-Control', params.objectCacheControl);
-        }
-
-        Object.entries(params.objectMetadata).forEach(([key, value]) => {
-          xhr.setRequestHeader(`x-amz-meta-${key}`, value);
-        });
-
         Object.entries(params.headers).forEach(([key, value]) => {
           xhr.setRequestHeader(key, value);
         });
@@ -72,7 +62,7 @@ export async function uploadFileToS3(params: {
   );
 }
 
-export async function uploadMultipartFileToS3(params: {
+export async function uploadMultipartToSignedUrl(params: {
   file: File;
   parts: { signedUrl: string; partNumber: number; size: number }[];
   partSize: number;
@@ -101,6 +91,7 @@ export async function uploadMultipartFileToS3(params: {
 
           if (params.signal?.aborted) {
             abortHandler();
+            return;
           }
 
           params.signal?.addEventListener('abort', abortHandler);

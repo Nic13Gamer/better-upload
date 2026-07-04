@@ -6,7 +6,10 @@ import type {
   UploadRequestSuccessResponse,
 } from '@repo/shared/types/router';
 import { withRetries } from './internal/retry';
-import { uploadFileToS3, uploadMultipartFileToS3 } from './internal/s3-upload';
+import {
+  uploadMultipartToSignedUrl,
+  uploadToSignedUrl,
+} from './internal/signed-upload';
 
 /**
  * Upload multiple files to S3.
@@ -45,7 +48,7 @@ export async function uploadFiles(params: {
     const headers = new Headers(params.headers);
     headers.set('Content-Type', 'application/json');
 
-    const signedUrlRes = await withRetries(
+    const uploadRes = await withRetries(
       () =>
         fetch(params.api || '/api/upload', {
           method: 'POST',
@@ -68,8 +71,8 @@ export async function uploadFiles(params: {
       { retry: params.retry, delay: params.retryDelay, signal: params.signal }
     );
 
-    if (!signedUrlRes.ok) {
-      const { error } = (await signedUrlRes.json()) as any;
+    if (!uploadRes.ok) {
+      const { error } = (await uploadRes.json()) as any;
 
       throw new ClientUploadErrorClass({
         type: error.type || 'unknown',
@@ -77,14 +80,14 @@ export async function uploadFiles(params: {
       });
     }
 
-    const payload = (await signedUrlRes.json()) as UploadRequestSuccessResponse;
+    const payload = (await uploadRes.json()) as UploadRequestSuccessResponse;
 
-    const signedUrls =
+    const uploads =
       'multipart' in payload ? payload.multipart.uploads : payload.uploads;
     const serverMetadata = payload.metadata;
     const partSize = 'multipart' in payload ? payload.multipart.partSize : 0;
 
-    if (!signedUrls || signedUrls.length === 0) {
+    if (!uploads || uploads.length === 0) {
       throw new ClientUploadErrorClass({
         type: 'unknown',
         message:
@@ -92,108 +95,100 @@ export async function uploadFiles(params: {
       });
     }
 
-    const uploads = new Map<string, FileUploadInfo<UploadStatus>>(
-      signedUrls.map((url) => [
-        url.file.objectInfo.key,
-        {
-          skip: url.skip,
-          status: url.skip === 'completed' ? 'complete' : 'pending',
-          progress: url.skip === 'completed' ? 1 : 0,
-          raw: files.find(
-            (file) =>
-              file.name === url.file.name &&
-              file.size === url.file.size &&
-              file.type === url.file.type
-          )!,
-          ...url.file,
-        },
-      ])
+    const uploadStates = new Map<string, FileUploadInfo<UploadStatus>>(
+      uploads.map((upload) => {
+        const isSkipped = 'skip' in upload && upload.skip === 'completed';
+        const { _id, ...fileInfo } = upload.file;
+
+        return [
+          upload.file.objectInfo.key,
+          {
+            skip: isSkipped ? 'completed' : undefined,
+            status: isSkipped ? 'complete' : 'pending',
+            progress: isSkipped ? 1 : 0,
+            raw: files[_id]!,
+            ...fileInfo,
+          },
+        ];
+      })
     );
 
-    const uploadPromises = files.map((file) => async () => {
-      const url = signedUrls.find(
-        (item) =>
-          item.file.name === file.name &&
-          item.file.size === file.size &&
-          item.file.type === file.type
-      )!;
-
-      if (!url || url.skip === 'completed') {
+    const uploadPromises = uploads.map((upload) => async () => {
+      if ('skip' in upload) {
         return;
       }
 
-      const isMultipart = 'parts' in url;
+      const file = files[upload.file._id]!;
+      const key = upload.file.objectInfo.key;
 
       try {
-        uploads.set(url.file.objectInfo.key, {
-          ...uploads.get(url.file.objectInfo.key)!,
+        uploadStates.set(key, {
+          ...uploadStates.get(key)!,
           status: 'uploading',
           progress: 0,
         });
 
         params.onFileStateChange?.({
-          file: uploads.get(url.file.objectInfo.key)!,
+          file: uploadStates.get(key)!,
         });
 
-        if (isMultipart) {
-          await uploadMultipartFileToS3({
+        if ('parts' in upload) {
+          await uploadMultipartToSignedUrl({
             file,
-            parts: url.parts,
+            parts: upload.parts,
             partSize,
-            uploadId: url.uploadId,
-            completeSignedUrl: url.completeSignedUrl,
+            uploadId: upload.uploadId,
+            completeSignedUrl: upload.completeSignedUrl,
             partsBatchSize: params.multipartBatchSize,
             signal: params.signal,
             retry: params.retry,
             retryDelay: params.retryDelay,
             onProgress: (progress) => {
-              if (uploads.get(url.file.objectInfo.key)!.status === 'failed') {
+              if (uploadStates.get(key)!.status === 'failed') {
                 return;
               }
 
-              uploads.set(url.file.objectInfo.key, {
-                ...uploads.get(url.file.objectInfo.key)!,
+              uploadStates.set(key, {
+                ...uploadStates.get(key)!,
                 status: progress === 1 ? 'complete' : 'uploading',
                 progress,
               });
 
               params.onFileStateChange?.({
-                file: uploads.get(url.file.objectInfo.key)!,
+                file: uploadStates.get(key)!,
               });
             },
           });
         } else {
-          await uploadFileToS3({
+          await uploadToSignedUrl({
             file,
-            signedUrl: url.signedUrl,
-            headers: url.headers,
-            objectMetadata: url.file.objectInfo.metadata,
-            objectCacheControl: url.file.objectInfo.cacheControl,
+            signedUrl: upload.signedUrl,
+            headers: upload.headers,
             signal: params.signal,
             retry: params.retry,
             retryDelay: params.retryDelay,
             onProgress: (progress) => {
-              uploads.set(url.file.objectInfo.key, {
-                ...uploads.get(url.file.objectInfo.key)!,
+              uploadStates.set(key, {
+                ...uploadStates.get(key)!,
                 status: progress === 1 ? 'complete' : 'uploading',
                 progress,
               });
 
               params.onFileStateChange?.({
-                file: uploads.get(url.file.objectInfo.key)!,
+                file: uploadStates.get(key)!,
               });
             },
           });
         }
       } catch (error) {
-        if (isMultipart) {
-          await fetch(url.abortSignedUrl, {
+        if ('parts' in upload) {
+          await fetch(upload.abortSignedUrl, {
             method: 'DELETE',
           }).catch(() => {});
         }
 
-        uploads.set(url.file.objectInfo.key, {
-          ...uploads.get(url.file.objectInfo.key)!,
+        uploadStates.set(key, {
+          ...uploadStates.get(key)!,
           status: 'failed',
           error: {
             type: params.signal?.aborted ? 'aborted' : 's3_upload',
@@ -204,17 +199,17 @@ export async function uploadFiles(params: {
         });
 
         params.onFileStateChange?.({
-          file: uploads.get(url.file.objectInfo.key)!,
+          file: uploadStates.get(key)!,
         });
       }
     });
 
     params.onUploadBegin?.({
-      files: Array.from(uploads.values()) as FileUploadInfo<'pending'>[],
+      files: Array.from(uploadStates.values()) as FileUploadInfo<'pending'>[],
       metadata: serverMetadata,
     });
 
-    uploads.forEach((file) => {
+    uploadStates.forEach((file) => {
       params.onFileStateChange?.({
         file,
       });
@@ -228,10 +223,10 @@ export async function uploadFiles(params: {
     }
 
     return {
-      files: Array.from(uploads.values()).filter(
+      files: Array.from(uploadStates.values()).filter(
         (file) => file.status === 'complete'
       ) as FileUploadInfo<'complete'>[],
-      failedFiles: Array.from(uploads.values()).filter(
+      failedFiles: Array.from(uploadStates.values()).filter(
         (file) => file.status === 'failed'
       ) as FileUploadInfo<'failed'>[],
       metadata: serverMetadata,

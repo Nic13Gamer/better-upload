@@ -27,7 +27,7 @@ export function useUploadFiles({
   onUploadProgress,
   onUploadSettle,
 }: UploadHookProps<true>): UploadHookReturn<true> {
-  const [uploads, setUploads] = useState(
+  const [uploadStates, setUploadStates] = useState(
     () => new Map<string, FileUploadInfo<UploadStatus>>()
   );
   const [serverMetadata, setServerMetadata] = useState<UnknownMetadata>({});
@@ -35,55 +35,55 @@ export function useUploadFiles({
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<ClientUploadError | null>(null);
 
-  const uploadsArray = useMemo(() => Array.from(uploads.values()), [uploads]);
+  const uploadStatesArray = useMemo(() => Array.from(uploadStates.values()), [uploadStates]);
 
   const uploadedFiles = useMemo(
     () =>
-      uploadsArray.filter(
+      uploadStatesArray.filter(
         (file) => file.status === 'complete'
       ) as FileUploadInfo<'complete'>[],
-    [uploadsArray]
+    [uploadStatesArray]
   );
   const failedFiles = useMemo(
     () =>
-      uploadsArray.filter(
+      uploadStatesArray.filter(
         (file) => file.status === 'failed'
       ) as FileUploadInfo<'failed'>[],
-    [uploadsArray]
+    [uploadStatesArray]
   );
   const allSucceeded = useMemo(
     () =>
-      uploadsArray.length > 0 &&
-      uploadsArray.every((file) => file.status === 'complete'),
-    [uploadsArray]
+      uploadStatesArray.length > 0 &&
+      uploadStatesArray.every((file) => file.status === 'complete'),
+    [uploadStatesArray]
   );
   const hasFailedFiles = useMemo(
     () =>
-      uploadsArray.length > 0 &&
-      uploadsArray.some((file) => file.status === 'failed'),
-    [uploadsArray]
+      uploadStatesArray.length > 0 &&
+      uploadStatesArray.some((file) => file.status === 'failed'),
+    [uploadStatesArray]
   );
   const isSettled = useMemo(
     () =>
-      uploadsArray.length > 0 &&
-      uploadsArray.every(
+      uploadStatesArray.length > 0 &&
+      uploadStatesArray.every(
         (file) => file.status === 'complete' || file.status === 'failed'
       ),
-    [uploadsArray]
+    [uploadStatesArray]
   );
   const averageProgress = useMemo(
     () =>
-      uploadsArray.length === 0
+      uploadStatesArray.length === 0
         ? 0
-        : uploadsArray.reduce((acc, file) => acc + file.progress, 0) /
-          uploadsArray.length,
-    [uploadsArray]
+        : uploadStatesArray.reduce((acc, file) => acc + file.progress, 0) /
+          uploadStatesArray.length,
+    [uploadStatesArray]
   );
 
   const uploadAsync = useCallback(
     async (
       files: File[] | FileList,
-      { metadata }: { metadata?: ServerMetadata } = {}
+      { metadata }: { metadata?: UnknownMetadata } = {}
     ) => {
       reset();
 
@@ -130,7 +130,7 @@ export function useUploadFiles({
           retryDelay,
           onUploadBegin,
           onFileStateChange: ({ file }) => {
-            setUploads((prev) => new Map(prev).set(file.objectInfo.key, file));
+            setUploadStates((prev) => new Map(prev).set(file.objectInfo.key, file));
             onUploadProgress?.({ file });
           },
         });
@@ -207,7 +207,7 @@ export function useUploadFiles({
   const upload = useCallback(
     async (
       files: File[] | FileList,
-      options: { metadata?: ServerMetadata } = {}
+      options: { metadata?: UnknownMetadata } = {}
     ) => {
       try {
         const result = await uploadAsync(files, options);
@@ -225,7 +225,7 @@ export function useUploadFiles({
   );
 
   const reset = useCallback(() => {
-    setUploads(new Map<string, FileUploadInfo<UploadStatus>>());
+    setUploadStates(new Map<string, FileUploadInfo<UploadStatus>>());
     setServerMetadata({});
     setIsPending(false);
     setError(null);
@@ -236,7 +236,7 @@ export function useUploadFiles({
       uploadAsync,
       upload,
       reset,
-      progresses: uploadsArray,
+      progresses: uploadStatesArray,
       allSucceeded,
       hasFailedFiles,
       uploadedFiles,
@@ -253,7 +253,7 @@ export function useUploadFiles({
       uploadAsync,
       upload,
       reset,
-      uploadsArray,
+      uploadStatesArray,
       allSucceeded,
       hasFailedFiles,
       uploadedFiles,

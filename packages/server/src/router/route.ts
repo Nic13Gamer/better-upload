@@ -73,12 +73,12 @@ export function route<
         }
       : undefined,
 
-    onAfterSignedUrl: config.onAfterSignedUrl
+    onAfterPresign: config.onAfterPresign
       ? async (data) => {
-          if (config.onAfterSignedUrl) {
+          if (config.onAfterPresign) {
             const files = config.multipleFiles ? data.files : data.files[0];
 
-            return config.onAfterSignedUrl({
+            return config.onAfterPresign({
               req: data.req,
               metadata: data.metadata,
               clientMetadata: data.clientMetadata,
