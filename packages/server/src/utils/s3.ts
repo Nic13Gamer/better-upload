@@ -108,3 +108,34 @@ export const encodeTagging = (tagging: Tagging) =>
         `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
     )
     .join('&');
+
+export function isFileTypeAllowed(
+  fileType: string,
+  allowedFileTypes: string[]
+) {
+  let invalid = true;
+
+  allowedFileTypes.forEach((type) => {
+    if (type.endsWith('/*')) {
+      const prefix = type.split('/*')[0];
+      if (prefix && fileType.startsWith(prefix)) {
+        invalid = false;
+      }
+    } else if (type === fileType) {
+      invalid = false;
+    }
+  });
+
+  return !invalid;
+}
+
+export function createSlug(text: string) {
+  return text
+    .normalize('NFD') // split an accented letter in the base letter and the acent
+    .replace(/[\u0300-\u036f]/g, '') // remove all previously split accents
+    .toLowerCase()
+    .trim()
+    .replace(/-/g, ' ') // replace dashes with spaces
+    .replace(/[^a-z0-9. ]/g, '') // remove all chars not letters, numbers and spaces (to be replaced)
+    .replace(/\s+/g, '-');
+}

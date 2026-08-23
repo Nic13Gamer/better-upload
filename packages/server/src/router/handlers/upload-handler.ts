@@ -6,8 +6,7 @@ import { presignPutObject } from '@/helpers/s3/put-object';
 import { presignUploadPart } from '@/helpers/s3/upload-part';
 import type { Router } from '@/types';
 import type { FileInfo } from '@/types/router/internal';
-import { isFileTypeAllowed } from '@/utils/file-type';
-import { createSlug } from '@/utils/slug';
+import { createSlug, isFileTypeAllowed } from '@/utils/s3';
 import { standardValidate } from '@/utils/standard-schema';
 import type { ClientRequestSchema } from '@/validations';
 import type {
