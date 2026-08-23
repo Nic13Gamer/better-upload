@@ -10,7 +10,7 @@ export function useUploadFile(
     upload,
     uploadAsync,
     reset,
-    averageProgress,
+    fileUploads,
     error,
     isError,
     isPending,
@@ -63,7 +63,7 @@ export function useUploadFile(
       : undefined,
   });
 
-  const uploadedFile = uploadedFiles?.[0] ?? null;
+  const uploadedFile = uploadedFiles[0] ?? null;
 
   const control = useMemo<UploadHookControl<false>>(
     () => ({
@@ -76,7 +76,7 @@ export function useUploadFile(
         return { file: result.files[0]!, metadata: result.metadata };
       },
       reset,
-      progress: averageProgress,
+      fileUpload: fileUploads[0] ?? null,
       error,
       isError,
       isPending,
@@ -90,7 +90,7 @@ export function useUploadFile(
       upload,
       uploadAsync,
       reset,
-      averageProgress,
+      fileUploads,
       error,
       isError,
       isPending,

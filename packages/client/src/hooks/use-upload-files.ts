@@ -35,7 +35,10 @@ export function useUploadFiles({
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<ClientUploadError | null>(null);
 
-  const uploadStatesArray = useMemo(() => Array.from(uploadStates.values()), [uploadStates]);
+  const uploadStatesArray = useMemo(
+    () => Array.from(uploadStates.values()),
+    [uploadStates]
+  );
 
   const uploadedFiles = useMemo(
     () =>
@@ -130,7 +133,9 @@ export function useUploadFiles({
           retryDelay,
           onUploadBegin,
           onFileStateChange: ({ file }) => {
-            setUploadStates((prev) => new Map(prev).set(file.objectInfo.key, file));
+            setUploadStates((prev) =>
+              new Map(prev).set(file.objectInfo.key, file)
+            );
             onUploadProgress?.({ file });
           },
         });
@@ -236,7 +241,7 @@ export function useUploadFiles({
       uploadAsync,
       upload,
       reset,
-      progresses: uploadStatesArray,
+      fileUploads: uploadStatesArray,
       allSucceeded,
       hasFailedFiles,
       uploadedFiles,

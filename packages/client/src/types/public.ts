@@ -124,11 +124,11 @@ export type UploadHookControl<T extends boolean> = {
 } & (T extends true
   ? {
       /**
-       * The progress of all files during the upload process.
+       * The upload states of all files during the upload process, containing the progress and other information about each file upload.
        *
        * `uploadedFiles` and `failedFiles` derive from this array, use this to get information about **all** files.
        */
-      progresses: FileUploadInfo<UploadStatus>[];
+      fileUploads: FileUploadInfo<UploadStatus>[];
 
       /**
        * If all files succeeded to upload.
@@ -161,9 +161,11 @@ export type UploadHookControl<T extends boolean> = {
     }
   : {
       /**
-       * The progress of the file during the upload process.
+       * The upload state of the file during the upload process, containing the progress and other information about the file upload.
+       *
+       * `uploadedFile` derives from this, use this to get information about the file.
        */
-      progress: number;
+      fileUpload: FileUploadInfo<UploadStatus> | null;
 
       /**
        * The file that was successfully uploaded.
