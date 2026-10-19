@@ -187,6 +187,38 @@ export type MinioClientParams = {
   endpoint: string;
 };
 
+export type NeonClientParams = {
+  /**
+   * Neon credential token ID, used as the S3 access key ID.
+   */
+  accessKeyId: string;
+
+  /**
+   * Neon credential S3 secret access key.
+   */
+  secretAccessKey: string;
+
+  /**
+   * The S3 endpoint of your Neon branch.
+   *
+   * @example
+   *
+   * ```ts
+   * endpoint: 'https://br-xxx.storage.c-1.us-east-2.aws.neon.tech'
+   * ```
+   */
+  endpoint: string;
+
+  /**
+   * Region of your Neon project, without the `aws-` prefix.
+   *
+   * Read from the endpoint if omitted.
+   *
+   * @example 'us-east-2'
+   */
+  region?: string;
+};
+
 export type TigrisClientParams = {
   /**
    * Tigris access key ID.

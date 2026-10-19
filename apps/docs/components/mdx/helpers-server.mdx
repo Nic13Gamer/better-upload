@@ -30,6 +30,16 @@ const s3 = tigris({
 });
 ```
 
+```ts tab="Neon"
+import { neon } from '@better-upload/server/clients';
+
+const s3 = neon({
+  accessKeyId: 'your-credential-token-id',
+  secretAccessKey: 'your-s3-secret-access-key',
+  endpoint: 'https://br-xxx.storage.c-1.us-east-2.aws.neon.tech',
+});
+```
+
 ```ts tab="Backblaze B2"
 import { backblaze } from '@better-upload/server/clients';
 
