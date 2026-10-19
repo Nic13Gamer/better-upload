@@ -5,5 +5,6 @@ export * from './custom';
 export * from './digitalocean';
 export * from './linode';
 export * from './minio';
+export * from './neon';
 export * from './tigris';
 export * from './wasabi';
