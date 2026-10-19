@@ -1,5 +1,11 @@
 # @better-upload/server
 
+## 3.0.20
+
+### Patch Changes
+
+- [#135](https://github.com/Nic13Gamer/better-upload/pull/135) [`6a3caba`](https://github.com/Nic13Gamer/better-upload/commit/6a3caba617d858ae42996ee781043388a365d441) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - Add Neon Object Storage client
+
 ## 3.0.19
 
 ## 3.0.18

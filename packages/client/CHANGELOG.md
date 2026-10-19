@@ -1,5 +1,7 @@
 # @better-upload/client
 
+## 3.0.20
+
 ## 3.0.19
 
 ### Patch Changes
